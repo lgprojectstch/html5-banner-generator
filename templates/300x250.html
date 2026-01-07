@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="ad.size" content="width=300,height=250" />
+  <title>300x250_NF_DE_CATEGORY_KAT_AlwaysOn_CATEGORY_HTML5</title>
+
+  <script>
+    var HEADLINE = "Bereit für deine Ziele?";
+    var SUBLINE  = "Sport Outfits entdecken!";
+    var CTA_TEXT = "Jetzt shoppen";
+
+    var IMAGE_PATTERN = "960x1200-{n}_NF_DE_Active_HVK_2025KW02_Active.jpg";
+    var IMAGE_LIST = [
+      "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-3_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-4_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-5_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-6_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-7_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-8_NF_DE_Active_HVK_2025KW02_Active.jpg"
+    ];
+
+    var clickTag = "https://tagm.tchibo.de/cl.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=${INSERTION_ORDER_ID}&extPm=${CAMPAIGN_ID}&extCr=${CREATIVE_ID}&adslotid=${PUBLISHER_ID}&gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_312}&url=https://www.tchibo.de/themeworlds/836/back-to-gym?utm_source=dbm&utm_medium=cpm";
+    window.clickTag = clickTag;
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    :root{
+      --w: 300px;
+      --h: 250px;
+      --gold: #C0A468;
+
+      --pad: 12px;
+      --gap: 10px;
+
+      --logoH: 26px;
+
+      --headlineFs: 18px;
+      --headlineLh: 1.12;
+      --sublineFs: 14px;
+      --sublineLh: 1.18;
+
+      --ctaFs: 12px;
+      --hoverDur: 1050ms;
+
+      --swipeMs: 450ms;
+
+      --frameW: 1px;
+
+      --heroBorderW: 5px;
+      --heroBorderAlpha: 0.95;
+      --heroBorderFalloff: 0.30;
+      --heroBorderDur: 180ms;
+    }
+
+    /* ✅ ROBUSTE FONT-PFADE (Root/fonts/...) */
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
+        url("fonts/Interstate WGL Regular.woff") format("woff");
+      font-weight:400;
+      font-style:normal;
+      font-display:swap;
+    }
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
+        url("fonts/Interstate WGL Regular.woff") format("woff");
+      font-weight:700;
+      font-style:normal;
+      font-display:swap;
+    }
+
+
+    .ad{
+      width: var(--w);
+      height: var(--h);
+      overflow: hidden;
+      background:#fff;
+      font-family:"InterstateWGL", Arial, Helvetica, sans-serif;
+      position: relative;
+      cursor: pointer;
+      border: var(--frameW) solid var(--gold);
+    }
+
+    .wrap{ position:absolute; inset:0; display:flex; }
+
+    .left{
+      width: 50%;
+      padding: var(--pad);
+      display:flex;
+      flex-direction: column;
+      background:#fff;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .left::after{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity var(--heroBorderDur) ease;
+      background:
+        linear-gradient(to bottom, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) top / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to top, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) bottom / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to right, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) left / var(--heroBorderW) 100% no-repeat,
+        linear-gradient(to left, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) right / var(--heroBorderW) 100% no-repeat;
+      z-index:10;
+    }
+    .left:hover::after{ opacity:1; }
+
+    .logo{ display:flex; justify-content:center; align-items:flex-start; }
+    .logo img{ height: var(--logoH); width:auto; display:block; }
+
+    .copy{
+      flex: 1 1 auto;
+      display:flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: var(--gap);
+      text-align:center;
+      padding: 6px 0;
+    }
+
+    .headline{
+      margin:0; width:100%;
+      font-size: var(--headlineFs);
+      line-height: var(--headlineLh);
+      font-weight: 700;
+      color:#1f2430;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .subline{
+      margin:0; width:100%;
+      font-size: var(--sublineFs);
+      line-height: var(--sublineLh);
+      font-style: italic;
+      color: var(--gold);
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .cta-area{ display:flex; justify-content:center; align-items:flex-end; }
+
+    .cta{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: var(--ctaFs);
+      font-weight: 700;
+      text-decoration:none;
+      user-select:none;
+      cursor:pointer;
+      background: var(--gold);
+      border: 2px solid transparent;
+      overflow:hidden;
+    }
+
+    .cta::before{
+      content:"";
+      position:absolute; inset:0;
+      width:0%;
+      background:#fff;
+      z-index:1;
+      pointer-events:none;
+      transition:none;
+    }
+
+    .cta-inner{
+      position:relative; z-index:2;
+      white-space:nowrap;
+      line-height:1;
+      display:inline-block;
+      color:#fff;
+      transition:none;
+      will-change:transform;
+    }
+
+    @supports (-webkit-background-clip:text) or (background-clip:text){
+      .cta-inner{
+        color:transparent;
+        -webkit-text-fill-color:transparent;
+        -webkit-background-clip:text;
+        background-clip:text;
+        background-image: linear-gradient(90deg, var(--gold) 0%, var(--gold) 50%, #ffffff 50%, #ffffff 100%);
+        background-size:200% 100%;
+        background-position:100% 0;
+      }
+    }
+
+    .cta.is-hover{ border-color: var(--gold); }
+    .cta.is-hover::before{ width:100%; transition: width var(--hoverDur) linear; }
+    .cta.is-hover .cta-inner{ color: var(--gold); }
+    @supports (-webkit-background-clip:text) or (background-clip:text){
+      .cta.is-hover .cta-inner{ background-position:0% 0; transition: background-position var(--hoverDur) linear; }
+    }
+
+    .right{
+      width: 50%;
+      position:relative;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .right::after{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity var(--heroBorderDur) ease;
+      background:
+        linear-gradient(to bottom, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) top / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to top, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) bottom / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to right, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) left / var(--heroBorderW) 100% no-repeat,
+        linear-gradient(to left, rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) right / var(--heroBorderW) 100% no-repeat;
+      z-index: 5;
+    }
+    .right:hover::after{ opacity:1; }
+
+    .slide{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      object-position: center;
+      display:block;
+      transform: translateX(0);
+      transition: transform var(--swipeMs) ease;
+      will-change: transform;
+      pointer-events:none;
+    }
+
+    .no-trans { transition: none !important; }
+    .pos-center { transform: translateX(0); }
+    .pos-right  { transform: translateX(100%); }
+    .pos-left   { transform: translateX(-100%); }
+
+    /* Sequenz */
+    .seq{ opacity:0; transform: translateY(10px); }
+    .seq-img{ opacity:0; }
+    @keyframes fadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+    .show-logo{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:0ms; }
+    .show-headline{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:200ms; }
+    .show-image{ animation:fadeIn 1000ms ease forwards; animation-delay:450ms; }
+    .show-subline{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:700ms; }
+    .show-cta{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:900ms; }
+  </style>
+</head>
+
+<body>
+  <img
+    src="https://tagm.tchibo.de/ai.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=${INSERTION_ORDER_ID}&extPm=${CAMPAIGN_ID}&extCr=${CREATIVE_ID}&adslotid=${PUBLISHER_ID}&gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_312}&cb=${CACHEBUSTER}"
+    width="1" height="1" style="display:none" alt=""
+  >
+
+  <div class="ad" id="ad" role="button" aria-label="Anzeige öffnen">
+    <div class="wrap">
+      <div class="left">
+        <div class="logo seq show-logo">
+          <img src="Logo.png" alt="Logo">
+        </div>
+
+        <div class="copy">
+          <p class="headline seq show-headline" id="headlineEl">Headline</p>
+          <p class="subline  seq show-subline"  id="sublineEl">Subline</p>
+        </div>
+
+        <div class="cta-area">
+          <a class="cta seq show-cta" href="javascript:void(0)" id="cta">
+            <span class="cta-inner" id="ctaInner">CTA</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="right seq-img show-image" aria-hidden="true">
+        <img class="slide pos-center" id="slideA" src="" alt="">
+        <img class="slide pos-right"  id="slideB" src="" alt="">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("headlineEl").textContent = HEADLINE;
+    document.getElementById("sublineEl").textContent  = SUBLINE;
+    document.getElementById("ctaInner").textContent   = CTA_TEXT;
+
+    function doExit(){ window.open(clickTag, "_blank"); }
+    document.getElementById("ad").addEventListener("click", doExit);
+
+    var cta = document.getElementById("cta");
+    cta.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); doExit(); });
+    cta.addEventListener("mouseenter", function(){ cta.classList.add("is-hover"); });
+    cta.addEventListener("mouseleave", function(){ cta.classList.remove("is-hover"); });
+
+    setTimeout(function(){ document.getElementById("ctaInner").classList.add("cta-bounce"); }, 2200);
+
+    var HOLD_MS  = 2000;
+    var SWIPE_MS = 450;
+    var heroFullyVisibleAt = 450 + 1000;
+
+    var slideA = document.getElementById("slideA");
+    var slideB = document.getElementById("slideB");
+
+    function setPos(el, posClass){
+      el.classList.remove("pos-left","pos-center","pos-right");
+      el.classList.add(posClass);
+    }
+    function moveInstant(el, posClass){
+      el.classList.add("no-trans");
+      setPos(el, posClass);
+      el.offsetHeight;
+      el.classList.remove("no-trans");
+    }
+
+    (function init(){
+      var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
+      if (!images.length) images = [IMAGE_PATTERN.replace("{n}", "1")];
+
+      images.forEach(function(s){ var im = new Image(); im.src = s; });
+
+      slideA.src = images[0] || "";
+      slideB.src = images[images.length > 1 ? 1 : 0] || "";
+      slideA.className = "slide pos-center";
+      slideB.className = "slide pos-right";
+
+      var idx = 0;
+      var busy = false;
+      var aIsCurrent = true;
+
+      function swipeOnce(){
+        if (busy || images.length < 2) return;
+        busy = true;
+
+        var currentEl = aIsCurrent ? slideA : slideB;
+        var nextEl    = aIsCurrent ? slideB : slideA;
+
+        var nextIdx = (idx + 1) % images.length;
+        var afterNextIdx = (idx + 2) % images.length;
+
+        nextEl.src = images[nextIdx];
+        moveInstant(nextEl, "pos-right");
+
+        requestAnimationFrame(function(){
+          setPos(currentEl, "pos-left");
+          setPos(nextEl, "pos-center");
+        });
+
+        setTimeout(function(){
+          moveInstant(currentEl, "pos-right");
+          currentEl.src = images[afterNextIdx];
+
+          idx = nextIdx;
+          aIsCurrent = !aIsCurrent;
+          busy = false;
+
+          setTimeout(swipeOnce, HOLD_MS);
+        }, SWIPE_MS);
+      }
+
+      setTimeout(function(){
+        setTimeout(swipeOnce, HOLD_MS);
+      }, heroFullyVisibleAt);
+    })();
+  </script>
+</body>
+</html>
