@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -52,6 +53,11 @@
 
         .card:hover { transform: translateY(-2px); }
 
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .format-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -70,7 +76,6 @@
         }
 
         .format-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-
         .format-card input[type="checkbox"] { display: none; }
 
         .format-card input[type="checkbox"]:checked + .format-preview {
@@ -125,6 +130,115 @@
             transition: all 0.3s ease;
         }
 
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .uploaded-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .uploaded-image {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .uploaded-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .uploaded-image .remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--danger);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .uploaded-image .number {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: var(--primary);
+            color: var(--white);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
         .btn {
             padding: 12px 30px;
             border: none;
@@ -150,6 +264,26 @@
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
+        .btn-secondary {
+            background: #6c757d;
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #00b4db);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+        }
+
         .button-group {
             display: flex;
             gap: 15px;
@@ -157,86 +291,681 @@
             flex-wrap: wrap;
         }
 
+        .banner-preview {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .banner-frame {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background: white;
+            padding: 10px;
+        }
+
+        .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            border-radius: 4px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            flex-direction: column;
+        }
+
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .header h1 { font-size: 2rem; }
-            .format-grid { grid-template-columns: 1fr; }
+            .format-grid, .input-grid { grid-template-columns: 1fr; }
             .btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1><i class="fas fa-magic"></i> HTML5 Banner Generator</h1>
-            <p>Erstelle professionelle Display-Banner für Google Ads & DV360</p>
-        </header>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Banner Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --success: #4facfe;
+            --danger: #ff6b6b;
+            --dark: #2c3e50;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --border-radius: 12px;
+        }
 
-        <div class="card">
-            <h2><i class="fas fa-th-large"></i> Banner-Formate auswählen</h2>
-            <div class="format-grid">
-                <label class="format-card" for="format-300x250">
-                    <input type="checkbox" id="format-300x250" value="300x250">
-                    <div class="format-preview">
-                        <div class="preview-box">
-                            <span style="font-weight: bold; font-size: 1.2em;">300×250</span>
-                            <small>Medium Rectangle</small>
-                        </div>
-                    </div>
-                    <span class="checkmark"><i class="fas fa-check"></i></span>
-                </label>
-                
-                <label class="format-card" for="format-300x600">
-                    <input type="checkbox" id="format-300x600" value="300x600">
-                    <div class="format-preview">
-                        <div class="preview-box">
-                            <span style="font-weight: bold; font-size: 1.2em;">300×600</span>
-                            <small>Half Page</small>
-                        </div>
-                    </div>
-                    <span class="checkmark"><i class="fas fa-check"></i></span>
-                </label>
-                
-                <label class="format-card" for="format-970x250">
-                    <input type="checkbox" id="format-970x250" value="970x250">
-                    <div class="format-preview">
-                        <div class="preview-box">
-                            <span style="font-weight: bold; font-size: 1.2em;">970×250</span>
-                            <small>Billboard</small>
-                        </div>
-                    </div>
-                    <span class="checkmark"><i class="fas fa-check"></i></span>
-                </label>
-            </div>
-            <div class="button-group">
-                <button class="btn btn-primary" id="nextStep1" disabled>
-                    Weiter <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--white);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover { transform: translateY(-2px); }
+
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .format-card {
+            position: relative;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            border: 3px solid #e0e0e0;
+            background: #f8f9fa;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .format-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        .format-card input[type="checkbox"] { display: none; }
+
+        .format-card input[type="checkbox"]:checked + .format-preview {
+            background: linear-gradient(135deg, var(--primary), var(--success));
+            color: var(--white);
+        }
+
+        .format-card input[type="checkbox"]:checked ~ .checkmark {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .format-preview {
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .preview-box {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #ddd;
+            min-height: 80px;
+        }
+
+        .format-card input[type="checkbox"]:checked .preview-box {
+            border-color: var(--white);
+            background: rgba(255,255,255,0.1);
+            color: var(--white);
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--success);
+            color: var(--white);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .uploaded-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .uploaded-image {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .uploaded-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .uploaded-image .remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--danger);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .uploaded-image .number {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: var(--primary);
+            color: var(--white);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #5a6fd8);
+            color: var(--white);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #00b4db);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .banner-preview {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .banner-frame {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background: white;
+            padding: 10px;
+        }
+
+        .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            border-radius: 4px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .format-grid, .input-grid { grid-template-columns: 1fr; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
     <script>
-        // Format selection logic
+        // Globale Variablen
+        let selectedFormats = [];
+        let uploadedImages = [];
+        let appData = {
+            headline: 'Bereit für deine Ziele?',
+            subline: 'Sport Outfits entdecken!', 
+            ctaText: 'Jetzt shoppen',
+            clickUrl: ''
+        };
+
+        // Step Navigation
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step-content').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+        }
+
+        // Format Selection Logic
         const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
-        const nextButton = document.getElementById('nextStep1');
+        const nextButton1 = document.getElementById('nextStep1');
 
         formatCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                const selectedFormats = document.querySelectorAll('input[type="checkbox"]:checked');
-                nextButton.disabled = selectedFormats.length === 0;
-                
-                // Visual feedback
-                if (this.checked) {
-                    console.log(`Format ${this.value} ausgewählt`);
-                }
+                selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(cb => cb.value);
+                nextButton1.disabled = selectedFormats.length === 0;
             });
         });
 
-        nextButton.addEventListener('click', function() {
-            const selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-                .map(cb => cb.value);
-            alert(`Ausgewählte Formate: ${selectedFormats.join(', ')}\n\nSchritt 2 kommt als nächstes!`);
+        nextButton1.addEventListener('click', function() {
+            showStep(2);
+        });
+
+        // Image Upload Logic
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('imageUpload');
+        const uploadedContainer = document.getElementById('uploadedImages');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadedImages.push({
+                            name: `${uploadedImages.length + 1}.jpg`,
+                            data: e.target.result,
+                            original: file.name
+                        });
+                        updateImageDisplay();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function updateImageDisplay() {
+            uploadedContainer.innerHTML = '';
+            uploadedImages.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.className = 'uploaded-image';
+                div.innerHTML = `
+                    <img src="${img.data}" alt="Bild ${index + 1}">
+                    <div class="number">${index + 1}.jpg</div>
+                    <button class="remove" onclick="removeImage(${index})">×</button>
+                `;
+                uploadedContainer.appendChild(div);
+            });
+        }
+
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            // Renumber images
+            uploadedImages.forEach((img, newIndex) => {
+                img.name = `${newIndex + 1}.jpg`;
+            });
+            updateImageDisplay();
+        }
+
+        // Text Input Updates
+        document.getElementById('headline').addEventListener('input', function() {
+            appData.headline = this.value;
+        });
+
+        document.getElementById('subline').addEventListener('input', function() {
+            appData.subline = this.value;
+        });
+
+        document.getElementById('ctaText').addEventListener('input', function() {
+            appData.ctaText = this.value;
+        });
+
+        document.getElementById('clickUrl').addEventListener('input', function() {
+            appData.clickUrl = this.value;
+        });
+
+        // Step 2 Navigation
+        document.getElementById('backStep1').addEventListener('click', () => showStep(1));
+
+        document.getElementById('createPreview').addEventListener('click', function() {
+            if (!appData.clickUrl) {
+                alert('Bitte gib eine gültige URL ein!');
+                return;
+            }
+            generatePreviews();
+            showStep(3);
+        });
+
+        // Generate Preview
+        function generatePreviews() {
+            const container = document.getElementById('previewContainer');
+            container.innerHTML = '';
+
+            selectedFormats.forEach(format => {
+                const [width, height] = format.split('x').map(Number);
+                
+                const preview = document.createElement('div');
+                preview.className = 'banner-preview';
+                preview.innerHTML = `
+                    <h4>Banner ${format}</h4>
+                    <div class="banner-frame" style="width: ${Math.min(width, 400)}px; height: ${Math.min(height, 300)}px;">
+                        <div class="banner-content" style="width: 100%; height: 100%;">
+                            <div style="flex: 1; padding: 10px;">
+                                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">${appData.headline}</div>
+                                <div style="font-style: italic; color: #667eea; margin-bottom: 10px;">${appData.subline}</div>
+                                <div style="background: #667eea; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; font-size: 0.9em;">${appData.ctaText}</div>
+                            </div>
+                            ${uploadedImages.length > 0 ? `<div style="flex: 1; background-image: url('${uploadedImages[0].data}'); background-size: cover; background-position: center;"></div>` : ''}
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                        <strong>URL:</strong> ${appData.clickUrl}<br>
+                        <strong>Bilder:</strong> ${uploadedImages.length} Bilder (${uploadedImages.map(img => img.name).join(', ')})
+                    </p>
+                `;
+                container.appendChild(preview);
+            });
+        }
+
+        // Step 3 Navigation
+        document.getElementById('backStep2').addEventListener('click', () => showStep(2));
+
+        document.getElementById('exportBanners').addEventListener('click', async function() {
+            await exportBanners();
+            showStep(4);
+        });
+
+        // Export Function
+        async function exportBanners() {
+            for (const format of selectedFormats) {
+                const zip = new JSZip();
+                
+                // Create HTML content
+                const htmlContent = createBannerHTML(format);
+                zip.file('index.html', htmlContent);
+                
+                // Add images
+                uploadedImages.forEach(img => {
+                    // Convert base64 to blob
+                    const base64Data = img.data.split(',')[1];
+                    zip.file(img.name, base64Data, {base64: true});
+                });
+                
+                // Add logo placeholder
+                const logoSvg = `<svg width="100" height="50" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="50" fill="#667eea"/><text x="50" y="30" text-anchor="middle" fill="white" font-family="Arial" font-size="12">Logo</text></svg>`;
+                zip.file('Logo.png', logoSvg);
+                
+                // Create fonts folder
+                const fontsFolder = zip.folder('fonts');
+                fontsFolder.file('readme.txt', 'Hier würden die Font-Dateien stehen (Interstate WGL Regular.woff2, etc.)');
+                
+                // Generate and download
+                const content = await zip.generateAsync({type: 'blob'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = `banner-${format}.zip`;
+                link.click();
+                
+                // Small delay between downloads
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // Create Banner HTML
+        function createBannerHTML(format) {
+            const [width, height] = format.split('x').map(Number);
+            const imageList = uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
+            
+            return `<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="ad.size" content="width=${width},height=${height}" />
+  <title>${width}x${height}_Banner</title>
+  <script>
+    var HEADLINE = "${appData.headline}";
+    var SUBLINE = "${appData.subline}";
+    var CTA_TEXT = "${appData.ctaText}";
+    var IMAGE_LIST = [
+      ${imageList}
+    ];
+    var clickTag = "${appData.clickUrl}";
+    window.clickTag = clickTag;
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    .ad {
+      width: ${width}px;
+      height: ${height}px;
+      background: white;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      display: flex;
+      overflow: hidden;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .headline {
+      font-size: ${width > 500 ? '24px' : '18px'};
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .subline {
+      font-style: italic;
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+    .cta {
+      background: #667eea;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      display: inline-block;
+      text-align: center;
+    }
+    .image {
+      flex: 1;
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="ad" onclick="window.open(clickTag, '_blank')">
+    <div class="content">
+      <div class="headline" id="headline"></div>
+      <div class="subline" id="subline"></div>
+      <button class="cta" id="cta"></button>
+    </div>
+    ${uploadedImages.length > 0 ? `<div class="image" style="background-image: url('${uploadedImages[0].name}');"></div>` : ''}
+  </div>
+  <script>
+    document.getElementById('headline').textContent = HEADLINE;
+    document.getElementById('subline').textContent = SUBLINE;
+    document.getElementById('cta').textContent = CTA_TEXT;
+  </script>
+</body>
+</html>`;
+        }
+
+        // Start Over
+        document.getElementById('startOver').addEventListener('click', function() {
+            // Reset everything
+            selectedFormats = [];
+            uploadedImages = [];
+            appData.clickUrl = '';
+            
+            // Reset form
+            formatCheckboxes.forEach(cb => cb.checked = false);
+            document.getElementById('uploadedImages').innerHTML = '';
+            document.getElementById('clickUrl').value = '';
+            nextButton1.disabled = true;
+            
+            showStep(1);
         });
     </script>
 </body>
