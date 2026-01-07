@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="ad.size" content="width=300,height=600" />
+  <title>300x600_NF_DE_Active_HVK_2025KW02_Active_HTML5</title>
+
+  <script>
+    // ===== TEXT INPUT =====
+    var HEADLINE = "Bereit für deine Ziele?";
+    var SUBLINE  = "Sport Outfits entdecken!";
+    var CTA_TEXT = "Jetzt shoppen";
+
+    // ===== IMAGE INPUT =====
+  var IMAGE_LIST = [
+    "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
+    "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg",
+    "960x1200-3_NF_DE_Active_HVK_2025KW02_Active.jpg",
+    "960x1200-4_NF_DE_Active_HVK_2025KW02_Active.jpg",
+    "960x1200-5_NF_DE_Active_HVK_2025KW02_Active.jpg",
+    "960x1200-6_NF_DE_Active_HVK_2025KW02_Active.jpg",
+    "960x1200-7_NF_DE_Active_HVK_2025KW02_Active.jpg",
+    "960x1200-8_NF_DE_Active_HVK_2025KW02_Active.jpg"
+  ];
+</script>
+
+<script>
+  /* DV360 CLICKTAG (muss so im HTML stehen, sonst Upload-Fehler) */
+  var clickTag = "https://tagm.tchibo.de/cl.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=${INSERTION_ORDER_ID}&extPm=${CAMPAIGN_ID}&extCr=${CREATIVE_ID}&adslotid=${PUBLISHER_ID}&gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_312}&url=https://www.tchibo.de/themeworlds/836/back-to-gym?utm_source=dbm&utm_medium=cpm";
+  window.clickTag = clickTag; // optional, aber praktisch
+</script>
+
+
+  <style>
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; padding:0; }
+
+    :root{
+      --w: 300px;
+      --h: 600px;
+      --gold: #C0A468;
+
+      --topPad: 16px;
+      --sidePad: 14px;
+      --blockShift: -10px;
+
+      --logoH: 40px;
+      --gapLogoToHeadline: 30px;
+
+      --hFont: 22px;
+      --hLine: 1.05;
+
+      --sFont: 18px;
+      --sLine: 1.1;
+
+      --gapHeadlineToSublineTop: 6px;
+      --gapSublineToCtaBottom: 18px;
+      --sublineShift: 10px;
+
+      --ctaFont: 14px;
+      --ctaPadY: 10px;
+      --ctaPadX: 18px;
+      --ctaRadius: 999px;
+
+      --copyAreaMinH: 240px;
+      --hoverDur: 1050ms;
+
+      --dwellMs: 2000;
+      --swipeMs: 450;
+
+      --frameW: 1px;
+
+      /* ===== Highlight ===== */
+      --heroBorderW: 5px;
+      --heroBorderAlpha: 0.95;
+      --heroBorderFalloff: 0.30;
+      --heroBorderDur: 180ms;
+
+      
+
+      /* ✅ NEU: Rest-Highlight unten nach unten ziehen
+         +px = untere Kante des Rest-Highlights geht weiter runter
+         (damit es exakt die Bildkante trifft) */
+      --restHlExtraBottom: -13px;
+    }
+
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
+        url("fonts/Interstate WGL Regular.woff") format("woff");
+      font-weight:400;
+      font-style:normal;
+      font-display:swap;
+    }
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
+        url("fonts/Interstate WGL Regular.woff") format("woff");
+      font-weight:700;
+      font-style:normal;
+      font-display:swap;
+    }
+
+
+    .ad{
+      width:var(--w);
+      height:var(--h);
+      overflow:hidden;
+      background:#fff;
+      font-family: Arial, Helvetica, sans-serif;
+      position:relative;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      border: var(--frameW) solid var(--gold);
+    }
+
+    /* ===== REST-HIGHLIGHT (nicht Bild) ===== */
+    .rest-hl{
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height: var(--restHlH, 0px); /* wird per JS gesetzt */
+      pointer-events:none;
+      opacity:0;
+      transition: opacity var(--heroBorderDur) ease;
+      z-index: 4; /* über Layout, aber pointer-events none */
+      background:
+        linear-gradient(to bottom,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) top / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to top,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) bottom / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to right,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) left / var(--heroBorderW) 100% no-repeat,
+        linear-gradient(to left,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) right / var(--heroBorderW) 100% no-repeat;
+    }
+
+    /* ===== TOP ===== */
+    .top{
+      padding:var(--topPad) var(--sidePad) 0;
+      background:#fff;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      transform: translateY(var(--blockShift));
+      min-height: var(--copyAreaMinH);
+      justify-content: center;
+      text-align:center;
+      position: relative;
+      z-index: 3;
+    }
+
+    .logo img{
+      height:var(--logoH);
+      width:auto;
+      display:block;
+      margin:0 auto;
+    }
+
+    .headline{
+      margin: var(--gapLogoToHeadline) 0 0 0;
+      font-size:var(--hFont);
+      line-height:var(--hLine);
+      font-weight:800;
+      color:#1b1b1b;
+      max-width: 260px;
+    }
+
+    .subline{
+      margin:
+        calc(var(--gapHeadlineToSublineTop) + var(--sublineShift))
+        0
+        var(--gapSublineToCtaBottom)
+        0;
+      font-size:var(--sFont);
+      line-height:var(--sLine);
+      font-style: italic;
+      color:var(--gold);
+      max-width: 260px;
+    }
+
+    .cta{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: var(--ctaPadY) var(--ctaPadX);
+      border-radius: var(--ctaRadius);
+      font-size: var(--ctaFont);
+      font-weight:800;
+      text-decoration:none;
+      user-select:none;
+      cursor:pointer;
+      background:var(--gold);
+      border:2px solid transparent;
+      overflow:hidden;
+    }
+
+    .cta::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      width:0%;
+      background:#fff;
+      z-index:1;
+      pointer-events:none;
+      transition:none;
+    }
+
+    .cta-inner{
+      position:relative;
+      z-index:2;
+      line-height:1;
+      white-space:nowrap;
+      display:inline-block;
+      color:#fff;
+      transition:none;
+      will-change: transform;
+    }
+
+    @supports (-webkit-background-clip:text) or (background-clip:text){
+      .cta-inner{
+        color:transparent;
+        -webkit-text-fill-color:transparent;
+        -webkit-background-clip:text;
+        background-clip:text;
+        background-image:linear-gradient(90deg,var(--gold) 0%,var(--gold) 50%,#ffffff 50%,#ffffff 100%);
+        background-size:200% 100%;
+        background-position:100% 0;
+      }
+    }
+    .cta.is-hover{ border-color: var(--gold); }
+    .cta.is-hover::before{ width:100%; transition: width var(--hoverDur) linear; }
+    .cta.is-hover .cta-inner{ color: var(--gold); }
+    @supports (-webkit-background-clip:text) or (background-clip:text){
+      .cta.is-hover .cta-inner{ background-position:0% 0; transition: background-position var(--hoverDur) linear; }
+    }
+
+    @keyframes cta-bounce{
+      0%,80%,100%{ transform: translateY(0); }
+      88%{ transform: translateY(-7px); }
+      94%{ transform: translateY(0); }
+      97%{ transform: translateY(-3px); }
+    }
+    .cta-bounce{ animation: cta-bounce 2s infinite; }
+
+    /* ===== HERO ===== */
+    .hero{
+      flex: 1 1 auto;
+      width:100%;
+      position:relative;
+      overflow:hidden;
+      background:#fff;
+      z-index:1;
+
+      opacity:0;
+      transform: translateY(14px);
+      will-change: opacity, transform;
+    }
+
+    /* Bild-Hover Highlight */
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity var(--heroBorderDur) ease;
+      background:
+        linear-gradient(to bottom,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) top / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to top,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) bottom / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to right,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) left / var(--heroBorderW) 100% no-repeat,
+        linear-gradient(to left,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) right / var(--heroBorderW) 100% no-repeat;
+    }
+
+    .slide{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      object-position: center bottom;
+      transform: translateX(0) scale(1.001);
+      will-change: transform;
+    }
+    #heroNext{ transform: translateX(100%) scale(1.001); }
+
+    /* ===== Sequenz ===== */
+    .seq{ opacity:0; transform:translateY(10px); }
+    @keyframes fadeUp{ 0%{opacity:0;transform:translateY(10px);} 100%{opacity:1;transform:translateY(0);} }
+    @keyframes heroIn{ 0%{opacity:0;transform:translateY(14px);} 100%{opacity:1;transform:translateY(0);} }
+
+    .show-logo     { animation: fadeUp 3000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:0ms; }
+    .show-headline { animation: fadeUp 3000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:750ms; }
+    .show-subline  { animation: fadeUp 3000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:2250ms; }
+    .show-cta      { animation: fadeUp 3000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:3000ms; }
+    .show-hero     { animation: heroIn 3000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:1500ms; }
+
+    /* ===== Hover-Logik wie 300x250 =====
+       - Hover auf Bild => nur Bild highlight
+       - Hover sonst => nur Rest highlight */
+    .ad.hover-hero .hero::after{ opacity:1; }
+    .ad:hover:not(.hover-hero) .rest-hl{ opacity:1; }
+  </style>
+</head>
+
+<body>
+  <img
+    src="https://tagm.tchibo.de/ai.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=${INSERTION_ORDER_ID}&extPm=${CAMPAIGN_ID}&extCr=${CREATIVE_ID}&adslotid=${PUBLISHER_ID}&gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_312}&cb=${CACHEBUSTER}"
+    width="1" height="1" style="display:none" alt=""
+  >
+
+  <div class="ad" id="ad">
+    <!-- ✅ Rest-Highlight Layer (bis zur Bildkante) -->
+    <div class="rest-hl" id="restHl" aria-hidden="true"></div>
+
+    <div class="top">
+      <div class="logo seq show-logo">
+        <img src="Logo.png" alt="Logo">
+      </div>
+      <p class="headline seq show-headline" id="headlineEl"></p>
+      <p class="subline seq show-subline" id="sublineEl"></p>
+      <a class="cta seq show-cta" href="javascript:void(0)" id="cta">
+        <span class="cta-inner" id="ctaInner"></span>
+      </a>
+    </div>
+
+    <div class="hero show-hero" id="hero" aria-hidden="true">
+      <img id="heroCurrent" class="slide" src="" alt="">
+      <img id="heroNext" class="slide" src="" alt="">
+    </div>
+  </div>
+
+  <script>
+    // Text setzen
+    document.getElementById("headlineEl").textContent = HEADLINE;
+    document.getElementById("sublineEl").textContent  = SUBLINE;
+    document.getElementById("ctaInner").textContent   = CTA_TEXT;
+
+    // ClickTag
+    function doExit(){ window.open(clickTag, "_blank"); }
+    document.getElementById("ad").addEventListener("click", doExit);
+
+    // CTA hover
+    var cta = document.getElementById("cta");
+    cta.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); doExit(); });
+    cta.addEventListener("mouseenter", function(){ cta.classList.add("is-hover"); });
+    cta.addEventListener("mouseleave", function(){ cta.classList.remove("is-hover"); });
+
+    setTimeout(function(){ document.getElementById("ctaInner").classList.add("cta-bounce"); }, 4200);
+
+    // ✅ Hover-Status (Bild vs. Rest)
+    var ad = document.getElementById("ad");
+    var hero = document.getElementById("hero");
+
+    hero.addEventListener("mouseenter", function(){ ad.classList.add("hover-hero"); });
+    hero.addEventListener("mouseleave", function(){ ad.classList.remove("hover-hero"); });
+
+    // ✅ Rest-Highlight Höhe bis zur Bildkante berechnen (+ Variable)
+    function readPxVar(el, name, fallback){
+      var v = getComputedStyle(el).getPropertyValue(name).trim();
+      var n = parseFloat(v);
+      return isNaN(n) ? fallback : n;
+    }
+
+    function updateRestHighlightHeight(){
+      var adRect = ad.getBoundingClientRect();
+      var heroRect = hero.getBoundingClientRect();
+
+      // Höhe von Banner-Top bis zur Oberkante vom Bild
+      var baseH = (heroRect.top - adRect.top);
+
+      // Benutzer-Extra (untere Kante nach unten verlängern)
+      var extra = readPxVar(document.documentElement, "--restHlExtraBottom", 0);
+
+      var h = Math.max(0, Math.round(baseH + extra));
+      ad.style.setProperty("--restHlH", h + "px");
+    }
+
+    window.addEventListener("resize", updateRestHighlightHeight);
+    setTimeout(updateRestHighlightHeight, 50); // nach Layout
+    setTimeout(updateRestHighlightHeight, 1200); // nach Animation/Font-Load
+
+    // ===== Slider / Swipe =====
+    var MAX_IMAGES = 8;
+
+    function buildSrc(n){
+      if (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) return IMAGE_LIST[n-1] || null;
+      return (IMAGE_PATTERN || "960x1200-{n}.jpg").replace("{n}", String(n));
+    }
+
+    function canLoad(src){
+      return new Promise(function(resolve){
+        var im = new Image();
+        im.onload = function(){ resolve(true); };
+        im.onerror = function(){ resolve(false); };
+        im.src = src;
+      });
+    }
+
+    function cssVarMs(name, fallback){
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      var n = parseFloat(v);
+      return isNaN(n) ? fallback : n;
+    }
+    var dwell = cssVarMs('--dwellMs', 2000);
+    var swipeMs = cssVarMs('--swipeMs', 450);
+
+    function snapNoAnim(el, x){
+      el.style.transition = "none";
+      el.style.transform = "translateX(" + x + "%) scale(1.001)";
+      el.offsetHeight;
+    }
+    function animateTo(el, x){
+      el.style.transition = "transform " + swipeMs + "ms ease";
+      el.style.transform = "translateX(" + x + "%) scale(1.001)";
+    }
+
+    (async function(){
+      var imgs = [];
+
+      if (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length){
+        imgs = IMAGE_LIST.slice();
+      } else {
+        for (var i=1;i<=MAX_IMAGES;i++){
+          var src = buildSrc(i);
+          if (!src) break;
+          var ok = await canLoad(src);
+          if (!ok) break;
+          imgs.push(src);
+        }
+      }
+
+      if (imgs.length === 0) imgs = [buildSrc(1)];
+      imgs.forEach(function(s){ var im = new Image(); im.src = s; });
+
+      var idx = 0;
+      var cur = document.getElementById("heroCurrent");
+      var nxt = document.getElementById("heroNext");
+
+      cur.src = imgs[0] || "";
+      nxt.src = imgs[imgs.length > 1 ? 1 : 0] || "";
+
+      function swipeNext(){
+        if (imgs.length < 2) return;
+
+        var nextIndex = (idx + 1) % imgs.length;
+        nxt.src = imgs[nextIndex];
+
+        snapNoAnim(nxt, 100);
+        snapNoAnim(cur, 0);
+
+        requestAnimationFrame(function(){
+          animateTo(cur, -100);
+          animateTo(nxt, 0);
+        });
+
+        setTimeout(function(){
+          idx = nextIndex;
+          var tmp = cur; cur = nxt; nxt = tmp;
+          snapNoAnim(nxt, 100);
+        }, swipeMs);
+      }
+
+      setTimeout(function(){
+        setInterval(function(){ swipeNext(); }, dwell + swipeMs);
+      }, 4500 + dwell);
+    })();
+  </script>
+</body>
+</html>
