@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="ad.size" content="width=970,height=250" />
+  <title>970x250_NF_DE_CATEGORY_KAT_AlwaysOn_CATEGORY_HTML5</title>
+
+  <script>
+    var HEADLINE = "Bereit für deine Ziele?";
+    var SUBLINE  = "Sport Outfits entdecken!";
+    var CTA_TEXT = "Jetzt shoppen";
+
+
+    var IMAGE_LIST = [
+      "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-3_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-4_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-5_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-6_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-7_NF_DE_Active_HVK_2025KW02_Active.jpg",
+      "960x1200-8_NF_DE_Active_HVK_2025KW02_Active.jpg"
+    ];
+
+    var clickTag = "https://tagm.tchibo.de/cl.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=${INSERTION_ORDER_ID}&extPm=${CAMPAIGN_ID}&extCr=${CREATIVE_ID}&adslotid=${PUBLISHER_ID}&gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_312}&url=https://www.tchibo.de/themeworlds/836/back-to-gym?utm_source=dbm&utm_medium=cpm";
+    window.clickTag = clickTag;
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    :root{
+      --w: 970px;
+      --h: 250px;
+      --gold: #C0A468;
+
+      --padX: 22px;
+      --padY: 12px;
+
+      --logoH: 42px;
+
+      --headlineFs: 36px;
+      --headlineLh: 1.06;
+
+      --sublineFs: 26px;
+      --sublineLh: 1.12;
+
+      --sublineNudge: -14px;
+
+      --ctaFs: 14px;
+      --hoverDur: 1050ms;
+
+      --frameW: 1px;
+
+      --dwellMs: 2000;
+      --slideMs: 520;
+
+      --heroBorderW: 5px;
+      --heroBorderAlpha: 0.95;
+      --heroBorderFalloff: 0.30;
+      --heroBorderDur: 180ms;
+    }
+
+        /* ✅ ROBUSTE FONT-PFADE (Root/fonts/...) */
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
+        url("fonts/Interstate WGL Regular.woff") format("woff");
+      font-weight:400;
+      font-style:normal;
+      font-display:swap;
+    }
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
+        url("fonts/Interstate WGL Regular.woff") format("woff");
+      font-weight:700;
+      font-style:normal;
+      font-display:swap;
+    }
+
+
+
+    .ad{
+      width: var(--w);
+      height: var(--h);
+      overflow: hidden;
+      background:#fff;
+      font-family:"InterstateWGL", Arial, Helvetica, sans-serif;
+      position: relative;
+      cursor: pointer;
+      border: var(--frameW) solid var(--gold);
+    }
+
+    .wrap{ position:absolute; inset:0; display:flex; }
+
+    .left{
+      width: 560px;
+      padding: var(--padY) var(--padX);
+      background:#fff;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      align-items: center;
+      z-index: 2;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left::after{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity var(--heroBorderDur) ease;
+      background:
+        linear-gradient(to bottom,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) top / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to top,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) bottom / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to right,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) left / var(--heroBorderW) 100% no-repeat,
+        linear-gradient(to left,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) right / var(--heroBorderW) 100% no-repeat;
+      z-index: 10;
+    }
+    .left:hover::after{ opacity:1; }
+
+    .seq{ opacity:0; transform: translateY(10px); }
+    .seq-img{ opacity:0; }
+    @keyframes fadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+    .show-logo{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:0ms; }
+    .show-headline{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:200ms; }
+    .show-image{ animation:fadeIn 1000ms ease forwards; animation-delay:450ms; }
+    .show-subline{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:700ms; }
+    .show-cta{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:900ms; }
+
+    .logo{ display:flex; justify-content:center; align-items:flex-start; }
+    .logo img{ height: var(--logoH); width:auto; display:block; }
+
+    .copy{
+      display:flex;
+      flex-direction: column;
+      justify-content:center;
+      text-align:center;
+      gap: 0;
+      padding: 0;
+    }
+
+    .headline, .subline{
+      margin:0;
+      width:100%;
+      display:-webkit-box;
+      -webkit-line-clamp:1;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+      white-space:normal;
+    }
+
+    .headline{
+      font-size: var(--headlineFs);
+      line-height: var(--headlineLh);
+      font-weight:700;
+      color:#1f2430;
+    }
+
+    .subline{
+      font-size: var(--sublineFs);
+      line-height: var(--sublineLh);
+      font-style: italic;
+      color: var(--gold);
+      transform: translateY(var(--sublineNudge));
+    }
+
+    .cta-area{ display:flex; justify-content:center; align-items:flex-end; }
+    .cta{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: var(--ctaFs);
+      font-weight:700;
+      text-decoration:none;
+      user-select:none;
+      cursor:pointer;
+      background: var(--gold);
+      border: 2px solid transparent;
+      overflow:hidden;
+    }
+    .cta::before{
+      content:"";
+      position:absolute; inset:0;
+      width:0%;
+      background:#fff;
+      z-index:1;
+      pointer-events:none;
+      transition:none;
+    }
+    .cta-inner{
+      position:relative; z-index:2;
+      white-space:nowrap;
+      line-height:1;
+      display:inline-block;
+      color:#fff;
+      transition:none;
+      will-change: transform;
+    }
+
+    @supports (-webkit-background-clip:text) or (background-clip:text){
+      .cta-inner{
+        color:transparent;
+        -webkit-text-fill-color:transparent;
+        -webkit-background-clip:text;
+        background-clip:text;
+        background-image: linear-gradient(90deg, var(--gold) 0%, var(--gold) 50%, #ffffff 50%, #ffffff 100%);
+        background-size:200% 100%;
+        background-position:100% 0;
+      }
+    }
+    .cta.is-hover{ border-color: var(--gold); }
+    .cta.is-hover::before{ width:100%; transition: width var(--hoverDur) linear; }
+    .cta.is-hover .cta-inner{ color: var(--gold); }
+    @supports (-webkit-background-clip:text) or (background-clip:text){
+      .cta.is-hover .cta-inner{ background-position:0% 0; transition: background-position var(--hoverDur) linear; }
+    }
+
+    @keyframes cta-bounce{
+      0%,80%,100%{ transform: translateY(0); }
+      88%{ transform: translateY(-7px); }
+      94%{ transform: translateY(0); }
+      97%{ transform: translateY(-3px); }
+    }
+    .cta-bounce{ animation: cta-bounce 2s infinite; }
+
+    .right{
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      background:#fff;
+      display:flex;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .img-col{
+      flex: 1 1 0;
+      position: relative;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .img-col::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity var(--heroBorderDur) ease;
+      background:
+        linear-gradient(to bottom,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) top / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to top,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) bottom / 100% var(--heroBorderW) no-repeat,
+        linear-gradient(to right,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) left / var(--heroBorderW) 100% no-repeat,
+        linear-gradient(to left,
+          rgba(192,164,104,var(--heroBorderAlpha)) 0%,
+          rgba(192,164,104,var(--heroBorderAlpha)) calc(var(--heroBorderFalloff) * 100%),
+          rgba(192,164,104,0) 100%) right / var(--heroBorderW) 100% no-repeat;
+      z-index: 5;
+    }
+    .img-col:hover::after{ opacity:1; }
+
+    .stack{ position:absolute; inset:0; overflow:hidden; }
+    .stack img{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      object-position: center;
+      display:block;
+      will-change: transform;
+      transform: translateY(0);
+    }
+    .stack img.next{ transform: translateY(-100%); }
+  </style>
+</head>
+
+<body>
+  <img
+    src="https://tagm.tchibo.de/ai.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=${INSERTION_ORDER_ID}&extPm=${CAMPAIGN_ID}&extCr=${CREATIVE_ID}&adslotid=${PUBLISHER_ID}&gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_312}&cb=${CACHEBUSTER}"
+    width="1" height="1" style="display:none" alt=""
+  >
+
+  <div class="ad" id="ad" role="button" aria-label="Anzeige öffnen">
+    <div class="wrap">
+      <div class="left">
+        <div class="logo seq show-logo">
+          <img src="Logo.png" alt="Logo">
+        </div>
+
+        <div class="copy">
+          <p class="headline seq show-headline" id="headlineEl">Headline</p>
+          <p class="subline  seq show-subline"  id="sublineEl">Subline</p>
+        </div>
+
+        <div class="cta-area">
+          <a class="cta seq show-cta" href="javascript:void(0)" id="cta">
+            <span class="cta-inner" id="ctaInner">CTA</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="right seq-img show-image" aria-hidden="true">
+        <div class="img-col" id="colLeft">
+          <div class="stack">
+            <!-- ✅ WICHTIG: keine image1.jpg Platzhalter -->
+            <img id="leftCur"  src="" alt="">
+            <img id="leftNext" class="next" src="" alt="">
+          </div>
+        </div>
+
+        <div class="img-col" id="colRight">
+          <div class="stack">
+            <img id="rightCur"  src="" alt="">
+            <img id="rightNext" class="next" src="" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("headlineEl").textContent = HEADLINE;
+    document.getElementById("sublineEl").textContent  = SUBLINE;
+    document.getElementById("ctaInner").textContent   = CTA_TEXT;
+
+    function doExit(){ window.open(clickTag, "_blank"); }
+    document.getElementById("ad").addEventListener("click", doExit);
+
+    var cta = document.getElementById("cta");
+    cta.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); doExit(); });
+    cta.addEventListener("mouseenter", function(){ cta.classList.add("is-hover"); });
+    cta.addEventListener("mouseleave", function(){ cta.classList.remove("is-hover"); });
+
+    setTimeout(function(){ document.getElementById("ctaInner").classList.add("cta-bounce"); }, 2200);
+
+    function cssVarMs(name, fallback){
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      var n = parseFloat(v);
+      return isNaN(n) ? fallback : n;
+    }
+    var DWELL_MS = cssVarMs('--dwellMs', 2000);
+    var SLIDE_MS = cssVarMs('--slideMs', 520);
+
+    function setAnim(imgEl, y){
+      imgEl.style.transition = "transform " + SLIDE_MS + "ms ease";
+      imgEl.style.transform = "translateY(" + y + "%)";
+    }
+    function snap(imgEl, y){
+      imgEl.style.transition = "none";
+      imgEl.style.transform = "translateY(" + y + "%)";
+      imgEl.offsetHeight;
+    }
+    function slideDown(curImg, nextImg, nextSrc, onDone){
+      nextImg.src = nextSrc;
+      snap(nextImg, -100);
+      snap(curImg, 0);
+
+      requestAnimationFrame(function(){
+        setAnim(curImg, 100);
+        setAnim(nextImg, 0);
+      });
+
+      setTimeout(function(){
+        curImg.src = nextImg.src;
+        snap(curImg, 0);
+        snap(nextImg, -100);
+        if (onDone) onDone();
+      }, SLIDE_MS);
+    }
+
+    (function init(){
+      var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
+      if (!images.length) images = [IMAGE_PATTERN.replace("{n}", "1")];
+      images.forEach(function(s){ var im = new Image(); im.src = s; });
+
+      var leftCur   = document.getElementById("leftCur");
+      var leftNext  = document.getElementById("leftNext");
+      var rightCur  = document.getElementById("rightCur");
+      var rightNext = document.getElementById("rightNext");
+
+      var leftIdx  = 0;
+      var rightIdx = images.length > 1 ? 1 : 0;
+
+      leftCur.src  = images[leftIdx]  || "";
+      rightCur.src = images[rightIdx] || "";
+
+      // next slots initialisieren
+      leftNext.src  = images[(leftIdx + 1) % images.length] || "";
+      rightNext.src = images[(rightIdx + 1) % images.length] || "";
+      snap(leftNext, -100);
+      snap(rightNext, -100);
+
+      var nextGlobal = images.length > 2 ? 2 : 0;
+      var flipLeft = true;
+      var busy = false;
+
+      setInterval(function(){
+        if (images.length < 2 || busy) return;
+        busy = true;
+
+        var targetCur  = flipLeft ? leftCur  : rightCur;
+        var targetNext = flipLeft ? leftNext : rightNext;
+        var nextSrc    = images[nextGlobal];
+
+        slideDown(targetCur, targetNext, nextSrc, function(){
+          nextGlobal = (nextGlobal + 1) % images.length;
+          flipLeft = !flipLeft;
+          busy = false;
+        });
+      }, DWELL_MS);
+    })();
+  </script>
+</body>
+</html>
