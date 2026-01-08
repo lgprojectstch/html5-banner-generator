@@ -587,9 +587,14 @@ function buildTchiboClickTag(landingUrlWithUtm) {
 function getFinalClickTag() {
   const normalized = normalizeLandingUrl(appData.landingUrl);
   if (!normalized) return '';
-  const withUtm = appendUtmParams(normalized);
-  return buildTchiboClickTag(withUtm);
+  try {
+    const withUtm = appendUtmParams(normalized);
+    return buildTchiboClickTag(withUtm);
+  } catch {
+    return '';
+  }
 }
+
 
     
     function replaceTemplateVars(html, { mode }) {
@@ -600,8 +605,9 @@ function getFinalClickTag() {
       html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
       html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
 
-      // clickTag
-      html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(appData.clickUrl)}";`);
+      const finalClickTag = getFinalClickTag();
+      html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
+
 
       // Images:
       // - Preview: Data-URLs, damit der Slider im iframe sofort funktioniert (keine echten 1.jpg im Repo)
@@ -741,10 +747,7 @@ function getFinalClickTag() {
         // Preview: base href auf ./assets/ setzen (damit Logo.png + fonts/... funktionieren)
         html = injectPreviewBase(html);
 
-        // Variablen ersetzen + IMAGE_LIST auf Data-URLs mappen (wenn Uploads vorhanden)
-        const finalClickTag = getFinalClickTag();
-        html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
-
+        html = replaceTemplateVars(html, { mode: 'preview' });
 
         // Wrapper
         const wrap = document.createElement('div');
@@ -780,7 +783,9 @@ function getFinalClickTag() {
         meta.style.fontSize = '0.9em';
         meta.style.color = '#666';
         meta.innerHTML = `
-          <div><strong>Click-URL:</strong> ${appData.clickUrl || '-'}</div>
+          <div><strong>Final clickTag:</strong> ${getFinalClickTag() || '-'}</div>
+          <div><strong>Landing-URL:</strong> ${normalizeLandingUrl(appData.landingUrl) || '-'}</div>
+
           <div><strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(i => i.name).join(', ') || '-'})</div>
           <div><strong>Preview-Assets:</strong> Logo + Fonts werden aus <code>./assets/</code> geladen</div>
         `;
@@ -876,11 +881,12 @@ function getFinalClickTag() {
         selectedFormats = [];
         uploadedImages = [];
         appData = {
-          headline: 'Bereit für deine Ziele?',
-          subline: 'Sport Outfits entdecken!',
-          ctaText: 'Jetzt shoppen',
-          clickUrl: ''
+        headline: 'Bereit für deine Ziele?',
+        subline: 'Sport Outfits entdecken!',
+        ctaText: 'Jetzt shoppen',
+        landingUrl: ''
         };
+
 
         formatCheckboxes.forEach(cb => cb.checked = false);
         document.getElementById('uploadedImages').innerHTML = '';
