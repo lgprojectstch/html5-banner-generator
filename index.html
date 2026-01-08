@@ -555,19 +555,19 @@
 
     // Step Navigation
     function showStep(stepNumber) {
-        console.log('Wechsle zu Step:', stepNumber);
-        document.querySelectorAll('.step-content').forEach(step => {
-            step.classList.remove('active');
-            console.log('Verstecke:', step.id);
-        });
-        const targetStep = document.getElementById(`step${stepNumber}`);
-        if (targetStep) {
-            targetStep.classList.add('active');
-            console.log('Zeige:', targetStep.id);
-        } else {
-            console.error('Step nicht gefunden:', `step${stepNumber}`);
-        }
+    console.log('Wechsle zu Step:', stepNumber);
+    document.querySelectorAll('.step-content').forEach(step => {
+        step.classList.remove('active');
+        console.log('Verstecke:', step.id);
+    });
+    const targetStep = document.getElementById(`step${stepNumber}`);  // ✅ BACKTICKS HINZUGEFÜGT
+    if (targetStep) {
+        targetStep.classList.add('active');
+        console.log('Zeige:', targetStep.id);
+    } else {
+        console.error('Step nicht gefunden:', `step${stepNumber}`);
     }
+}
 
     // Format Selection Logic
     const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -685,45 +685,44 @@
 }
     // Export Function
     async function exportBanners() {
-        for (const format of selectedFormats) {
-            const zip = new JSZip();
+    for (const format of selectedFormats) {
+        const zip = new JSZip();
+        try {
+            const response = await fetch(`templates/${format}.html`);  // ✅ BACKTICKS
+            let templateContent = await response.text();
             
-            try {
-                const response = await fetch(`templates/${format}.html`);
-                let templateContent = await response.text();
-                
-                templateContent = templateContent.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${appData.headline}";`);
-                templateContent = templateContent.replace(/var SUBLINE = ".*?";/, `var SUBLINE = "${appData.subline}";`);
-                templateContent = templateContent.replace(/var CTA_TEXT = ".*?";/, `var CTA_TEXT = "${appData.ctaText}";`);
-                
-                const imageList = uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
-                templateContent = templateContent.replace(/var IMAGE_LIST = \[[\s\S]*?\];/, `var IMAGE_LIST = [\n      ${imageList}\n    ];`);
-                templateContent = templateContent.replace(/var clickTag = ".*?";/, `var clickTag = "${appData.clickUrl}";`);
-                
-                zip.file('index.html', templateContent);
-                
-                uploadedImages.forEach(img => {
-                    const base64Data = img.data.split(',')[1];
-                    zip.file(img.name, base64Data, {base64: true});
-                });
-                
-                const content = await zip.generateAsync({type: 'blob'});
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(content);
-                link.download = `banner-${format}.zip`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-                
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-            } catch(error) {
-                console.error(`Error loading template ${format}:`, error);
-                alert(`Template ${format}.html nicht gefunden!`);
-            }
+            templateContent = templateContent.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${appData.headline}";`);
+            templateContent = templateContent.replace(/var SUBLINE = ".*?";/, `var SUBLINE = "${appData.subline}";`);
+            templateContent = templateContent.replace(/var CTA_TEXT = ".*?";/, `var CTA_TEXT = "${appData.ctaText}";`);
+            
+            const imageList = uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
+            templateContent = templateContent.replace(/var IMAGE_LIST = \[[\s\S]*?\];/, `var IMAGE_LIST = [\n      ${imageList}\n    ];`);
+            templateContent = templateContent.replace(/var clickTag = ".*?";/, `var clickTag = "${appData.clickUrl}";`);
+            
+            zip.file('index.html', templateContent);
+            
+            uploadedImages.forEach(img => {
+                const base64Data = img.data.split(',')[1];
+                zip.file(img.name, base64Data, {base64: true});
+            });
+            
+            const content = await zip.generateAsync({type: 'blob'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `banner-${format}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+        } catch(error) {
+            console.error(`Error loading template ${format}:`, error);  // ✅ BACKTICKS
+            alert(`Template ${format}.html nicht gefunden!`);  // ✅ BACKTICKS
         }
     }
+}
 
     // Text Input Updates & Event Listeners
     document.addEventListener('DOMContentLoaded', function() {
