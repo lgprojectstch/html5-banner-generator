@@ -504,108 +504,119 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>
-        // Globale Variablen
-        let selectedFormats = [];
-        let uploadedImages = [];
-        let appData = {
-            headline: 'Bereit für deine Ziele?',
-            subline: 'Sport Outfits entdecken!',
-            ctaText: 'Jetzt shoppen',
-            clickUrl: ''
-        };
+   <script>
+    // Globale Variablen
+    let selectedFormats = [];
+    let uploadedImages = [];
+    let appData = {
+        headline: 'Bereit für deine Ziele?',
+        subline: 'Sport Outfits entdecken!',
+        ctaText: 'Jetzt shoppen',
+        clickUrl: ''
+    };
 
-        // Step Navigation
-        function showStep(stepNumber) {
-            document.querySelectorAll('.step-content').forEach(step => {
-                step.classList.remove('active');
-            });
-            document.getElementById(`step${stepNumber}`).classList.add('active');
+    // Step Navigation
+    function showStep(stepNumber) {
+        console.log('Wechsle zu Step:', stepNumber);
+        
+        document.querySelectorAll('.step-content').forEach(step => {
+            step.classList.remove('active');
+            console.log('Verstecke:', step.id);
+        });
+        
+        const targetStep = document.getElementById(`step${stepNumber}`);
+        if (targetStep) {
+            targetStep.classList.add('active');
+            console.log('Zeige:', targetStep.id);
+        } else {
+            console.error('Step nicht gefunden:', `step${stepNumber}`);
         }
+    }
 
-                // Format Selection Logic
-        const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
-        const nextButton1 = document.getElementById('nextStep1');
+    // Format Selection Logic
+    const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    const nextButton1 = document.getElementById('nextStep1');
 
-        formatCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-                    .map(cb => cb.value);
-                nextButton1.disabled = selectedFormats.length === 0;
-            });
+    formatCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            nextButton1.disabled = selectedFormats.length === 0;
         });
+    });
 
-        nextButton1.addEventListener('click', function() {
-            showStep(2);
+    nextButton1.addEventListener('click', function() {
+        showStep(2);
+    });
+
+    // Image Upload Logic
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('imageUpload');
+    const uploadedContainer = document.getElementById('uploadedImages');
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push({
+                        name: `${uploadedImages.length + 1}.jpg`,
+                        data: e.target.result,
+                        original: file.name
+                    });
+                    updateImageDisplay();
+                };
+                reader.readAsDataURL(file);
+            }
         });
+    }
 
-        // Image Upload Logic
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('imageUpload');
-        const uploadedContainer = document.getElementById('uploadedImages');
-
-        uploadArea.addEventListener('click', () => fileInput.click());
-
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
+    function updateImageDisplay() {
+        uploadedContainer.innerHTML = '';
+        uploadedImages.forEach((img, index) => {
+            const div = document.createElement('div');
+            div.className = 'uploaded-image';
+            div.innerHTML = `
+                <img src="${img.data}" alt="Bild ${index + 1}">
+                <div class="number">${index + 1}.jpg</div>
+                <button class="remove" onclick="removeImage(${index})">×</button>
+            `;
+            uploadedContainer.appendChild(div);
         });
+    }
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
+    function removeImage(index) {
+        uploadedImages.splice(index, 1);
+        // Renumber images
+        uploadedImages.forEach((img, newIndex) => {
+            img.name = `${newIndex + 1}.jpg`;
         });
+        updateImageDisplay();
+    }
 
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-
-        function handleFiles(files) {
-            Array.from(files).forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        uploadedImages.push({
-                            name: `${uploadedImages.length + 1}.jpg`,
-                            data: e.target.result,
-                            original: file.name
-                        });
-                        updateImageDisplay();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
-        function updateImageDisplay() {
-            uploadedContainer.innerHTML = '';
-            uploadedImages.forEach((img, index) => {
-                const div = document.createElement('div');
-                div.className = 'uploaded-image';
-                div.innerHTML = `
-                    <img src="${img.data}" alt="Bild ${index + 1}">
-                    <div class="number">${index + 1}.jpg</div>
-                    <button class="remove" onclick="removeImage(${index})">×</button>
-                `;
-                uploadedContainer.appendChild(div);
-            });
-        }
-
-        function removeImage(index) {
-            uploadedImages.splice(index, 1);
-            // Renumber images
-            uploadedImages.forEach((img, newIndex) => {
-                img.name = `${newIndex + 1}.jpg`;
-            });
-            updateImageDisplay();
-        }
-
-                // Text Input Updates
+    // Text Input Updates
+    document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('headline').addEventListener('input', function() {
             appData.headline = this.value;
         });
@@ -634,27 +645,6 @@
             showStep(3);
         });
 
-              // Ersetze generatePreviews() mit dieser SUPER-einfachen Version:
-function generatePreviews() {
-    console.log('generatePreviews() gestartet');
-    
-    const container = document.getElementById('previewContainer');
-    
-    container.innerHTML = `
-        <div style="background: white; border: 2px solid #333; padding: 20px; margin: 20px 0; border-radius: 8px;">
-            <h3 style="color: #333; margin-bottom: 20px;">✅ PREVIEW FUNKTIONIERT!</h3>
-            <p><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
-            <p><strong>Headline:</strong> ${appData.headline}</p>
-            <p><strong>Subline:</strong> ${appData.subline}</p>
-            <p><strong>CTA:</strong> ${appData.ctaText}</p>
-            <p><strong>URL:</strong> ${appData.clickUrl}</p>
-            <p><strong>Bilder:</strong> ${uploadedImages.length}</p>
-        </div>
-    `;
-    
-    console.log('Preview HTML gesetzt!');
-}
-        
         // Step 3 Navigation
         document.getElementById('backStep2').addEventListener('click', () => showStep(2));
 
@@ -663,103 +653,8 @@ function generatePreviews() {
             showStep(4);
         });
 
-                // Export Function - verwendet echte Templates
-        async function exportBanners() {
-            for (const format of selectedFormats) {
-                const zip = new JSZip();
-                
-                // Load original template
-                try {
-                    const response = await fetch(`templates/${format}.html`);
-                    let templateContent = await response.text();
-                    
-                    // Replace variables in template
-                    templateContent = templateContent.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${appData.headline}";`);
-                    templateContent = templateContent.replace(/var SUBLINE = ".*?";/, `var SUBLINE = "${appData.subline}";`);
-                    templateContent = templateContent.replace(/var CTA_TEXT = ".*?";/, `var CTA_TEXT = "${appData.ctaText}";`);
-                    
-                    // Replace image list
-                    const imageList = uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
-                    templateContent = templateContent.replace(/var IMAGE_LIST = \[[\s\S]*?\];/, `var IMAGE_LIST = [\n      ${imageList}\n    ];`);
-                    
-                    // Replace click URL
-                    templateContent = templateContent.replace(/var clickTag = ".*?";/, `var clickTag = "${appData.clickUrl}";`);
-                    
-                    // Add to ZIP
-                    zip.file('index.html', templateContent);
-                    
-                    // Add images with correct names
-                    uploadedImages.forEach(img => {
-                        const base64Data = img.data.split(',')[1];
-                        zip.file(img.name, base64Data, {base64: true});
-                    });
-                    
-                    // Copy assets
-                    try {
-                        const logoResponse = await fetch('assets/Logo.png');
-                        const logoBlob = await logoResponse.blob();
-                        zip.file('Logo.png', logoBlob);
-                    } catch(e) {
-                        console.log('Logo.png not found, creating placeholder');
-                        const logoSvg = `<svg width="100" height="50" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="50" fill="#667eea"/><text x="50" y="30" text-anchor="middle" fill="white" font-family="Arial" font-size="12">LOGO</text></svg>`;
-                        zip.file('Logo.png', logoSvg);
-                    }
-                    
-                    // Add fonts folder
-                    const fontsFolder = zip.folder('fonts');
-                    try {
-                        const woff2Response = await fetch('assets/fonts/Interstate WGL Regular.woff2');
-                        const woff2Blob = await woff2Response.blob();
-                        fontsFolder.file('Interstate WGL Regular.woff2', woff2Blob);
-                        
-                        const woffResponse = await fetch('assets/fonts/Interstate WGL Regular.woff');
-                        const woffBlob = await woffResponse.blob();
-                        fontsFolder.file('Interstate WGL Regular.woff', woffBlob);
-                    } catch(e) {
-                        console.log('Font files not found, creating placeholder');
-                        fontsFolder.file('readme.txt', 'Font files missing - please add Interstate WGL Regular.woff2 and .woff to assets/fonts/');
-                    }
-                    
-                    // Generate and download
-                    const content = await zip.generateAsync({type: 'blob'});
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(content);
-                    link.download = `banner-${format}.zip`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(link.href);
-                    
-                    // Small delay between downloads
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                } catch(error) {
-                    console.error(`Error loading template ${format}:`, error);
-                    alert(`Template ${format}.html nicht gefunden!\n\nBitte lade es in den templates/ Ordner hoch:\n- templates/${format}.html`);
-                }
-            }
-        }
-
-                // Debug Step Navigation
-        function showStep(stepNumber) {
-            console.log('Wechsle zu Step:', stepNumber);
-            
-            document.querySelectorAll('.step-content').forEach(step => {
-                step.classList.remove('active');
-                console.log('Verstecke:', step.id);
-            });
-            
-            const targetStep = document.getElementById(`step${stepNumber}`);
-            if (targetStep) {
-                targetStep.classList.add('active');
-                console.log('Zeige:', targetStep.id);
-            } else {
-                console.error('Step nicht gefunden:', `step${stepNumber}`);
-            }
-        }
-                // Start Over
+        // Start Over
         document.getElementById('startOver').addEventListener('click', function() {
-            // Reset everything
             selectedFormats = [];
             uploadedImages = [];
             appData = {
@@ -769,7 +664,6 @@ function generatePreviews() {
                 clickUrl: ''
             };
             
-            // Reset form inputs
             formatCheckboxes.forEach(cb => cb.checked = false);
             document.getElementById('uploadedImages').innerHTML = '';
             document.getElementById('clickUrl').value = '';
@@ -781,17 +675,71 @@ function generatePreviews() {
             showStep(1);
         });
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('HTML5 Banner Generator geladen!');
-            console.log('Erwartete Template-Dateien:');
-            console.log('- templates/300x250.html');
-            console.log('- templates/300x600.html'); 
-            console.log('- templates/970x250.html');
-            console.log('- assets/Logo.png');
-            console.log('- assets/fonts/Interstate WGL Regular.woff2');
-            console.log('- assets/fonts/Interstate WGL Regular.woff');
-        });
-    </script>
+        console.log('HTML5 Banner Generator geladen!');
+    });
+
+    // Generate Preview
+    function generatePreviews() {
+        console.log('generatePreviews() gestartet');
+        
+        const container = document.getElementById('previewContainer');
+        container.innerHTML = `
+            <div style="background: white; border: 2px solid #333; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                <h3 style="color: #333; margin-bottom: 20px;">✅ PREVIEW FUNKTIONIERT!</h3>
+                <p><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
+                <p><strong>Headline:</strong> ${appData.headline}</p>
+                <p><strong>Subline:</strong> ${appData.subline}</p>
+                <p><strong>CTA:</strong> ${appData.ctaText}</p>
+                <p><strong>URL:</strong> ${appData.clickUrl}</p>
+                <p><strong>Bilder:</strong> ${uploadedImages.length}</p>
+            </div>
+        `;
+        
+        console.log('Preview HTML gesetzt!');
+    }
+
+    // Export Function
+    async function exportBanners() {
+        for (const format of selectedFormats) {
+            const zip = new JSZip();
+            
+            try {
+                const response = await fetch(`templates/${format}.html`);
+                let templateContent = await response.text();
+                
+                // Replace variables
+                templateContent = templateContent.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${appData.headline}";`);
+                templateContent = templateContent.replace(/var SUBLINE = ".*?";/, `var SUBLINE = "${appData.subline}";`);
+                templateContent = templateContent.replace(/var CTA_TEXT = ".*?";/, `var CTA_TEXT = "${appData.ctaText}";`);
+                
+                const imageList = uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
+                templateContent = templateContent.replace(/var IMAGE_LIST = \[[\s\S]*?\];/, `var IMAGE_LIST = [\n      ${imageList}\n    ];`);
+                templateContent = templateContent.replace(/var clickTag = ".*?";/, `var clickTag = "${appData.clickUrl}";`);
+                
+                zip.file('index.html', templateContent);
+                
+                uploadedImages.forEach(img => {
+                    const base64Data = img.data.split(',')[1];
+                    zip.file(img.name, base64Data, {base64: true});
+                });
+                
+                const content = await zip.generateAsync({type: 'blob'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = `banner-${format}.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+            } catch(error) {
+                console.error(`Error loading template ${format}:`, error);
+                alert(`Template ${format}.html nicht gefunden!`);
+            }
+        }
+    }
+</script>
 </body>
 </html>
