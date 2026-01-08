@@ -78,18 +78,53 @@
     .format-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
     .format-card input[type="checkbox"] { display: none; }
 
-      /* Aktuell setzt checked + .format-preview die Textfarbe auf weiß.
-     Dann muss die preview-box auch dunkler/transparent werden, sonst "verschwindet" Text. */
-    .format-card input[type="checkbox"]:checked + .format-preview .preview-box{
-      background: rgba(255,255,255,0.15);
-      border-color: rgba(255,255,255,0.7);
-      color: #fff;
-    }
+          /* Checked State: modern, hoher Kontrast, "glass" Look */
+      .format-card input[type="checkbox"]:checked + .format-preview{
+        background: linear-gradient(135deg, #5B6CFF, #35C6FF);
+        color: #fff;
+      }
+      
+      /* Preview-Box als dunkler Glass-Layer, damit Text immer lesbar ist */
+      .format-card input[type="checkbox"]:checked + .format-preview .preview-box{
+        background: rgba(10, 15, 30, 0.35);           /* deutlich dunkler */
+        border: 1px solid rgba(255,255,255,0.35);
+        box-shadow:
+          0 10px 25px rgba(0,0,0,0.18),
+          inset 0 1px 0 rgba(255,255,255,0.18);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #fff;
+      }
+      
+      /* Typo: Title klar und kräftig */
+      .format-card input[type="checkbox"]:checked + .format-preview .preview-box span{
+        color: #fff;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      }
+      
+      /* Subline: leicht reduziert, aber gut lesbar */
+      .format-card input[type="checkbox"]:checked + .format-preview .preview-box small{
+        color: rgba(255,255,255,0.92);
+        text-shadow: 0 2px 10px rgba(0,0,0,0.20);
+      }
+      
+      /* Optional: feiner Highlight-Rand auf der gesamten Card */
+      .format-card input[type="checkbox"]:checked{
+        /* no-op, input ist hidden */
+      }
+      .format-card:has(input[type="checkbox"]:checked){
+        border-color: rgba(53,198,255,0.9);
+        box-shadow: 0 14px 35px rgba(0,0,0,0.18);
+      }
+      
+      /* Checkmark wirklich sichtbar */
+      .format-card input[type="checkbox"]:checked ~ .checkmark{
+        opacity: 1;
+        transform: scale(1);
+      }
 
-    .format-card input[type="checkbox"]:checked ~ .checkmark {
-      /*opacity: 1; */
-      transform: scale(1);
-    }
 
     .format-preview { padding: 20px; text-align: center; transition: all 0.3s ease; }
 
