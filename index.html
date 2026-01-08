@@ -458,410 +458,376 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
   <script>
-    // -----------------------
-    // Config (Ordnerstruktur)
-    // -----------------------
-    const TEMPLATE_DIR = 'templates';       // templates/300x250.html ...
-    const ASSETS_DIR   = 'assets';          // assets/Logo.png, assets/fonts/...
-    const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
+  // -----------------------
+  // Config (Ordnerstruktur)
+  // -----------------------
+  const TEMPLATE_DIR = 'templates';       // templates/300x250.html ...
+  const ASSETS_DIR   = 'assets';          // assets/Logo.png, assets/fonts/...
+  const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
 
-    // Fonts in assets/fonts (Browser kann nicht "listen" -> Liste fix)
-    const FONT_FILES = [
-      'Interstate WGL Bold.woff',
-      'Interstate WGL Bold.woff2',
-      'Interstate WGL Light.woff',
-      'Interstate WGL Light.woff2',
-      'Interstate WGL Regular.woff',
-      'Interstate WGL Regular.woff2',
-    ].map(f => `${ASSETS_DIR}/fonts/${f}`);
+  // Fonts in assets/fonts (Browser kann nicht "listen" -> Liste fix)
+  const FONT_FILES = [
+    'Interstate WGL Bold.woff',
+    'Interstate WGL Bold.woff2',
+    'Interstate WGL Light.woff',
+    'Interstate WGL Light.woff2',
+    'Interstate WGL Regular.woff',
+    'Interstate WGL Regular.woff2',
+  ].map(f => `${ASSETS_DIR}/fonts/${f}`);
 
-    // -----------------------
-    // State
-    // -----------------------
-    let selectedFormats = [];
-    let uploadedImages = [];
-    let appData = {
+  // -----------------------
+  // State
+  // -----------------------
+  let selectedFormats = [];
+  let uploadedImages = [];
+  let appData = {
     headline: 'Bereit für deine Ziele?',
     subline: 'Sport Outfits entdecken!',
     ctaText: 'Jetzt shoppen',
-    landingUrl: '' // statt clickUrl
-    };
+    landingUrl: '' // User Input (nicht der finale clickTag)
+  };
 
+  // -----------------------
+  // Helpers
+  // -----------------------
+  function showStep(stepNumber) {
+    document.querySelectorAll('.step-content').forEach(step => step.classList.remove('active'));
+    const targetStep = document.getElementById(`step${stepNumber}`);
+    if (targetStep) targetStep.classList.add('active');
+  }
 
-    // -----------------------
-    // Helpers
-    // -----------------------
-    function showStep(stepNumber) {
-      document.querySelectorAll('.step-content').forEach(step => step.classList.remove('active'));
-      const targetStep = document.getElementById(`step${stepNumber}`);
-      if (targetStep) targetStep.classList.add('active');
-    }
+  function escapeJs(str) {
+    return String(str)
+      .replaceAll('\\', '\\\\')
+      .replaceAll('"', '\\"')
+      .replaceAll('\n', '\\n');
+  }
 
-    function escapeJs(str) {
-      return String(str)
-        .replaceAll('\\', '\\\\')
-        .replaceAll('"', '\\"')
-        .replaceAll('\n', '\\n');
-    }
+  function parseFormat(format) {
+    const [w, h] = format.split('x').map(n => parseInt(n, 10));
+    return { w, h };
+  }
 
-    function parseFormat(format) {
-      const [w, h] = format.split('x').map(n => parseInt(n, 10));
-      return { w, h };
-    }
+  function computeScale(w, h) {
+    const maxW = 980;
+    const maxH = 700;
+    return Math.min(1, maxW / w, maxH / h);
+  }
 
-    function computeScale(w, h) {
-      // Ziel: gut sichtbar im Generator, aber nicht zu groß
-      const maxW = 980;
-      const maxH = 700;
-      return Math.min(1, maxW / w, maxH / h);
-    }
+  function injectPreviewBase(html) {
+    // Preview: Template referenziert "Logo.png" und "fonts/..."
+    // Diese liegen in Repo unter assets/... => base auf ./assets/ setzen.
+    if (/<base\s/i.test(html)) return html;
+    return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
+  }
 
-    function injectPreviewBase(html) {
-      // Für Preview: Template referenziert "Logo.png" und "fonts/..."
-      // Diese liegen in Repo unter assets/... => base auf ./assets/ setzen.
-      // Dadurch wird Logo.png => assets/Logo.png und fonts/... => assets/fonts/...
-      if (/<base\s/i.test(html)) return html;
-      return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
-    }
+  // -----------------------
+  // URL / ClickTag Builder
+  // -----------------------
+  function normalizeLandingUrl(raw) {
+    let url = String(raw || '').trim();
+    if (!url) return '';
 
-    function normalizeLandingUrl(raw) {
-  let url = String(raw || '').trim();
+    const lower = url.toLowerCase();
+    const hasProtocol = /^https?:\/\//i.test(url);
 
-  // Leere Eingabe
-  if (!url) return '';
-
-  // Falls jemand nur "tchibo.de" oder "www.tchibo.de" eingibt
-  // oder ohne Protokoll allgemein.
-  const lower = url.toLowerCase();
-
-  // Wenn Protokoll fehlt (http/https)
-  const hasProtocol = /^https?:\/\//i.test(url);
-
-  if (!hasProtocol) {
-    // Spezifisch tchibo
-    if (lower === 'tchibo.de' || lower.startsWith('tchibo.de/')) {
-      url = 'https://www.tchibo.de' + url.slice('tchibo.de'.length);
-    } else if (lower === 'www.tchibo.de' || lower.startsWith('www.tchibo.de/')) {
-      url = 'https://www.tchibo.de' + url.slice('www.tchibo.de'.length);
+    if (!hasProtocol) {
+      if (lower === 'tchibo.de' || lower.startsWith('tchibo.de/')) {
+        url = 'https://www.tchibo.de' + url.slice('tchibo.de'.length);
+      } else if (lower === 'www.tchibo.de' || lower.startsWith('www.tchibo.de/')) {
+        url = 'https://www.tchibo.de' + url.slice('www.tchibo.de'.length);
+      } else {
+        url = 'https://' + url;
+      }
     } else {
-      // Generischer Fallback: https:// davor
-      url = 'https://' + url;
+      url = url.replace(/^https?:\/\/tchibo\.de/i, 'https://www.tchibo.de');
+      url = url.replace(/^https?:\/\/www\.tchibo\.de/i, 'https://www.tchibo.de');
     }
-  } else {
-    // Wenn Protokoll da ist, aber Domain ist www.tchibo.de oder tchibo.de -> erzwingen https://www.tchibo.de
-    // (auch wenn http://)
-    url = url.replace(/^https?:\/\/tchibo\.de/i, 'https://www.tchibo.de');
-    url = url.replace(/^https?:\/\/www\.tchibo\.de/i, 'https://www.tchibo.de');
+
+    return url;
   }
 
-  return url;
-}
-
-function appendUtmParams(url) {
-  // utm_source/dbm & utm_medium/cpm hinzufügen, ohne bestehende Query kaputt zu machen
-  const u = new URL(url);
-  if (!u.searchParams.has('utm_source')) u.searchParams.set('utm_source', 'dbm');
-  if (!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium', 'cpm');
-  return u.toString();
-}
-
-function buildTchiboClickTag(landingUrlWithUtm) {
-  const base = 'https://tagm.tchibo.de/cl.aspx';
-  const params =
-    'extProvId=300' +
-    '&extProvApi=129768' +
-    '&extPu=tchibo-dv360' +
-    '&extLi=${INSERTION_ORDER_ID}' +
-    '&extPm=${CAMPAIGN_ID}' +
-    '&extCr=${CREATIVE_ID}' +
-    '&adslotid=${PUBLISHER_ID}' +
-    '&gdpr=${GDPR}' +
-    '&gdpr_consent=${GDPR_CONSENT_312}' +
-    '&url=' + encodeURIComponent(landingUrlWithUtm);
-
-  return `${base}?${params}`;
-}
-
-function getFinalClickTag() {
-  const normalized = normalizeLandingUrl(appData.landingUrl);
-  if (!normalized) return '';
-  try {
-    const withUtm = appendUtmParams(normalized);
-    return buildTchiboClickTag(withUtm);
-  } catch {
-    return '';
+  function appendUtmParams(url) {
+    const u = new URL(url);
+    if (!u.searchParams.has('utm_source')) u.searchParams.set('utm_source', 'dbm');
+    if (!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium', 'cpm');
+    return u.toString();
   }
-}
 
+  // ✅ UNENCODED: url= bekommt die lesbare URL (wie von dir gewünscht)
+  function buildTchiboClickTagUnencoded(landingUrlWithUtm) {
+    const base = 'https://tagm.tchibo.de/cl.aspx';
+    const params =
+      'extProvId=300' +
+      '&extProvApi=129768' +
+      '&extPu=tchibo-dv360' +
+      '&extLi=${INSERTION_ORDER_ID}' +
+      '&extPm=${CAMPAIGN_ID}' +
+      '&extCr=${CREATIVE_ID}' +
+      '&adslotid=${PUBLISHER_ID}' +
+      '&gdpr=${GDPR}' +
+      '&gdpr_consent=${GDPR_CONSENT_312}' +
+      '&url=' + landingUrlWithUtm;
 
-    
-    function replaceTemplateVars(html, { mode }) {
-      // mode: 'preview' oder 'export'
+    return `${base}?${params}`;
+  }
 
-      // Texte
-      html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
-      html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
-      html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
+  function getFinalClickTag() {
+    const normalized = normalizeLandingUrl(appData.landingUrl);
+    if (!normalized) return '';
+    try {
+      const withUtm = appendUtmParams(normalized);
+      return buildTchiboClickTagUnencoded(withUtm);
+    } catch {
+      return '';
+    }
+  }
 
-      const finalClickTag = getFinalClickTag();
-      html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
+  // -----------------------
+  // Template variable replacement
+  // -----------------------
+  function replaceTemplateVars(html, { mode }) {
+    // Texte
+    html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
+    html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
+    html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
 
+    // clickTag (Tracking Template)
+    const finalClickTag = getFinalClickTag();
+    html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
 
-      // Images:
-      // - Preview: Data-URLs, damit der Slider im iframe sofort funktioniert (keine echten 1.jpg im Repo)
-      // - Export: "1.jpg", "2.jpg" ... (werden in ZIP geschrieben)
-      if (uploadedImages.length > 0) {
-        const list = (mode === 'preview')
-          ? uploadedImages.map(img => `"${img.data}"`).join(',\n      ')
-          : uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
+    // Images
+    if (uploadedImages.length > 0) {
+      const list = (mode === 'preview')
+        ? uploadedImages.map(img => `"${img.data}"`).join(',\n      ')
+        : uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
 
-        html = html.replace(/var\s+IMAGE_LIST\s*=\s*\[[\s\S]*?\];/s, `var IMAGE_LIST = [\n      ${list}\n    ];`);
+      html = html.replace(/var\s+IMAGE_LIST\s*=\s*\[[\s\S]*?\];/s, `var IMAGE_LIST = [\n      ${list}\n    ];`);
+    }
+
+    return html;
+  }
+
+  async function fetchText(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return await res.text();
+  }
+
+  async function addBinaryToZip(zip, zipPath, url) {
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.warn(`Asset nicht ladbar: ${url} (HTTP ${res.status})`);
+      return;
+    }
+    const buf = await res.arrayBuffer();
+    zip.file(zipPath, buf);
+  }
+
+  // -----------------------
+  // Step 1: Format selection
+  // -----------------------
+  const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+  const nextButton1 = document.getElementById('nextStep1');
+
+  formatCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      nextButton1.disabled = selectedFormats.length === 0;
+    });
+  });
+
+  nextButton1.addEventListener('click', function() {
+    showStep(2);
+  });
+
+  // -----------------------
+  // Step 2: Image upload
+  // -----------------------
+  const uploadArea = document.getElementById('uploadArea');
+  const fileInput = document.getElementById('imageUpload');
+  const uploadedContainer = document.getElementById('uploadedImages');
+
+  uploadArea.addEventListener('click', () => fileInput.click());
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    handleFiles(e.target.files);
+  });
+
+  function handleFiles(files) {
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImages.push({
+            name: `${uploadedImages.length + 1}.jpg`,
+            data: e.target.result,
+            original: file.name
+          });
+          updateImageDisplay();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  function updateImageDisplay() {
+    uploadedContainer.innerHTML = '';
+    uploadedImages.forEach((img, index) => {
+      const div = document.createElement('div');
+      div.className = 'uploaded-image';
+      div.innerHTML = `
+        <img src="${img.data}" alt="Bild ${index + 1}">
+        <div class="number">${index + 1}.jpg</div>
+        <button class="remove" type="button" onclick="removeImage(${index})">×</button>
+      `;
+      uploadedContainer.appendChild(div);
+    });
+  }
+
+  function removeImage(index) {
+    uploadedImages.splice(index, 1);
+    uploadedImages.forEach((img, newIndex) => img.name = `${newIndex + 1}.jpg`);
+    updateImageDisplay();
+  }
+
+  // -----------------------
+  // Step 3: Live preview (Template im iframe)
+  // -----------------------
+  async function generatePreviews() {
+    const container = document.getElementById('previewContainer');
+    container.innerHTML = '';
+
+    for (const format of selectedFormats) {
+      const { w, h } = parseFormat(format);
+      const scale = computeScale(w, h);
+
+      let html;
+      try {
+        html = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
+      } catch (e) {
+        const err = document.createElement('div');
+        err.className = 'banner-preview';
+        err.innerHTML = `<b>Template ${format}.html nicht gefunden oder nicht ladbar.</b><br>${String(e)}`;
+        container.appendChild(err);
+        continue;
       }
 
-      return html;
-    }
+      // Preview base + Variablen ersetzen (inkl. Data-URL Images)
+      html = injectPreviewBase(html);
+      html = replaceTemplateVars(html, { mode: 'preview' });
 
-    async function fetchText(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-      return await res.text();
-    }
+      const wrap = document.createElement('div');
+      wrap.className = 'banner-preview';
+      wrap.innerHTML = `<h4>Banner ${format}</h4>`;
 
-    async function addBinaryToZip(zip, zipPath, url) {
-      const res = await fetch(url);
-      if (!res.ok) {
-        console.warn(`Asset nicht ladbar: ${url} (HTTP ${res.status})`);
-        return;
+      const viewport = document.createElement('div');
+      viewport.className = 'iframe-viewport';
+      viewport.style.width = `${Math.round(w * scale)}px`;
+      viewport.style.height = `${Math.round(h * scale)}px`;
+
+      const iframe = document.createElement('iframe');
+      iframe.width = w;
+      iframe.height = h;
+      iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+      iframe.style.transform = `scale(${scale})`;
+      iframe.style.transformOrigin = '0 0';
+      iframe.srcdoc = html;
+
+      viewport.appendChild(iframe);
+      wrap.appendChild(viewport);
+
+      const meta = document.createElement('div');
+      meta.style.marginTop = '12px';
+      meta.style.fontSize = '0.9em';
+      meta.style.color = '#666';
+      meta.innerHTML = `
+        <div><strong>Landing-URL:</strong> ${normalizeLandingUrl(appData.landingUrl) || '-'}</div>
+        <div><strong>Final clickTag:</strong> ${getFinalClickTag() || '-'}</div>
+        <div><strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(i => i.name).join(', ') || '-'})</div>
+        <div><strong>Preview-Assets:</strong> Logo + Fonts werden aus <code>./assets/</code> geladen</div>
+      `;
+      wrap.appendChild(meta);
+
+      container.appendChild(wrap);
+    }
+  }
+
+  // -----------------------
+  // Export: ZIP mit index.html + Bilder + Logo + fonts/
+  // -----------------------
+  async function exportBanners() {
+    for (const format of selectedFormats) {
+      const zip = new JSZip();
+
+      let templateContent;
+      try {
+        templateContent = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
+      } catch (error) {
+        console.error(`Template load failed (${format}):`, error);
+        alert(`Template ${format}.html nicht gefunden oder nicht ladbar!`);
+        continue;
       }
-      const buf = await res.arrayBuffer();
-      zip.file(zipPath, buf);
-    }
 
-    // -----------------------
-    // Step 1: Format selection
-    // -----------------------
-    const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
-    const nextButton1 = document.getElementById('nextStep1');
+      // Export: kein base inject, Root erwartet Logo.png & fonts/
+      templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
 
-    formatCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-        nextButton1.disabled = selectedFormats.length === 0;
+      zip.file('index.html', templateContent);
+
+      uploadedImages.forEach(img => {
+        const base64Data = img.data.split(',')[1];
+        zip.file(img.name, base64Data, { base64: true });
       });
-    });
 
-    nextButton1.addEventListener('click', function() {
-      showStep(2);
-    });
+      await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
 
-    // -----------------------
-    // Step 2: Image upload
-    // -----------------------
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('imageUpload');
-    const uploadedContainer = document.getElementById('uploadedImages');
-
-    uploadArea.addEventListener('click', () => fileInput.click());
-
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.classList.add('dragover');
-    });
-
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('dragover');
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      handleFiles(e.target.files);
-    });
-
-    function handleFiles(files) {
-      Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            uploadedImages.push({
-              name: `${uploadedImages.length + 1}.jpg`,
-              data: e.target.result,
-              original: file.name
-            });
-            updateImageDisplay();
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
-
-    function updateImageDisplay() {
-      uploadedContainer.innerHTML = '';
-      uploadedImages.forEach((img, index) => {
-        const div = document.createElement('div');
-        div.className = 'uploaded-image';
-        div.innerHTML = `
-          <img src="${img.data}" alt="Bild ${index + 1}">
-          <div class="number">${index + 1}.jpg</div>
-          <button class="remove" type="button" onclick="removeImage(${index})">×</button>
-        `;
-        uploadedContainer.appendChild(div);
-      });
-    }
-
-    function removeImage(index) {
-      uploadedImages.splice(index, 1);
-      uploadedImages.forEach((img, newIndex) => img.name = `${newIndex + 1}.jpg`);
-      updateImageDisplay();
-    }
-
-    // -----------------------
-    // Step 3: Live preview (Template im iframe)
-    // -----------------------
-    async function generatePreviews() {
-      const container = document.getElementById('previewContainer');
-      container.innerHTML = '';
-
-      for (const format of selectedFormats) {
-        const { w, h } = parseFormat(format);
-        const scale = computeScale(w, h);
-
-        // Template laden
-        let html;
-        try {
-          html = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
-        } catch (e) {
-          const err = document.createElement('div');
-          err.className = 'banner-preview';
-          err.innerHTML = `<b>Template ${format}.html nicht gefunden oder nicht ladbar.</b><br>${String(e)}`;
-          container.appendChild(err);
-          continue;
-        }
-
-        // Preview: base href auf ./assets/ setzen (damit Logo.png + fonts/... funktionieren)
-        html = injectPreviewBase(html);
-
-        html = replaceTemplateVars(html, { mode: 'preview' });
-
-        // Wrapper
-        const wrap = document.createElement('div');
-        wrap.className = 'banner-preview';
-        wrap.innerHTML = `<h4>Banner ${format}</h4>`;
-
-        // Viewport (skaliert)
-        const viewport = document.createElement('div');
-        viewport.className = 'iframe-viewport';
-        viewport.style.width = `${Math.round(w * scale)}px`;
-        viewport.style.height = `${Math.round(h * scale)}px`;
-
-        // iFrame
-        const iframe = document.createElement('iframe');
-        iframe.width = w;
-        iframe.height = h;
-
-        // Scripts müssen laufen (Animationen/Slider); Popups für clickTag
-        iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
-
-        // Skalierung
-        iframe.style.transform = `scale(${scale})`;
-
-        // srcdoc setzen
-        iframe.srcdoc = html;
-
-        viewport.appendChild(iframe);
-        wrap.appendChild(viewport);
-
-        // Meta-Info
-        const meta = document.createElement('div');
-        meta.style.marginTop = '12px';
-        meta.style.fontSize = '0.9em';
-        meta.style.color = '#666';
-        meta.innerHTML = `
-          <div><strong>Final clickTag:</strong> ${getFinalClickTag() || '-'}</div>
-          <div><strong>Landing-URL:</strong> ${normalizeLandingUrl(appData.landingUrl) || '-'}</div>
-
-          <div><strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(i => i.name).join(', ') || '-'})</div>
-          <div><strong>Preview-Assets:</strong> Logo + Fonts werden aus <code>./assets/</code> geladen</div>
-        `;
-        wrap.appendChild(meta);
-
-        container.appendChild(wrap);
+      for (const url of FONT_FILES) {
+        const filename = url.split('/').pop();
+        await addBinaryToZip(zip, `fonts/${filename}`, url);
       }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = `banner-${format}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
+  }
 
-    // -----------------------
-    // Export: ZIP mit index.html + Bilder + Logo + fonts/
-    // -----------------------
-    async function exportBanners() {
-      for (const format of selectedFormats) {
-        const zip = new JSZip();
+  // -----------------------
+  // UI bindings
+  // -----------------------
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('headline').addEventListener('input', function() { appData.headline = this.value; });
+    document.getElementById('subline').addEventListener('input', function() { appData.subline = this.value; });
+    document.getElementById('ctaText').addEventListener('input', function() { appData.ctaText = this.value; });
+    document.getElementById('clickUrl').addEventListener('input', function() { appData.landingUrl = this.value; });
 
-        // Template holen
-        let templateContent;
-        try {
-          templateContent = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
-        } catch (error) {
-          console.error(`Template load failed (${format}):`, error);
-          alert(`Template ${format}.html nicht gefunden oder nicht ladbar!`);
-          continue;
-        }
+    document.getElementById('backStep1').addEventListener('click', () => showStep(1));
+    document.getElementById('backStep2').addEventListener('click', () => showStep(2));
 
-        // Export: KEIN base href injizieren.
-        // Export erwartet Root: Logo.png und fonts/...
-        templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
-
-        // index.html
-        zip.file('index.html', templateContent);
-
-        // Uploaded images -> Root (1.jpg,2.jpg,...)
-        uploadedImages.forEach(img => {
-          const base64Data = img.data.split(',')[1];
-          zip.file(img.name, base64Data, { base64: true });
-        });
-
-        // Logo.png aus assets/ ins Root
-        await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
-
-        // Fonts aus assets/fonts -> fonts/ im ZIP
-        for (const url of FONT_FILES) {
-          const filename = url.split('/').pop();
-          await addBinaryToZip(zip, `fonts/${filename}`, url);
-        }
-
-        // ZIP generieren + Download
-        const content = await zip.generateAsync({ type: 'blob' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(content);
-        link.download = `banner-${format}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-
-        // kurzer Abstand zwischen Downloads
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-    }
-
-    // -----------------------
-    // UI bindings
-    // -----------------------
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('headline').addEventListener('input', function() { appData.headline = this.value; });
-      document.getElementById('subline').addEventListener('input', function() { appData.subline = this.value; });
-      document.getElementById('ctaText').addEventListener('input', function() { appData.ctaText = this.value; });
-      document.getElementById('clickUrl').addEventListener('input', function() { appData.landingUrl = this.value; });
-
-      document.getElementById('backStep1').addEventListener('click', () => showStep(1));
-      document.getElementById('backStep2').addEventListener('click', () => showStep(2));
-
-      document.getElementById('createPreview').addEventListener('click', async function() {
+    document.getElementById('createPreview').addEventListener('click', async function() {
       const finalClick = getFinalClickTag();
       if (!finalClick) {
         alert('Bitte gib eine gültige Ziel-URL ein!');
@@ -869,38 +835,38 @@ function getFinalClickTag() {
       }
       showStep(3);
       await generatePreviews();
-      });
+    });
 
+    document.getElementById('exportBanners').addEventListener('click', async function() {
+      await exportBanners();
+      showStep(4);
+    });
 
-      document.getElementById('exportBanners').addEventListener('click', async function() {
-        await exportBanners();
-        showStep(4);
-      });
-
-      document.getElementById('startOver').addEventListener('click', function() {
-        selectedFormats = [];
-        uploadedImages = [];
-        appData = {
+    document.getElementById('startOver').addEventListener('click', function() {
+      selectedFormats = [];
+      uploadedImages = [];
+      appData = {
         headline: 'Bereit für deine Ziele?',
         subline: 'Sport Outfits entdecken!',
         ctaText: 'Jetzt shoppen',
         landingUrl: ''
-        };
+      };
 
+      formatCheckboxes.forEach(cb => cb.checked = false);
+      document.getElementById('uploadedImages').innerHTML = '';
+      document.getElementById('previewContainer').innerHTML = '';
 
-        formatCheckboxes.forEach(cb => cb.checked = false);
-        document.getElementById('uploadedImages').innerHTML = '';
-        document.getElementById('previewContainer').innerHTML = '';
+      document.getElementById('clickUrl').value = '';
+      document.getElementById('headline').value = appData.headline;
+      document.getElementById('subline').value = appData.subline;
+      document.getElementById('ctaText').value = appData.ctaText;
 
-        document.getElementById('clickUrl').value = '';
-        document.getElementById('headline').value = appData.headline;
-        document.getElementById('subline').value = appData.subline;
-        document.getElementById('ctaText').value = appData.ctaText;
-
-        nextButton1.disabled = true;
-        showStep(1);
-      });
+      nextButton1.disabled = true;
+      showStep(1);
     });
-  </script>
+  });
+</script>
+
+  
 </body>
 </html>
