@@ -553,14 +553,13 @@
         clickUrl: ''
     };
 
-    // Step Navigation
     function showStep(stepNumber) {
     console.log('Wechsle zu Step:', stepNumber);
     document.querySelectorAll('.step-content').forEach(step => {
         step.classList.remove('active');
         console.log('Verstecke:', step.id);
     });
-    const targetStep = document.getElementById(`step${stepNumber}`);  // ✅ BACKTICKS HINZUGEFÜGT
+    const targetStep = document.getElementById(`step${stepNumber}`);  // ✅ RICHTIG: (` `)
     if (targetStep) {
         targetStep.classList.add('active');
         console.log('Zeige:', targetStep.id);
@@ -683,12 +682,11 @@
     const step3 = document.getElementById('step3');
     console.log('Step3 hat "active" class:', step3.classList.contains('active'));
 }
-    // Export Function
     async function exportBanners() {
     for (const format of selectedFormats) {
         const zip = new JSZip();
         try {
-            const response = await fetch(`templates/${format}.html`);  // ✅ BACKTICKS
+            const response = await fetch(`templates/${format}.html`);  // ✅ RICHTIG
             let templateContent = await response.text();
             
             templateContent = templateContent.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${appData.headline}";`);
@@ -718,12 +716,11 @@
             await new Promise(resolve => setTimeout(resolve, 1000));
             
         } catch(error) {
-            console.error(`Error loading template ${format}:`, error);  // ✅ BACKTICKS
-            alert(`Template ${format}.html nicht gefunden!`);  // ✅ BACKTICKS
+            console.error(`Error loading template ${format}:`, error);  // ✅ RICHTIG
+            alert(`Template ${format}.html nicht gefunden!`);  // ✅ RICHTIG
         }
     }
 }
-
     // Text Input Updates & Event Listeners
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('headline').addEventListener('input', function() {
