@@ -78,10 +78,18 @@
     .format-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
     .format-card input[type="checkbox"] { display: none; }
 
-    .format-card input[type="checkbox"]:checked + .format-preview {
-      background: linear-gradient(135deg, var(--primary), var(--success));
-      color: var(--white);
+      /* Aktuell setzt checked + .format-preview die Textfarbe auf weiß.
+     Dann muss die preview-box auch dunkler/transparent werden, sonst "verschwindet" Text. */
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box{
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.7);
+      color: #fff;
     }
+
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box small{
+      color: rgba(255,255,255,0.9);
+    }
+
 
     .format-card input[type="checkbox"]:checked ~ .checkmark {
       opacity: 1;
@@ -399,6 +407,11 @@
             <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
           </div>
         </div>
+        
+        <div class="input-group">
+          <label for="zipName">Naming (für ZIP-Datei)</label>
+          <input type="text" id="zipName" placeholder="z.B. KW02_BackToGym" required>
+        </div>
 
         <div class="card">
           <h3><i class="fas fa-link"></i> Click-URL</h3>
@@ -485,7 +498,8 @@
     headline: 'Bereit für deine Ziele?',
     subline: 'Sport Outfits entdecken!',
     ctaText: 'Jetzt shoppen',
-    landingUrl: '' // User Input (nicht der finale clickTag)
+    landingUrl: '',
+    zipName: '' // ✅ Naming für ZIP-Datei
   };
 
   // -----------------------
@@ -522,6 +536,17 @@
     return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
   }
 
+  function sanitizeFilePart(name) {
+    // Windows/macOS safe, keine Sonderzeichen, keine Leerzeichen am Ende
+    const s = String(name || '').trim();
+    // Erlaubt: Buchstaben, Zahlen, _, -, .
+    const cleaned = s
+      .replace(/\s+/g, '_')
+      .replace(/[^\w.\-]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    return cleaned || 'banner';
+  }
+
   // -----------------------
   // URL / ClickTag Builder
   // -----------------------
@@ -555,7 +580,7 @@
     return u.toString();
   }
 
-  // ✅ UNENCODED: url= bekommt die lesbare URL (wie von dir gewünscht)
+  // ✅ UNENCODED: url= bekommt lesbare URL (wie von dir gewünscht)
   function buildTchiboClickTagUnencoded(landingUrlWithUtm) {
     const base = 'https://tagm.tchibo.de/cl.aspx';
     const params =
@@ -588,16 +613,13 @@
   // Template variable replacement
   // -----------------------
   function replaceTemplateVars(html, { mode }) {
-    // Texte
     html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
     html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
     html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
 
-    // clickTag (Tracking Template)
     const finalClickTag = getFinalClickTag();
     html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
 
-    // Images
     if (uploadedImages.length > 0) {
       const list = (mode === 'preview')
         ? uploadedImages.map(img => `"${img.data}"`).join(',\n      ')
@@ -633,7 +655,9 @@
 
   formatCheckboxes.forEach(checkbox => {
     checkbox.addEventListener('change', function() {
-      selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(cb => cb.value);
+
       nextButton1.disabled = selectedFormats.length === 0;
     });
   });
@@ -708,7 +732,7 @@
   }
 
   // -----------------------
-  // Step 3: Live preview (Template im iframe)
+  // Step 3: Live preview
   // -----------------------
   async function generatePreviews() {
     const container = document.getElementById('previewContainer');
@@ -729,7 +753,6 @@
         continue;
       }
 
-      // Preview base + Variablen ersetzen (inkl. Data-URL Images)
       html = injectPreviewBase(html);
       html = replaceTemplateVars(html, { mode: 'preview' });
 
@@ -758,10 +781,10 @@
       meta.style.fontSize = '0.9em';
       meta.style.color = '#666';
       meta.innerHTML = `
+        <div><strong>Naming:</strong> ${sanitizeFilePart(appData.zipName || '')}</div>
         <div><strong>Landing-URL:</strong> ${normalizeLandingUrl(appData.landingUrl) || '-'}</div>
         <div><strong>Final clickTag:</strong> ${getFinalClickTag() || '-'}</div>
         <div><strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(i => i.name).join(', ') || '-'})</div>
-        <div><strong>Preview-Assets:</strong> Logo + Fonts werden aus <code>./assets/</code> geladen</div>
       `;
       wrap.appendChild(meta);
 
@@ -770,9 +793,11 @@
   }
 
   // -----------------------
-  // Export: ZIP mit index.html + Bilder + Logo + fonts/
+  // Export: ZIP
   // -----------------------
   async function exportBanners() {
+    const baseName = sanitizeFilePart(appData.zipName);
+
     for (const format of selectedFormats) {
       const zip = new JSZip();
 
@@ -785,9 +810,7 @@
         continue;
       }
 
-      // Export: kein base inject, Root erwartet Logo.png & fonts/
       templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
-
       zip.file('index.html', templateContent);
 
       uploadedImages.forEach(img => {
@@ -805,7 +828,10 @@
       const content = await zip.generateAsync({ type: 'blob' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
-      link.download = `banner-${format}.zip`;
+
+      // ✅ Format vorne + Naming dahinter:
+      link.download = `${format}_${baseName}.zip`;
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -824,20 +850,45 @@
     document.getElementById('ctaText').addEventListener('input', function() { appData.ctaText = this.value; });
     document.getElementById('clickUrl').addEventListener('input', function() { appData.landingUrl = this.value; });
 
+    // ✅ Naming Input (falls vorhanden)
+    const zipNameEl = document.getElementById('zipName');
+    if (zipNameEl) {
+      zipNameEl.addEventListener('input', function() { appData.zipName = this.value; });
+    }
+
     document.getElementById('backStep1').addEventListener('click', () => showStep(1));
     document.getElementById('backStep2').addEventListener('click', () => showStep(2));
 
     document.getElementById('createPreview').addEventListener('click', async function() {
       const finalClick = getFinalClickTag();
+      const nm = sanitizeFilePart(appData.zipName);
+
       if (!finalClick) {
         alert('Bitte gib eine gültige Ziel-URL ein!');
         return;
       }
+      if (!nm || nm === 'banner' && !String(appData.zipName || '').trim()) {
+        alert('Bitte gib ein Naming für die ZIP-Datei ein!');
+        return;
+      }
+
       showStep(3);
       await generatePreviews();
     });
 
     document.getElementById('exportBanners').addEventListener('click', async function() {
+      const finalClick = getFinalClickTag();
+      const nm = sanitizeFilePart(appData.zipName);
+
+      if (!finalClick) {
+        alert('Bitte gib eine gültige Ziel-URL ein!');
+        return;
+      }
+      if (!nm || nm === 'banner' && !String(appData.zipName || '').trim()) {
+        alert('Bitte gib ein Naming für die ZIP-Datei ein!');
+        return;
+      }
+
       await exportBanners();
       showStep(4);
     });
@@ -849,7 +900,8 @@
         headline: 'Bereit für deine Ziele?',
         subline: 'Sport Outfits entdecken!',
         ctaText: 'Jetzt shoppen',
-        landingUrl: ''
+        landingUrl: '',
+        zipName: ''
       };
 
       formatCheckboxes.forEach(cb => cb.checked = false);
@@ -861,12 +913,13 @@
       document.getElementById('subline').value = appData.subline;
       document.getElementById('ctaText').value = appData.ctaText;
 
+      const zipNameEl = document.getElementById('zipName');
+      if (zipNameEl) zipNameEl.value = '';
+
       nextButton1.disabled = true;
       showStep(1);
     });
   });
 </script>
-
-  
 </body>
 </html>
