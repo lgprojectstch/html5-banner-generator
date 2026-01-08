@@ -27,6 +27,28 @@
     window.clickTag = clickTag;
   </script>
 
+  <!-- ===== FONT PRELOADS (reduziert FOUT stark) ===== -->
+  <!-- WICHTIG: Passe die Dateinamen an deine echten Files an.
+       Best Practice: keine Leerzeichen in Dateinamen.
+       Falls deine Files weiterhin Leerzeichen haben, nutze %20 oder benenne um. -->
+  <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- Optional, wenn du echte Italic-Datei hast -->
+  <!-- <link rel="preload" href="fonts/InterstateWGL-RegularItalic.woff2" as="font" type="font/woff2" crossorigin> -->
+
+  <!-- ===== Optional: Banner erst zeigen, wenn Fonts geladen sind (verhindert sichtbaren Font-Swap) ===== -->
+  <style>
+    html.fonts-loading .ad { opacity: 0; }
+    html.fonts-loaded  .ad { opacity: 1; transition: opacity 80ms linear; }
+  </style>
+  <script>
+    document.documentElement.classList.add("fonts-loading");
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){
+      document.documentElement.classList.remove("fonts-loading");
+      document.documentElement.classList.add("fonts-loaded");
+    });
+  </script>
+
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
@@ -59,23 +81,42 @@
       --heroBorderDur: 180ms;
     }
 
+    /* ===== WEBFONTS (sauber nach Gewicht/Style getrennt) =====
+       WICHTIG:
+       - font-weight:700 darf NICHT die Regular-Datei laden
+       - Italic braucht eine eigene @font-face Regel, sonst ist es "fake italic"
+       - font-display: optional reduziert sichtbaren Swap (alternativ: swap/block)
+    */
     @font-face{
       font-family:"InterstateWGL";
       src:
-        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
-        url("fonts/Interstate WGL Regular.woff") format("woff");
+        url("fonts/InterstateWGL-Regular.woff2") format("woff2"),
+        url("fonts/InterstateWGL-Regular.woff") format("woff");
       font-weight:400;
       font-style:normal;
-      font-display:swap;
+      font-display:optional;
     }
     @font-face{
       font-family:"InterstateWGL";
       src:
-        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
-        url("fonts/Interstate WGL Regular.woff") format("woff");
+        url("fonts/InterstateWGL-Bold.woff2") format("woff2"),
+        url("fonts/InterstateWGL-Bold.woff") format("woff");
       font-weight:700;
       font-style:normal;
-      font-display:swap;
+      font-display:optional;
+    }
+
+    /* Optional: echte Italic-Datei (wenn vorhanden).
+       Wenn du KEINE Italic-Datei hast, kannst du diese Regel weglassen
+       und unten bei .subline font-style: normal setzen, um Fake-Italic zu vermeiden. */
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/InterstateWGL-RegularItalic.woff2") format("woff2"),
+        url("fonts/InterstateWGL-RegularItalic.woff") format("woff");
+      font-weight:400;
+      font-style:italic;
+      font-display:optional;
     }
 
     .ad{
@@ -153,7 +194,7 @@
       margin:0; width:100%;
       font-size: var(--sublineFs);
       line-height: var(--sublineLh);
-      font-style: italic;
+      font-style: italic; /* Wenn du keine Italic-Fontdatei hast: auf normal setzen */
       color: var(--gold);
       display:-webkit-box;
       -webkit-line-clamp:2;
