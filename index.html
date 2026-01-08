@@ -277,7 +277,6 @@
       min-height: 200px;
       width: 100%;
       display: block;
-      visibility: visible;
     }
 
     .banner-preview {
@@ -293,6 +292,22 @@
       color: #333;
       margin-bottom: 15px;
       font-size: 1.2em;
+    }
+
+    .iframe-viewport {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .iframe-viewport iframe {
+      border: 0;
+      display: block;
+      transform-origin: 0 0;
+      background: #fff;
     }
 
     @media (max-width: 768px) {
@@ -312,146 +327,165 @@
     </header>
 
     <!-- Step 1: Format Selection -->
-<div class="step-content active" id="step1">
-  <div class="card">
-    <h2><i class="fas fa-th-large"></i> Banner-Formate auswählen</h2>
+    <div class="step-content active" id="step1">
+      <div class="card">
+        <h2><i class="fas fa-th-large"></i> Banner-Formate auswählen</h2>
 
-    <div class="format-grid">
-      <label class="format-card" for="format-300x250">
-        <input type="checkbox" id="format-300x250" value="300x250">
-        <div class="format-preview">
-          <div class="preview-box">
-            <span style="font-weight: bold; font-size: 1.2em;">300×250</span>
-            <small>Medium Rectangle</small>
+        <div class="format-grid">
+          <label class="format-card" for="format-300x250">
+            <input type="checkbox" id="format-300x250" value="300x250">
+            <div class="format-preview">
+              <div class="preview-box">
+                <span style="font-weight: bold; font-size: 1.2em;">300×250</span>
+                <small>Medium Rectangle</small>
+              </div>
+            </div>
+            <span class="checkmark"><i class="fas fa-check"></i></span>
+          </label>
+
+          <label class="format-card" for="format-300x600">
+            <input type="checkbox" id="format-300x600" value="300x600">
+            <div class="format-preview">
+              <div class="preview-box">
+                <span style="font-weight: bold; font-size: 1.2em;">300×600</span>
+                <small>Half Page</small>
+              </div>
+            </div>
+            <span class="checkmark"><i class="fas fa-check"></i></span>
+          </label>
+
+          <label class="format-card" for="format-970x250">
+            <input type="checkbox" id="format-970x250" value="970x250">
+            <div class="format-preview">
+              <div class="preview-box">
+                <span style="font-weight: bold; font-size: 1.2em;">970×250</span>
+                <small>Billboard</small>
+              </div>
+            </div>
+            <span class="checkmark"><i class="fas fa-check"></i></span>
+          </label>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" id="nextStep1" disabled>
+            Weiter <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Content Input -->
+    <div class="step-content" id="step2">
+      <div class="input-grid">
+        <div class="card">
+          <h3><i class="fas fa-images"></i> Bilder hochladen</h3>
+          <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Bilder hier hinziehen oder klicken</p>
+            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+              Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
+            </p>
+            <input type="file" id="imageUpload" multiple accept="image/*">
+          </div>
+          <div class="uploaded-images" id="uploadedImages"></div>
+        </div>
+
+        <div class="card">
+          <h3><i class="fas fa-font"></i> Texte anpassen</h3>
+          <div class="input-group">
+            <label for="headline">Headline</label>
+            <input type="text" id="headline" value="Bereit für deine Ziele?" maxlength="50">
+          </div>
+          <div class="input-group">
+            <label for="subline">Subline</label>
+            <input type="text" id="subline" value="Sport Outfits entdecken!" maxlength="50">
+          </div>
+          <div class="input-group">
+            <label for="ctaText">CTA Text</label>
+            <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
           </div>
         </div>
-        <span class="checkmark"><i class="fas fa-check"></i></span>
-      </label>
 
-      <label class="format-card" for="format-300x600">
-        <input type="checkbox" id="format-300x600" value="300x600">
-        <div class="format-preview">
-          <div class="preview-box">
-            <span style="font-weight: bold; font-size: 1.2em;">300×600</span>
-            <small>Half Page</small>
+        <div class="card">
+          <h3><i class="fas fa-link"></i> Click-URL</h3>
+          <div class="input-group">
+            <label for="clickUrl">Ziel-URL</label>
+            <input type="url" id="clickUrl" placeholder="https://example.com" required>
           </div>
         </div>
-        <span class="checkmark"><i class="fas fa-check"></i></span>
-      </label>
+      </div>
 
-      <label class="format-card" for="format-970x250">
-        <input type="checkbox" id="format-970x250" value="970x250">
-        <div class="format-preview">
-          <div class="preview-box">
-            <span style="font-weight: bold; font-size: 1.2em;">970×250</span>
-            <small>Billboard</small>
+      <div class="button-group">
+        <button class="btn btn-secondary" id="backStep1">
+          <i class="fas fa-arrow-left"></i> Zurück
+        </button>
+        <button class="btn btn-primary" id="createPreview">
+          Vorschau erstellen <i class="fas fa-eye"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Preview -->
+    <div class="step-content" id="step3">
+      <div class="card">
+        <h2><i class="fas fa-eye"></i> Banner-Vorschau</h2>
+        <div id="previewContainer"></div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-secondary" id="backStep2">
+          <i class="fas fa-arrow-left"></i> Zurück
+        </button>
+        <button class="btn btn-success" id="exportBanners">
+          Export starten <i class="fas fa-download"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Export Status -->
+    <div class="step-content" id="step4">
+      <div class="card">
+        <h2><i class="fas fa-download"></i> Export Status</h2>
+        <div id="exportStatus" style="text-align: center; padding: 20px;">
+          <div style="margin-bottom: 20px;">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
           </div>
+          <h3>Export erfolgreich!</h3>
+          <p>Deine Banner wurden als ZIP-Dateien heruntergeladen.</p>
         </div>
-        <span class="checkmark"><i class="fas fa-check"></i></span>
-      </label>
-    </div>
-
-    <div class="button-group">
-      <button class="btn btn-primary" id="nextStep1" disabled>
-        Weiter <i class="fas fa-arrow-right"></i>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Step 2: Content Input -->
-<div class="step-content" id="step2">
-  <div class="input-grid">
-    <div class="card">
-      <h3><i class="fas fa-images"></i> Bilder hochladen</h3>
-      <div class="upload-area" id="uploadArea">
-        <i class="fas fa-cloud-upload-alt"></i>
-        <p>Bilder hier hinziehen oder klicken</p>
-        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-          Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
-        </p>
-        <input type="file" id="imageUpload" multiple accept="image/*">
       </div>
-      <div class="uploaded-images" id="uploadedImages"></div>
-    </div>
 
-    <div class="card">
-      <h3><i class="fas fa-font"></i> Texte anpassen</h3>
-      <div class="input-group">
-        <label for="headline">Headline</label>
-        <input type="text" id="headline" value="Bereit für deine Ziele?" maxlength="50">
-      </div>
-      <div class="input-group">
-        <label for="subline">Subline</label>
-        <input type="text" id="subline" value="Sport Outfits entdecken!" maxlength="50">
-      </div>
-      <div class="input-group">
-        <label for="ctaText">CTA Text</label>
-        <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
-      </div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fas fa-link"></i> Click-URL</h3>
-      <div class="input-group">
-        <label for="clickUrl">Ziel-URL</label>
-        <input type="url" id="clickUrl" placeholder="https://example.com" required>
+      <div class="button-group">
+        <button class="btn btn-primary" id="startOver">
+          <i class="fas fa-plus"></i> Neue Banner erstellen
+        </button>
       </div>
     </div>
   </div>
-
-  <div class="button-group">
-    <button class="btn btn-secondary" id="backStep1">
-      <i class="fas fa-arrow-left"></i> Zurück
-    </button>
-    <button class="btn btn-primary" id="createPreview">
-      Vorschau erstellen <i class="fas fa-eye"></i>
-    </button>
-  </div>
-</div>
-
-<!-- Step 3: Preview -->
-<div class="step-content" id="step3">
-  <div class="card">
-    <h2><i class="fas fa-eye"></i> Banner-Vorschau</h2>
-    <div id="previewContainer"></div>
-  </div>
-
-  <div class="button-group">
-    <button class="btn btn-secondary" id="backStep2">
-      <i class="fas fa-arrow-left"></i> Zurück
-    </button>
-    <button class="btn btn-success" id="exportBanners">
-      Export starten <i class="fas fa-download"></i>
-    </button>
-  </div>
-</div>
-
-<!-- Step 4: Export Status -->
-<div class="step-content" id="step4">
-  <div class="card">
-    <h2><i class="fas fa-download"></i> Export Status</h2>
-    <div id="exportStatus" style="text-align: center; padding: 20px;">
-      <div style="margin-bottom: 20px;">
-        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
-      </div>
-      <h3>Export erfolgreich!</h3>
-      <p>Deine Banner wurden als ZIP-Dateien heruntergeladen.</p>
-    </div>
-  </div>
-
-  <div class="button-group">
-    <button class="btn btn-primary" id="startOver">
-      <i class="fas fa-plus"></i> Neue Banner erstellen
-    </button>
-  </div>
-</div>
-
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <script>
-    // Globale Variablen
+    // -----------------------
+    // Config (Ordnerstruktur)
+    // -----------------------
+    const TEMPLATE_DIR = 'templates';       // templates/300x250.html ...
+    const ASSETS_DIR   = 'assets';          // assets/Logo.png, assets/fonts/...
+    const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
+
+    // Fonts in assets/fonts (Browser kann nicht "listen" -> Liste fix)
+    const FONT_FILES = [
+      'Interstate WGL Bold.woff',
+      'Interstate WGL Bold.woff2',
+      'Interstate WGL Light.woff',
+      'Interstate WGL Light.woff2',
+      'Interstate WGL Regular.woff',
+      'Interstate WGL Regular.woff2',
+    ].map(f => `${ASSETS_DIR}/fonts/${f}`);
+
+    // -----------------------
+    // State
+    // -----------------------
     let selectedFormats = [];
     let uploadedImages = [];
     let appData = {
@@ -461,31 +495,92 @@
       clickUrl: ''
     };
 
+    // -----------------------
+    // Helpers
+    // -----------------------
     function showStep(stepNumber) {
-      console.log('Wechsle zu Step:', stepNumber);
-
-      document.querySelectorAll('.step-content').forEach(step => {
-        step.classList.remove('active');
-      });
-
+      document.querySelectorAll('.step-content').forEach(step => step.classList.remove('active'));
       const targetStep = document.getElementById(`step${stepNumber}`);
-      if (targetStep) {
-        targetStep.classList.add('active');
-        console.log('Zeige:', targetStep.id);
-      } else {
-        console.error('Step nicht gefunden:', `step${stepNumber}`);
-      }
+      if (targetStep) targetStep.classList.add('active');
     }
 
-    // Format Selection Logic
+    function escapeJs(str) {
+      return String(str)
+        .replaceAll('\\', '\\\\')
+        .replaceAll('"', '\\"')
+        .replaceAll('\n', '\\n');
+    }
+
+    function parseFormat(format) {
+      const [w, h] = format.split('x').map(n => parseInt(n, 10));
+      return { w, h };
+    }
+
+    function computeScale(w, h) {
+      // Ziel: gut sichtbar im Generator, aber nicht zu groß
+      const maxW = 980;
+      const maxH = 700;
+      return Math.min(1, maxW / w, maxH / h);
+    }
+
+    function injectPreviewBase(html) {
+      // Für Preview: Template referenziert "Logo.png" und "fonts/..."
+      // Diese liegen in Repo unter assets/... => base auf ./assets/ setzen.
+      // Dadurch wird Logo.png => assets/Logo.png und fonts/... => assets/fonts/...
+      if (/<base\s/i.test(html)) return html;
+      return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
+    }
+
+    function replaceTemplateVars(html, { mode }) {
+      // mode: 'preview' oder 'export'
+
+      // Texte
+      html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
+      html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
+      html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
+
+      // clickTag
+      html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(appData.clickUrl)}";`);
+
+      // Images:
+      // - Preview: Data-URLs, damit der Slider im iframe sofort funktioniert (keine echten 1.jpg im Repo)
+      // - Export: "1.jpg", "2.jpg" ... (werden in ZIP geschrieben)
+      if (uploadedImages.length > 0) {
+        const list = (mode === 'preview')
+          ? uploadedImages.map(img => `"${img.data}"`).join(',\n      ')
+          : uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
+
+        html = html.replace(/var\s+IMAGE_LIST\s*=\s*\[[\s\S]*?\];/s, `var IMAGE_LIST = [\n      ${list}\n    ];`);
+      }
+
+      return html;
+    }
+
+    async function fetchText(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+      return await res.text();
+    }
+
+    async function addBinaryToZip(zip, zipPath, url) {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.warn(`Asset nicht ladbar: ${url} (HTTP ${res.status})`);
+        return;
+      }
+      const buf = await res.arrayBuffer();
+      zip.file(zipPath, buf);
+    }
+
+    // -----------------------
+    // Step 1: Format selection
+    // -----------------------
     const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
     const nextButton1 = document.getElementById('nextStep1');
 
     formatCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', function() {
-        selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-          .map(cb => cb.value);
-
+        selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
         nextButton1.disabled = selectedFormats.length === 0;
       });
     });
@@ -494,7 +589,9 @@
       showStep(2);
     });
 
-    // Image Upload Logic
+    // -----------------------
+    // Step 2: Image upload
+    // -----------------------
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('imageUpload');
     const uploadedContainer = document.getElementById('uploadedImages');
@@ -553,155 +650,157 @@
 
     function removeImage(index) {
       uploadedImages.splice(index, 1);
-      uploadedImages.forEach((img, newIndex) => {
-        img.name = `${newIndex + 1}.jpg`;
-      });
+      uploadedImages.forEach((img, newIndex) => img.name = `${newIndex + 1}.jpg`);
       updateImageDisplay();
     }
 
-         async function generatePreviews() {
-  console.log('generatePreviews() gestartet');
+    // -----------------------
+    // Step 3: Live preview (Template im iframe)
+    // -----------------------
+    async function generatePreviews() {
+      const container = document.getElementById('previewContainer');
+      container.innerHTML = '';
 
-  const container = document.getElementById('previewContainer');
-  container.innerHTML = '';
+      for (const format of selectedFormats) {
+        const { w, h } = parseFormat(format);
+        const scale = computeScale(w, h);
 
-  for (const format of selectedFormats) {
-    const response = await fetch(`templates/${format}.html`);
-    if (!response.ok) {
-      container.innerHTML += `<div class="banner-preview"><b>Template ${format}.html nicht gefunden</b></div>`;
-      continue;
+        // Template laden
+        let html;
+        try {
+          html = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
+        } catch (e) {
+          const err = document.createElement('div');
+          err.className = 'banner-preview';
+          err.innerHTML = `<b>Template ${format}.html nicht gefunden oder nicht ladbar.</b><br>${String(e)}`;
+          container.appendChild(err);
+          continue;
+        }
+
+        // Preview: base href auf ./assets/ setzen (damit Logo.png + fonts/... funktionieren)
+        html = injectPreviewBase(html);
+
+        // Variablen ersetzen + IMAGE_LIST auf Data-URLs mappen (wenn Uploads vorhanden)
+        html = replaceTemplateVars(html, { mode: 'preview' });
+
+        // Wrapper
+        const wrap = document.createElement('div');
+        wrap.className = 'banner-preview';
+        wrap.innerHTML = `<h4>Banner ${format}</h4>`;
+
+        // Viewport (skaliert)
+        const viewport = document.createElement('div');
+        viewport.className = 'iframe-viewport';
+        viewport.style.width = `${Math.round(w * scale)}px`;
+        viewport.style.height = `${Math.round(h * scale)}px`;
+
+        // iFrame
+        const iframe = document.createElement('iframe');
+        iframe.width = w;
+        iframe.height = h;
+
+        // Scripts müssen laufen (Animationen/Slider); Popups für clickTag
+        iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+
+        // Skalierung
+        iframe.style.transform = `scale(${scale})`;
+
+        // srcdoc setzen
+        iframe.srcdoc = html;
+
+        viewport.appendChild(iframe);
+        wrap.appendChild(viewport);
+
+        // Meta-Info
+        const meta = document.createElement('div');
+        meta.style.marginTop = '12px';
+        meta.style.fontSize = '0.9em';
+        meta.style.color = '#666';
+        meta.innerHTML = `
+          <div><strong>Click-URL:</strong> ${appData.clickUrl || '-'}</div>
+          <div><strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(i => i.name).join(', ') || '-'})</div>
+          <div><strong>Preview-Assets:</strong> Logo + Fonts werden aus <code>./assets/</code> geladen</div>
+        `;
+        wrap.appendChild(meta);
+
+        container.appendChild(wrap);
+      }
     }
 
-    let html = await response.text();
-
-    // Variablen ersetzen (wie Export)
-    html = html.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${escapeJs(appData.headline)}";`);
-    html = html.replace(/var SUBLINE = ".*?";/, `var SUBLINE = "${escapeJs(appData.subline)}";`);
-    html = html.replace(/var CTA_TEXT = ".*?";/, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
-
-    const imageList = uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
-    html = html.replace(/var IMAGE_LIST = \[[\s\S]*?\];/, `var IMAGE_LIST = [\n      ${imageList}\n    ];`);
-
-    html = html.replace(/var clickTag = ".*?";/, `var clickTag = "${escapeJs(appData.clickUrl)}";`);
-
-    // Preview-Wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = 'banner-preview';
-    wrapper.innerHTML = `<h4 style="margin-bottom:10px">Banner ${format}</h4>`;
-
-    // iFrame
-    const iframe = document.createElement('iframe');
-    iframe.style.border = '1px solid #ddd';
-    iframe.style.borderRadius = '8px';
-    iframe.style.width = '100%';
-    iframe.style.maxWidth = '980px';
-    iframe.style.height = (format === '300x600') ? '640px' : '340px';
-
-    // WICHTIG: Sandbox so, dass Scripts laufen (Animationen im Template)
-    iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
-
-    // srcdoc setzen
-    iframe.srcdoc = html;
-
-    wrapper.appendChild(iframe);
-    container.appendChild(wrapper);
-  }
-
-  console.log('Echte Template-Preview erstellt!');
-}
-
-// string sicher in "..." im JS
-function escapeJs(str) {
-  return String(str).replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n');
-}
-
-
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
+    // -----------------------
+    // Export: ZIP mit index.html + Bilder + Logo + fonts/
+    // -----------------------
     async function exportBanners() {
       for (const format of selectedFormats) {
         const zip = new JSZip();
 
+        // Template holen
+        let templateContent;
         try {
-          const response = await fetch(`templates/${format}.html`);
-          if (!response.ok) throw new Error(`HTTP ${response.status} for templates/${format}.html`);
-
-          let templateContent = await response.text();
-
-          // Hinweis: Diese Regex erwartet, dass die Variablen im Template exakt so vorkommen:
-          templateContent = templateContent.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${appData.headline}";`);
-          templateContent = templateContent.replace(/var SUBLINE = ".*?";/, `var SUBLINE = "${appData.subline}";`);
-          templateContent = templateContent.replace(/var CTA_TEXT = ".*?";/, `var CTA_TEXT = "${appData.ctaText}";`);
-
-          const imageList = uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
-          templateContent = templateContent.replace(
-            /var IMAGE_LIST = \[[\s\S]*?\];/,
-            `var IMAGE_LIST = [\n      ${imageList}\n    ];`
-          );
-
-          templateContent = templateContent.replace(/var clickTag = ".*?";/, `var clickTag = "${appData.clickUrl}";`);
-
-          zip.file('index.html', templateContent);
-
-          uploadedImages.forEach(img => {
-            const base64Data = img.data.split(',')[1];
-            zip.file(img.name, base64Data, { base64: true });
-          });
-
-          const content = await zip.generateAsync({ type: 'blob' });
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(content);
-          link.download = `banner-${format}.zip`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(link.href);
-
-          await new Promise(resolve => setTimeout(resolve, 300));
+          templateContent = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
         } catch (error) {
-          console.error(`Error loading template ${format}:`, error);
+          console.error(`Template load failed (${format}):`, error);
           alert(`Template ${format}.html nicht gefunden oder nicht ladbar!`);
+          continue;
         }
+
+        // Export: KEIN base href injizieren.
+        // Export erwartet Root: Logo.png und fonts/...
+        templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
+
+        // index.html
+        zip.file('index.html', templateContent);
+
+        // Uploaded images -> Root (1.jpg,2.jpg,...)
+        uploadedImages.forEach(img => {
+          const base64Data = img.data.split(',')[1];
+          zip.file(img.name, base64Data, { base64: true });
+        });
+
+        // Logo.png aus assets/ ins Root
+        await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
+
+        // Fonts aus assets/fonts -> fonts/ im ZIP
+        for (const url of FONT_FILES) {
+          const filename = url.split('/').pop();
+          await addBinaryToZip(zip, `fonts/${filename}`, url);
+        }
+
+        // ZIP generieren + Download
+        const content = await zip.generateAsync({ type: 'blob' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = `banner-${format}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        // kurzer Abstand zwischen Downloads
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
     }
 
+    // -----------------------
+    // UI bindings
+    // -----------------------
     document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('headline').addEventListener('input', function() {
-        appData.headline = this.value;
-      });
-
-      document.getElementById('subline').addEventListener('input', function() {
-        appData.subline = this.value;
-      });
-
-      document.getElementById('ctaText').addEventListener('input', function() {
-        appData.ctaText = this.value;
-      });
-
-      document.getElementById('clickUrl').addEventListener('input', function() {
-        appData.clickUrl = this.value;
-      });
+      document.getElementById('headline').addEventListener('input', function() { appData.headline = this.value; });
+      document.getElementById('subline').addEventListener('input', function() { appData.subline = this.value; });
+      document.getElementById('ctaText').addEventListener('input', function() { appData.ctaText = this.value; });
+      document.getElementById('clickUrl').addEventListener('input', function() { appData.clickUrl = this.value; });
 
       document.getElementById('backStep1').addEventListener('click', () => showStep(1));
+      document.getElementById('backStep2').addEventListener('click', () => showStep(2));
 
       document.getElementById('createPreview').addEventListener('click', async function() {
-      if (!appData.clickUrl) {
-        alert('Bitte gib eine gültige URL ein!');
-        return;
-      }
-      showStep(3);
-      await generatePreviews();
-    });
-
-
-      document.getElementById('backStep2').addEventListener('click', () => showStep(2));
+        if (!appData.clickUrl) {
+          alert('Bitte gib eine gültige URL ein!');
+          return;
+        }
+        showStep(3);
+        await generatePreviews();
+      });
 
       document.getElementById('exportBanners').addEventListener('click', async function() {
         await exportBanners();
@@ -720,18 +819,16 @@ function escapeJs(str) {
 
         formatCheckboxes.forEach(cb => cb.checked = false);
         document.getElementById('uploadedImages').innerHTML = '';
+        document.getElementById('previewContainer').innerHTML = '';
+
         document.getElementById('clickUrl').value = '';
         document.getElementById('headline').value = appData.headline;
         document.getElementById('subline').value = appData.subline;
         document.getElementById('ctaText').value = appData.ctaText;
+
         nextButton1.disabled = true;
-
-        document.getElementById('previewContainer').innerHTML = '';
-
         showStep(1);
       });
-
-      console.log('HTML5 Banner Generator geladen!');
     });
   </script>
 </body>
