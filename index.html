@@ -7,346 +7,381 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
 
   <style>
-    :root {
-      --primary: #667eea;
-      --success: #4facfe;
-      --danger: #ff6b6b;
-      --dark: #2c3e50;
-      --white: #ffffff;
-      --shadow: 0 10px 30px rgba(0,0,0,0.1);
-      --border-radius: 12px;
+    :root{
+      --primary:#667eea;
+      --success:#4facfe;
+      --danger:#ff6b6b;
+      --dark:#2c3e50;
+      --white:#ffffff;
+      --shadow:0 10px 30px rgba(0,0,0,0.1);
+      --border-radius:12px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *{ margin:0; padding:0; box-sizing:border-box; }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      color: var(--dark);
-      line-height: 1.6;
+    body{
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height:100vh;
+      color:var(--dark);
+      line-height:1.6;
     }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .container{ max-width:1200px; margin:0 auto; padding:20px; }
 
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-      color: var(--white);
+    .header{
+      text-align:center;
+      margin-bottom:40px;
+      color:var(--white);
+    }
+    .header h1{
+      font-size:2.5rem;
+      font-weight:700;
+      margin-bottom:10px;
+      text-shadow:0 2px 10px rgba(0,0,0,0.2);
     }
 
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    .card{
+      background:var(--white);
+      border-radius:var(--border-radius);
+      padding:30px;
+      margin-bottom:20px;
+      box-shadow:var(--shadow);
+      transition:all 0.3s ease;
+    }
+    .card:hover{ transform:translateY(-2px); }
+
+    .step-content{ display:none; }
+    .step-content.active{ display:block; animation:fadeIn 0.5s; }
+    @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+
+    /* ----------------------------
+       Step 1: Format selection
+    ---------------------------- */
+    .format-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
+      gap:20px;
+      margin-bottom:30px;
     }
 
-    .card {
-      background: var(--white);
-      border-radius: var(--border-radius);
-      padding: 30px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-      transition: all 0.3s ease;
+    .format-card{
+      position:relative;
+      cursor:pointer;
+      border-radius:var(--border-radius);
+      border:3px solid #e0e0e0;
+      background:#f8f9fa;
+      overflow:hidden;
+      transition:all 0.3s ease;
+    }
+    .format-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+    .format-card input[type="checkbox"]{ display:none; }
+
+    .format-preview{ padding:20px; text-align:center; transition:all 0.3s ease; }
+    .preview-box{
+      background:#fff;
+      border-radius:10px;
+      padding:20px;
+      margin-bottom:15px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      border:2px dashed #ddd;
+      min-height:90px;
+      transition:all 0.25s ease;
+    }
+    .preview-box span{ font-weight:800; font-size:1.2em; color:#1f2430; }
+    .preview-box small{ color:#6b7280; margin-top:2px; }
+
+    .format-card input[type="checkbox"]:checked + .format-preview{
+      background:linear-gradient(135deg, #5B6CFF, #35C6FF);
+      color:#fff;
+    }
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box{
+      background:rgba(10,15,30,0.35);
+      border:1px solid rgba(255,255,255,0.35);
+      box-shadow:
+        0 10px 25px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.18);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      color:#fff;
+    }
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box span{
+      color:#fff;
+      text-shadow:0 2px 10px rgba(0,0,0,0.25);
+    }
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box small{
+      color:rgba(255,255,255,0.92);
+      text-shadow:0 2px 10px rgba(0,0,0,0.20);
     }
 
-    .card:hover { transform: translateY(-2px); }
-
-    .step-content { display: none; }
-    .step-content.active { display: block; animation: fadeIn 0.5s; }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .format-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
+    .format-card:has(input[type="checkbox"]:checked){
+      border-color:rgba(53,198,255,0.9);
+      box-shadow:0 14px 35px rgba(0,0,0,0.18);
     }
 
-    .format-card {
-      position: relative;
-      cursor: pointer;
-      border-radius: var(--border-radius);
-      border: 3px solid #e0e0e0;
-      background: #f8f9fa;
-      overflow: hidden;
-      transition: all 0.3s ease;
+    .checkmark{
+      position:absolute;
+      top:10px;
+      right:10px;
+      background:var(--success);
+      color:var(--white);
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:0;
+      transform:scale(0);
+      transition:all 0.25s ease;
+    }
+    .format-card input[type="checkbox"]:checked ~ .checkmark{
+      opacity:1;
+      transform:scale(1);
     }
 
-    .format-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-    .format-card input[type="checkbox"] { display: none; }
-
-          /* Checked State: modern, hoher Kontrast, "glass" Look */
-      .format-card input[type="checkbox"]:checked + .format-preview{
-        background: linear-gradient(135deg, #5B6CFF, #35C6FF);
-        color: #fff;
-      }
-      
-      /* Preview-Box als dunkler Glass-Layer, damit Text immer lesbar ist */
-      .format-card input[type="checkbox"]:checked + .format-preview .preview-box{
-        background: rgba(10, 15, 30, 0.35);           /* deutlich dunkler */
-        border: 1px solid rgba(255,255,255,0.35);
-        box-shadow:
-          0 10px 25px rgba(0,0,0,0.18),
-          inset 0 1px 0 rgba(255,255,255,0.18);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        color: #fff;
-      }
-      
-      /* Typo: Title klar und kräftig */
-      .format-card input[type="checkbox"]:checked + .format-preview .preview-box span{
-        color: #fff;
-        font-weight: 800;
-        letter-spacing: 0.2px;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.25);
-      }
-      
-      /* Subline: leicht reduziert, aber gut lesbar */
-      .format-card input[type="checkbox"]:checked + .format-preview .preview-box small{
-        color: rgba(255,255,255,0.92);
-        text-shadow: 0 2px 10px rgba(0,0,0,0.20);
-      }
-      
-      /* Optional: feiner Highlight-Rand auf der gesamten Card */
-      .format-card input[type="checkbox"]:checked{
-        /* no-op, input ist hidden */
-      }
-      .format-card:has(input[type="checkbox"]:checked){
-        border-color: rgba(53,198,255,0.9);
-        box-shadow: 0 14px 35px rgba(0,0,0,0.18);
-      }
-      
-      /* Checkmark wirklich sichtbar */
-      .format-card input[type="checkbox"]:checked ~ .checkmark{
-        opacity: 1;
-        transform: scale(1);
-      }
-
-
-    .format-preview { padding: 20px; text-align: center; transition: all 0.3s ease; }
-
-    .preview-box {
-      background: var(--white);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 15px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      border: 2px dashed #ddd;
-      min-height: 80px;
+    /* ----------------------------
+       Step 2: 4-cards grid (Preview appears on demand)
+    ---------------------------- */
+    .content-grid-4{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(280px, 1fr));
+      gap:20px;
+      align-items:start;
+      margin-bottom:30px;
     }
 
-    .checkmark {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: var(--success);
-      color: var(--white);
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transform: scale(0);
-      transition: all 0.3s ease;
+    @media (max-width: 1200px){
+      .content-grid-4{ grid-template-columns:repeat(2, minmax(280px, 1fr)); }
+    }
+    @media (max-width: 768px){
+      .content-grid-4{ grid-template-columns:1fr; }
     }
 
-    .input-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
+    .input-group{ margin-bottom:20px; }
+    .input-group label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:600;
+      color:var(--dark);
+    }
+    .input-group input{
+      width:100%;
+      padding:12px 15px;
+      border:2px solid #e0e0e0;
+      border-radius:8px;
+      font-size:1rem;
+      transition:all 0.3s ease;
+    }
+    .input-group input:focus{
+      outline:none;
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(102,126,234,0.1);
     }
 
-    .input-group { margin-bottom: 20px; }
-
-    .input-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: var(--dark);
+    .upload-area{
+      border:3px dashed #ddd;
+      border-radius:var(--border-radius);
+      padding:40px;
+      text-align:center;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      position:relative;
+      background:#f8f9fa;
+    }
+    .upload-area:hover, .upload-area.dragover{
+      border-color:var(--primary);
+      background:rgba(102,126,234,0.05);
+    }
+    .upload-area input[type="file"]{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+    .upload-area i{
+      font-size:3rem;
+      color:var(--primary);
+      margin-bottom:15px;
     }
 
-    .input-group input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
+    .uploaded-images{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(100px, 1fr));
+      gap:10px;
+      margin-top:20px;
+    }
+    .uploaded-image{
+      position:relative;
+      aspect-ratio:1;
+      border-radius:8px;
+      overflow:hidden;
+      background:#f0f0f0;
+    }
+    .uploaded-image img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .uploaded-image .remove{
+      position:absolute;
+      top:5px;
+      right:5px;
+      background:var(--danger);
+      color:var(--white);
+      border:none;
+      border-radius:50%;
+      width:25px;
+      height:25px;
+      cursor:pointer;
+      font-size:0.8rem;
+    }
+    .uploaded-image .number{
+      position:absolute;
+      bottom:5px;
+      left:5px;
+      background:var(--primary);
+      color:var(--white);
+      padding:2px 6px;
+      border-radius:4px;
+      font-size:0.8rem;
+      font-weight:bold;
     }
 
-    .input-group input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    .btn{
+      padding:12px 30px;
+      border:none;
+      border-radius:25px;
+      font-size:1rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:disabled{ opacity:0.6; cursor:not-allowed; }
+    .btn-primary{
+      background:linear-gradient(135deg, var(--primary), #5a6fd8);
+      color:var(--white);
+    }
+    .btn-primary:hover:not(:disabled){
+      transform:translateY(-2px);
+      box-shadow:0 10px 25px rgba(102,126,234,0.3);
+    }
+    .btn-secondary{ background:#6c757d; color:var(--white); }
+    .btn-secondary:hover{ background:#545b62; transform:translateY(-2px); }
+    .btn-success{
+      background:linear-gradient(135deg, var(--success), #00b4db);
+      color:var(--white);
+    }
+    .btn-success:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 25px rgba(79,172,254,0.3);
     }
 
-    .upload-area {
-      border: 3px dashed #ddd;
-      border-radius: var(--border-radius);
-      padding: 40px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      background: #f8f9fa;
+    .button-group{
+      display:flex;
+      gap:15px;
+      justify-content:center;
+      flex-wrap:wrap;
     }
 
-    .upload-area:hover, .upload-area.dragover {
-      border-color: var(--primary);
-      background: rgba(102, 126, 234, 0.05);
+    /* ----------------------------
+       Preview card
+    ---------------------------- */
+    .hidden{ display:none !important; }
+
+    .preview-card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
     }
 
-    .upload-area input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
+    .preview-grid{
+      display:flex;
+      gap:18px;
+      justify-content:center;
+      align-items:flex-start;
+      flex-wrap:nowrap;
+    }
+    @media (max-width: 900px){
+      .preview-grid{ flex-wrap:wrap; }
     }
 
-    .upload-area i {
-      font-size: 3rem;
-      color: var(--primary);
-      margin-bottom: 15px;
+    .preview-item{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      border-radius:12px;
+      background:#f8fafc;
+      border:1px solid #e5e7eb;
+      width:fit-content;
+      max-width:100%;
     }
 
-    .uploaded-images {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 10px;
-      margin-top: 20px;
+    .preview-title{
+      font-weight:800;
+      color:#111827;
+      letter-spacing:0.2px;
     }
 
-    .uploaded-image {
-      position: relative;
-      aspect-ratio: 1;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #f0f0f0;
+    /* no clipping, no rounding */
+    .iframe-viewport{
+      border:0;
+      border-radius:0;
+      overflow:visible;
+      background:transparent;
+      display:inline-block;
+      max-width:100%;
+    }
+    .iframe-viewport iframe{
+      border:0;
+      display:block;
+      background:transparent;
     }
 
-    .uploaded-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    details.details{
+      margin-top:14px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#fff;
+      overflow:hidden;
     }
-
-    .uploaded-image .remove {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: var(--danger);
-      color: var(--white);
-      border: none;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      cursor: pointer;
-      font-size: 0.8rem;
+    details.details summary{
+      cursor:pointer;
+      padding:12px 14px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      user-select:none;
+      background:#f8fafc;
     }
-
-    .uploaded-image .number {
-      position: absolute;
-      bottom: 5px;
-      left: 5px;
-      background: var(--primary);
-      color: var(--white);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: bold;
+    details.details summary::-webkit-details-marker{ display:none; }
+    details.details .details-body{
+      padding:14px;
+      display:grid;
+      gap:10px;
+      color:#374151;
+      font-size:0.95rem;
     }
-
-    .btn {
-      padding: 12px 30px;
-      border: none;
-      border-radius: 25px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), #5a6fd8);
-      color: var(--white);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-secondary { background: #6c757d; color: var(--white); }
-    .btn-secondary:hover { background: #545b62; transform: translateY(-2px); }
-
-    .btn-success {
-      background: linear-gradient(135deg, var(--success), #00b4db);
-      color: var(--white);
-    }
-
-    .btn-success:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* Preview Container */
-    #previewContainer {
-      min-height: 200px;
-      width: 100%;
-      display: block;
-    }
-
-   .banner-preview {
-  padding: 20px;          /* ok, weil es um den Preview-Block geht */
-}
-
-.banner-preview .iframe-viewport {
-  margin: 0;              /* kein zusätzlicher Abstand, der irritiert */
-}
-
-
-    .iframe-viewport {
-  border: 0;              /* kein Rahmen */
-  border-radius: 0;       /* keine Rundung */
-  overflow: visible;      /* NICHT clippen */
-  background: transparent;
-  display: inline-block;
-  max-width: 100%;
-}
-
-.iframe-viewport iframe {
-  border: 0;
-  display: block;
-  background: transparent;
-}
-
-
-    @media (max-width: 768px) {
-      .container { padding: 10px; }
-      .header h1 { font-size: 2rem; }
-      .format-grid, .input-grid { grid-template-columns: 1fr; }
-      .btn { width: 100%; justify-content: center; }
+    .mono{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:0.9rem;
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:#0b1220;
+      color:#e5e7eb;
+      border-radius:10px;
+      padding:12px;
     }
   </style>
 </head>
@@ -358,7 +393,7 @@
       <p>Erstelle professionelle Display-Banner für Google Ads &amp; DV360</p>
     </header>
 
-    <!-- Step 1: Format Selection -->
+    <!-- Step 1 -->
     <div class="step-content active" id="step1">
       <div class="card">
         <h2><i class="fas fa-th-large"></i> Banner-Formate auswählen</h2>
@@ -368,7 +403,7 @@
             <input type="checkbox" id="format-300x250" value="300x250">
             <div class="format-preview">
               <div class="preview-box">
-                <span style="font-weight: bold; font-size: 1.2em;">300×250</span>
+                <span>300×250</span>
                 <small>Medium Rectangle</small>
               </div>
             </div>
@@ -379,7 +414,7 @@
             <input type="checkbox" id="format-300x600" value="300x600">
             <div class="format-preview">
               <div class="preview-box">
-                <span style="font-weight: bold; font-size: 1.2em;">300×600</span>
+                <span>300×600</span>
                 <small>Half Page</small>
               </div>
             </div>
@@ -390,7 +425,7 @@
             <input type="checkbox" id="format-970x250" value="970x250">
             <div class="format-preview">
               <div class="preview-box">
-                <span style="font-weight: bold; font-size: 1.2em;">970×250</span>
+                <span>970×250</span>
                 <small>Billboard</small>
               </div>
             </div>
@@ -406,22 +441,24 @@
       </div>
     </div>
 
-       <!-- Step 2: Content Input -->
+    <!-- Step 2 -->
     <div class="step-content" id="step2">
-      <div class="input-grid">
+      <div class="content-grid-4">
+        <!-- Card 1: Images -->
         <div class="card">
           <h3><i class="fas fa-images"></i> Bilder hochladen</h3>
           <div class="upload-area" id="uploadArea">
             <i class="fas fa-cloud-upload-alt"></i>
             <p>Bilder hier hinziehen oder klicken</p>
-            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+            <p style="font-size:0.9em; color:#666; margin-top:10px;">
               Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
             </p>
             <input type="file" id="imageUpload" multiple accept="image/*">
           </div>
           <div class="uploaded-images" id="uploadedImages"></div>
         </div>
-    
+
+        <!-- Card 2: Text -->
         <div class="card">
           <h3><i class="fas fa-font"></i> Texte anpassen</h3>
           <div class="input-group">
@@ -437,23 +474,51 @@
             <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
           </div>
         </div>
-    
-        <!-- ✅ Naming + Click-URL im selben Kasten -->
+
+        <!-- Card 3: Naming + URL -->
         <div class="card">
           <h3><i class="fas fa-link"></i> Click-URL</h3>
-    
+
           <div class="input-group">
             <label for="zipName">Naming (für ZIP-Datei)</label>
             <input type="text" id="zipName" placeholder="z.B. KW02_BackToGym" required>
           </div>
-    
+
           <div class="input-group">
             <label for="clickUrl">Ziel-URL</label>
             <input type="url" id="clickUrl" placeholder="https://example.com" required>
           </div>
+
+          <p style="font-size:0.9em; color:#6b7280; margin-top:8px;">
+            Hinweis: utm_source=dbm &amp; utm_medium=cpm werden automatisch ergänzt.
+          </p>
+        </div>
+
+        <!-- Card 4: Preview (hidden until click) -->
+        <div class="card hidden" id="previewCard">
+          <div class="preview-card-head">
+            <h3 style="margin:0;"><i class="fas fa-eye"></i> Vorschau</h3>
+            <button class="btn btn-secondary" id="hidePreview" type="button" style="padding:10px 16px; border-radius:999px;">
+              Ausblenden
+            </button>
+          </div>
+
+          <div id="previewGrid" class="preview-grid"></div>
+
+          <details class="details" id="previewDetails">
+            <summary>
+              Details
+              <span style="opacity:0.75;"><i class="fas fa-chevron-down"></i></span>
+            </summary>
+            <div class="details-body">
+              <div><strong>Naming:</strong> <span id="detailsName">-</span></div>
+              <div><strong>Final clickTag:</strong></div>
+              <div class="mono" id="detailsClickTag">-</div>
+            </div>
+          </details>
         </div>
       </div>
-    
+
       <div class="button-group">
         <button class="btn btn-secondary" id="backStep1">
           <i class="fas fa-arrow-left"></i> Zurück
@@ -461,33 +526,19 @@
         <button class="btn btn-primary" id="createPreview">
           Vorschau erstellen <i class="fas fa-eye"></i>
         </button>
-      </div>
-    </div>
-
-    <!-- Step 3: Preview -->
-    <div class="step-content" id="step3">
-      <div class="card">
-        <h2><i class="fas fa-eye"></i> Banner-Vorschau</h2>
-        <div id="previewContainer"></div>
-      </div>
-
-      <div class="button-group">
-        <button class="btn btn-secondary" id="backStep2">
-          <i class="fas fa-arrow-left"></i> Zurück
-        </button>
         <button class="btn btn-success" id="exportBanners">
           Export starten <i class="fas fa-download"></i>
         </button>
       </div>
     </div>
 
-    <!-- Step 4: Export Status -->
+    <!-- Step 4 -->
     <div class="step-content" id="step4">
       <div class="card">
         <h2><i class="fas fa-download"></i> Export Status</h2>
-        <div id="exportStatus" style="text-align: center; padding: 20px;">
-          <div style="margin-bottom: 20px;">
-            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
+        <div id="exportStatus" style="text-align:center; padding:20px;">
+          <div style="margin-bottom:20px;">
+            <i class="fas fa-check-circle" style="font-size:3rem; color:var(--success);"></i>
           </div>
           <h3>Export erfolgreich!</h3>
           <p>Deine Banner wurden als ZIP-Dateien heruntergeladen.</p>
@@ -503,234 +554,224 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
   <script>
-  // -----------------------
-  // Config (Ordnerstruktur)
-  // -----------------------
-  const TEMPLATE_DIR = 'templates';       // templates/300x250.html ...
-  const ASSETS_DIR   = 'assets';          // assets/Logo.png, assets/fonts/...
-  const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
+    // -----------------------
+    // Config (Ordnerstruktur)
+    // -----------------------
+    const TEMPLATE_DIR = 'templates';
+    const ASSETS_DIR   = 'assets';
+    const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
 
-  // Fonts in assets/fonts (Browser kann nicht "listen" -> Liste fix)
-  const FONT_FILES = [
-    'Interstate WGL Bold.woff',
-    'Interstate WGL Bold.woff2',
-    'Interstate WGL Light.woff',
-    'Interstate WGL Light.woff2',
-    'Interstate WGL Regular.woff',
-    'Interstate WGL Regular.woff2',
-  ].map(f => `${ASSETS_DIR}/fonts/${f}`);
+    const FONT_FILES = [
+      'Interstate WGL Bold.woff',
+      'Interstate WGL Bold.woff2',
+      'Interstate WGL Light.woff',
+      'Interstate WGL Light.woff2',
+      'Interstate WGL Regular.woff',
+      'Interstate WGL Regular.woff2',
+    ].map(f => `${ASSETS_DIR}/fonts/${f}`);
 
-  // -----------------------
-  // State
-  // -----------------------
-  let selectedFormats = [];
-  let uploadedImages = [];
-  let appData = {
-    headline: 'Bereit für deine Ziele?',
-    subline: 'Sport Outfits entdecken!',
-    ctaText: 'Jetzt shoppen',
-    landingUrl: '',
-    zipName: '' // ✅ Naming für ZIP-Datei
-  };
+    // Preview order: 300x600 left, 300x250 middle, 970x250 right
+    const PREVIEW_ORDER = ['300x600', '300x250', '970x250'];
 
-  // -----------------------
-  // Helpers
-  // -----------------------
-  function showStep(stepNumber) {
-    document.querySelectorAll('.step-content').forEach(step => step.classList.remove('active'));
-    const targetStep = document.getElementById(`step${stepNumber}`);
-    if (targetStep) targetStep.classList.add('active');
-  }
+    // -----------------------
+    // State
+    // -----------------------
+    let selectedFormats = [];
+    let uploadedImages = [];
+    let appData = {
+      headline: 'Bereit für deine Ziele?',
+      subline: 'Sport Outfits entdecken!',
+      ctaText: 'Jetzt shoppen',
+      landingUrl: '',
+      zipName: ''
+    };
 
-  function escapeJs(str) {
-    return String(str)
-      .replaceAll('\\', '\\\\')
-      .replaceAll('"', '\\"')
-      .replaceAll('\n', '\\n');
-  }
+    // -----------------------
+    // Helpers
+    // -----------------------
+    function showStep(stepNumber){
+      document.querySelectorAll('.step-content').forEach(step => step.classList.remove('active'));
+      const target = document.getElementById(`step${stepNumber}`);
+      if (target) target.classList.add('active');
+    }
 
-  function parseFormat(format) {
-    const [w, h] = format.split('x').map(n => parseInt(n, 10));
-    return { w, h };
-  }
+    function escapeJs(str){
+      return String(str)
+        .replaceAll('\\', '\\\\')
+        .replaceAll('"', '\\"')
+        .replaceAll('\n', '\\n');
+    }
 
-  function computeScale(w, h) {
-    const maxW = 980;
-    const maxH = 700;
-    return Math.min(1, maxW / w, maxH / h);
-  }
+    function sanitizeFilePart(name){
+      const s = String(name || '').trim();
+      const cleaned = s
+        .replace(/\s+/g, '_')
+        .replace(/[^\w.\-]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+      return cleaned || 'banner';
+    }
 
-  function injectPreviewBase(html) {
-    // Preview: Template referenziert "Logo.png" und "fonts/..."
-    // Diese liegen in Repo unter assets/... => base auf ./assets/ setzen.
-    if (/<base\s/i.test(html)) return html;
-    return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
-  }
+    function parseFormat(format){
+      const [w, h] = format.split('x').map(n => parseInt(n, 10));
+      return { w, h };
+    }
 
-  function sanitizeFilePart(name) {
-    // Windows/macOS safe, keine Sonderzeichen, keine Leerzeichen am Ende
-    const s = String(name || '').trim();
-    // Erlaubt: Buchstaben, Zahlen, _, -, .
-    const cleaned = s
-      .replace(/\s+/g, '_')
-      .replace(/[^\w.\-]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-    return cleaned || 'banner';
-  }
+    function computeScale(w, h){
+      const maxW = 330;
+      const maxH = 520;
+      return Math.min(1, maxW / w, maxH / h);
+    }
 
-  // -----------------------
-  // URL / ClickTag Builder
-  // -----------------------
-  function normalizeLandingUrl(raw) {
-    let url = String(raw || '').trim();
-    if (!url) return '';
+    function injectPreviewBase(html){
+      if (/<base\s/i.test(html)) return html;
+      return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
+    }
 
-    const lower = url.toLowerCase();
-    const hasProtocol = /^https?:\/\//i.test(url);
+    // -----------------------
+    // URL / ClickTag Builder
+    // -----------------------
+    function normalizeLandingUrl(raw){
+      let url = String(raw || '').trim();
+      if (!url) return '';
 
-    if (!hasProtocol) {
-      if (lower === 'tchibo.de' || lower.startsWith('tchibo.de/')) {
-        url = 'https://www.tchibo.de' + url.slice('tchibo.de'.length);
-      } else if (lower === 'www.tchibo.de' || lower.startsWith('www.tchibo.de/')) {
-        url = 'https://www.tchibo.de' + url.slice('www.tchibo.de'.length);
+      const lower = url.toLowerCase();
+      const hasProtocol = /^https?:\/\//i.test(url);
+
+      if (!hasProtocol){
+        if (lower === 'tchibo.de' || lower.startsWith('tchibo.de/')){
+          url = 'https://www.tchibo.de' + url.slice('tchibo.de'.length);
+        } else if (lower === 'www.tchibo.de' || lower.startsWith('www.tchibo.de/')){
+          url = 'https://www.tchibo.de' + url.slice('www.tchibo.de'.length);
+        } else {
+          url = 'https://' + url;
+        }
       } else {
-        url = 'https://' + url;
+        url = url.replace(/^https?:\/\/tchibo\.de/i, 'https://www.tchibo.de');
+        url = url.replace(/^https?:\/\/www\.tchibo\.de/i, 'https://www.tchibo.de');
       }
-    } else {
-      url = url.replace(/^https?:\/\/tchibo\.de/i, 'https://www.tchibo.de');
-      url = url.replace(/^https?:\/\/www\.tchibo\.de/i, 'https://www.tchibo.de');
+
+      return url;
     }
 
-    return url;
-  }
-
-  function appendUtmParams(url) {
-    const u = new URL(url);
-    if (!u.searchParams.has('utm_source')) u.searchParams.set('utm_source', 'dbm');
-    if (!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium', 'cpm');
-    return u.toString();
-  }
-
-  // ✅ UNENCODED: url= bekommt lesbare URL (wie von dir gewünscht)
-  function buildTchiboClickTagUnencoded(landingUrlWithUtm) {
-    const base = 'https://tagm.tchibo.de/cl.aspx';
-    const params =
-      'extProvId=300' +
-      '&extProvApi=129768' +
-      '&extPu=tchibo-dv360' +
-      '&extLi=${INSERTION_ORDER_ID}' +
-      '&extPm=${CAMPAIGN_ID}' +
-      '&extCr=${CREATIVE_ID}' +
-      '&adslotid=${PUBLISHER_ID}' +
-      '&gdpr=${GDPR}' +
-      '&gdpr_consent=${GDPR_CONSENT_312}' +
-      '&url=' + landingUrlWithUtm;
-
-    return `${base}?${params}`;
-  }
-
-  function getFinalClickTag() {
-    const normalized = normalizeLandingUrl(appData.landingUrl);
-    if (!normalized) return '';
-    try {
-      const withUtm = appendUtmParams(normalized);
-      return buildTchiboClickTagUnencoded(withUtm);
-    } catch {
-      return '';
-    }
-  }
-
-  // -----------------------
-  // Template variable replacement
-  // -----------------------
-  function replaceTemplateVars(html, { mode }) {
-    html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
-    html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
-    html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
-
-    const finalClickTag = getFinalClickTag();
-    html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
-
-    if (uploadedImages.length > 0) {
-      const list = (mode === 'preview')
-        ? uploadedImages.map(img => `"${img.data}"`).join(',\n      ')
-        : uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
-
-      html = html.replace(/var\s+IMAGE_LIST\s*=\s*\[[\s\S]*?\];/s, `var IMAGE_LIST = [\n      ${list}\n    ];`);
+    function appendUtmParams(url){
+      const u = new URL(url);
+      if (!u.searchParams.has('utm_source')) u.searchParams.set('utm_source', 'dbm');
+      if (!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium', 'cpm');
+      return u.toString();
     }
 
-    return html;
-  }
+    // unencoded url= as requested
+    function buildTchiboClickTagUnencoded(landingUrlWithUtm){
+      const base = 'https://tagm.tchibo.de/cl.aspx';
+      const params =
+        'extProvId=300' +
+        '&extProvApi=129768' +
+        '&extPu=tchibo-dv360' +
+        '&extLi=${INSERTION_ORDER_ID}' +
+        '&extPm=${CAMPAIGN_ID}' +
+        '&extCr=${CREATIVE_ID}' +
+        '&adslotid=${PUBLISHER_ID}' +
+        '&gdpr=${GDPR}' +
+        '&gdpr_consent=${GDPR_CONSENT_312}' +
+        '&url=' + landingUrlWithUtm;
 
-  async function fetchText(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-    return await res.text();
-  }
-
-  async function addBinaryToZip(zip, zipPath, url) {
-    const res = await fetch(url);
-    if (!res.ok) {
-      console.warn(`Asset nicht ladbar: ${url} (HTTP ${res.status})`);
-      return;
+      return `${base}?${params}`;
     }
-    const buf = await res.arrayBuffer();
-    zip.file(zipPath, buf);
-  }
 
-  // -----------------------
-  // Step 1: Format selection
-  // -----------------------
-  const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
-  const nextButton1 = document.getElementById('nextStep1');
+    function getFinalClickTag(){
+      const normalized = normalizeLandingUrl(appData.landingUrl);
+      if (!normalized) return '';
+      try{
+        const withUtm = appendUtmParams(normalized);
+        return buildTchiboClickTagUnencoded(withUtm);
+      } catch {
+        return '';
+      }
+    }
 
-  formatCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-        .map(cb => cb.value);
+    // -----------------------
+    // Template variable replacement
+    // -----------------------
+    function replaceTemplateVars(html, { mode }){
+      html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
+      html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
+      html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
 
-      nextButton1.disabled = selectedFormats.length === 0;
+      const finalClickTag = getFinalClickTag();
+      html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
+
+      if (uploadedImages.length > 0){
+        const list = (mode === 'preview')
+          ? uploadedImages.map(img => `"${img.data}"`).join(',\n      ')
+          : uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
+        html = html.replace(/var\s+IMAGE_LIST\s*=\s*\[[\s\S]*?\];/s, `var IMAGE_LIST = [\n      ${list}\n    ];`);
+      }
+
+      return html;
+    }
+
+    async function fetchText(url){
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+      return await res.text();
+    }
+
+    async function addBinaryToZip(zip, zipPath, url){
+      const res = await fetch(url);
+      if (!res.ok){
+        console.warn(`Asset nicht ladbar: ${url} (HTTP ${res.status})`);
+        return;
+      }
+      const buf = await res.arrayBuffer();
+      zip.file(zipPath, buf);
+    }
+
+    function sortedFormatsForPreview(formats){
+      const set = new Set(formats);
+      const ordered = PREVIEW_ORDER.filter(f => set.has(f));
+      const rest = formats.filter(f => !PREVIEW_ORDER.includes(f));
+      return [...ordered, ...rest];
+    }
+
+    // -----------------------
+    // Step 1: Format selection
+    // -----------------------
+    const formatCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    const nextButton1 = document.getElementById('nextStep1');
+
+    formatCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        selectedFormats = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(x => x.value);
+        nextButton1.disabled = selectedFormats.length === 0;
+      });
     });
-  });
 
-  nextButton1.addEventListener('click', function() {
-    showStep(2);
-  });
+    nextButton1.addEventListener('click', () => showStep(2));
 
-  // -----------------------
-  // Step 2: Image upload
-  // -----------------------
-  const uploadArea = document.getElementById('uploadArea');
-  const fileInput = document.getElementById('imageUpload');
-  const uploadedContainer = document.getElementById('uploadedImages');
+    // -----------------------
+    // Step 2: Uploads
+    // -----------------------
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('imageUpload');
+    const uploadedContainer = document.getElementById('uploadedImages');
 
-  uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
-  uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('dragover');
-  });
-
-  uploadArea.addEventListener('dragleave', () => {
-    uploadArea.classList.remove('dragover');
-  });
-
-  uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-    handleFiles(e.dataTransfer.files);
-  });
-
-  fileInput.addEventListener('change', (e) => {
-    handleFiles(e.target.files);
-  });
-
-  function handleFiles(files) {
-    Array.from(files).forEach(file => {
-      if (file.type.startsWith('image/')) {
+    function handleFiles(files){
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = (e) => {
           uploadedImages.push({
             name: `${uploadedImages.length + 1}.jpg`,
             data: e.target.result,
@@ -739,219 +780,226 @@
           updateImageDisplay();
         };
         reader.readAsDataURL(file);
-      }
-    });
-  }
-
-  function updateImageDisplay() {
-    uploadedContainer.innerHTML = '';
-    uploadedImages.forEach((img, index) => {
-      const div = document.createElement('div');
-      div.className = 'uploaded-image';
-      div.innerHTML = `
-        <img src="${img.data}" alt="Bild ${index + 1}">
-        <div class="number">${index + 1}.jpg</div>
-        <button class="remove" type="button" onclick="removeImage(${index})">×</button>
-      `;
-      uploadedContainer.appendChild(div);
-    });
-  }
-
-  function removeImage(index) {
-    uploadedImages.splice(index, 1);
-    uploadedImages.forEach((img, newIndex) => img.name = `${newIndex + 1}.jpg`);
-    updateImageDisplay();
-  }
-
-  // -----------------------
-  // Step 3: Live preview
-  // -----------------------
-  async function generatePreviews() {
-    const container = document.getElementById('previewContainer');
-    container.innerHTML = '';
-
-    for (const format of selectedFormats) {
-      const { w, h } = parseFormat(format);
-      const scale = computeScale(w, h);
-
-      let html;
-      try {
-        html = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
-      } catch (e) {
-        const err = document.createElement('div');
-        err.className = 'banner-preview';
-        err.innerHTML = `<b>Template ${format}.html nicht gefunden oder nicht ladbar.</b><br>${String(e)}`;
-        container.appendChild(err);
-        continue;
-      }
-
-      html = injectPreviewBase(html);
-      html = replaceTemplateVars(html, { mode: 'preview' });
-
-      const wrap = document.createElement('div');
-      wrap.className = 'banner-preview';
-      wrap.innerHTML = `<h4>Banner ${format}</h4>`;
-
-      const viewport = document.createElement('div');
-      viewport.className = 'iframe-viewport';
-      viewport.style.width = `${Math.round(w * scale)}px`;
-      viewport.style.height = `${Math.round(h * scale)}px`;
-
-      const iframe = document.createElement('iframe');
-      iframe.width = w;
-      iframe.height = h;
-      iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
-      iframe.style.transform = `scale(${scale})`;
-      iframe.style.transformOrigin = '0 0';
-      iframe.srcdoc = html;
-
-      viewport.appendChild(iframe);
-      wrap.appendChild(viewport);
-
-      const meta = document.createElement('div');
-      meta.style.marginTop = '12px';
-      meta.style.fontSize = '0.9em';
-      meta.style.color = '#666';
-      meta.innerHTML = `
-        <div><strong>Naming:</strong> ${sanitizeFilePart(appData.zipName || '')}</div>
-        <div><strong>Landing-URL:</strong> ${normalizeLandingUrl(appData.landingUrl) || '-'}</div>
-        <div><strong>Final clickTag:</strong> ${getFinalClickTag() || '-'}</div>
-        <div><strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(i => i.name).join(', ') || '-'})</div>
-      `;
-      wrap.appendChild(meta);
-
-      container.appendChild(wrap);
+      });
     }
-  }
 
-  // -----------------------
-  // Export: ZIP
-  // -----------------------
-  async function exportBanners() {
-    const baseName = sanitizeFilePart(appData.zipName);
+    function updateImageDisplay(){
+      uploadedContainer.innerHTML = '';
+      uploadedImages.forEach((img, idx) => {
+        const div = document.createElement('div');
+        div.className = 'uploaded-image';
+        div.innerHTML = `
+          <img src="${img.data}" alt="Bild ${idx + 1}">
+          <div class="number">${idx + 1}.jpg</div>
+          <button class="remove" type="button" onclick="removeImage(${idx})">×</button>
+        `;
+        uploadedContainer.appendChild(div);
+      });
+    }
 
-    for (const format of selectedFormats) {
-      const zip = new JSZip();
+    function removeImage(index){
+      uploadedImages.splice(index, 1);
+      uploadedImages.forEach((img, i) => img.name = `${i + 1}.jpg`);
+      updateImageDisplay();
+    }
+    window.removeImage = removeImage;
 
-      let templateContent;
-      try {
-        templateContent = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
-      } catch (error) {
-        console.error(`Template load failed (${format}):`, error);
-        alert(`Template ${format}.html nicht gefunden oder nicht ladbar!`);
-        continue;
+    // -----------------------
+    // Preview (card appears on demand)
+    // -----------------------
+    const previewCard = document.getElementById('previewCard');
+    const previewGrid = document.getElementById('previewGrid');
+    const detailsName = document.getElementById('detailsName');
+    const detailsClickTag = document.getElementById('detailsClickTag');
+
+    async function buildPreview(){
+      previewGrid.innerHTML = '';
+
+      detailsName.textContent = sanitizeFilePart(appData.zipName);
+      detailsClickTag.textContent = getFinalClickTag() || '-';
+
+      const ordered = sortedFormatsForPreview(selectedFormats);
+      if (ordered.length === 0){
+        previewGrid.innerHTML = `<div style="color:#6b7280;">Keine Formate ausgewählt.</div>`;
+        return;
       }
 
-      templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
-      zip.file('index.html', templateContent);
+      for (const format of ordered){
+        const { w, h } = parseFormat(format);
+        const scale = computeScale(w, h);
 
-      uploadedImages.forEach(img => {
-        const base64Data = img.data.split(',')[1];
-        zip.file(img.name, base64Data, { base64: true });
+        let html;
+        try{
+          html = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
+        } catch (e){
+          const item = document.createElement('div');
+          item.className = 'preview-item';
+          item.innerHTML = `
+            <div class="preview-title">${format}</div>
+            <div style="color:#b91c1c; font-weight:700;">Template nicht ladbar</div>
+            <div style="color:#6b7280; font-size:0.9rem;">${String(e)}</div>
+          `;
+          previewGrid.appendChild(item);
+          continue;
+        }
+
+        html = injectPreviewBase(html);
+        html = replaceTemplateVars(html, { mode: 'preview' });
+
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+
+        const title = document.createElement('div');
+        title.className = 'preview-title';
+        title.textContent = format;
+
+        const viewport = document.createElement('div');
+        viewport.className = 'iframe-viewport';
+        viewport.style.width = `${Math.round(w * scale)}px`;
+        viewport.style.height = `${Math.round(h * scale)}px`;
+
+        const iframe = document.createElement('iframe');
+        iframe.width = w;
+        iframe.height = h;
+        iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+        iframe.style.transform = `scale(${scale})`;
+        iframe.style.transformOrigin = '0 0';
+        iframe.srcdoc = html;
+
+        viewport.appendChild(iframe);
+        item.appendChild(title);
+        item.appendChild(viewport);
+        previewGrid.appendChild(item);
+      }
+    }
+
+    // -----------------------
+    // Export: ZIP
+    // -----------------------
+    async function exportBanners(){
+      const baseName = sanitizeFilePart(appData.zipName);
+
+      for (const format of selectedFormats){
+        const zip = new JSZip();
+
+        let templateContent;
+        try{
+          templateContent = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
+        } catch (error){
+          console.error(`Template load failed (${format}):`, error);
+          alert(`Template ${format}.html nicht gefunden oder nicht ladbar!`);
+          continue;
+        }
+
+        templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
+        zip.file('index.html', templateContent);
+
+        uploadedImages.forEach(img => {
+          const base64Data = img.data.split(',')[1];
+          zip.file(img.name, base64Data, { base64: true });
+        });
+
+        await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
+
+        for (const url of FONT_FILES){
+          const filename = url.split('/').pop();
+          await addBinaryToZip(zip, `fonts/${filename}`, url);
+        }
+
+        const content = await zip.generateAsync({ type: 'blob' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = `${format}_${baseName}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+
+    // -----------------------
+    // UI bindings
+    // -----------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('headline').addEventListener('input', e => appData.headline = e.target.value);
+      document.getElementById('subline').addEventListener('input', e => appData.subline = e.target.value);
+      document.getElementById('ctaText').addEventListener('input', e => appData.ctaText = e.target.value);
+      document.getElementById('clickUrl').addEventListener('input', e => appData.landingUrl = e.target.value);
+      document.getElementById('zipName').addEventListener('input', e => appData.zipName = e.target.value);
+
+      document.getElementById('backStep1').addEventListener('click', () => showStep(1));
+
+      document.getElementById('createPreview').addEventListener('click', async () => {
+        const nmRaw = String(appData.zipName || '').trim();
+        const finalClick = getFinalClickTag();
+
+        if (!finalClick){
+          alert('Bitte gib eine gültige Ziel-URL ein!');
+          return;
+        }
+        if (!nmRaw){
+          alert('Bitte gib ein Naming für die ZIP-Datei ein!');
+          return;
+        }
+
+        previewCard.classList.remove('hidden'); // ✅ appears now
+        await buildPreview();
+        // optional: scroll into view
+        previewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
-      await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
+      document.getElementById('hidePreview').addEventListener('click', () => {
+        previewCard.classList.add('hidden');
+      });
 
-      for (const url of FONT_FILES) {
-        const filename = url.split('/').pop();
-        await addBinaryToZip(zip, `fonts/${filename}`, url);
-      }
+      document.getElementById('exportBanners').addEventListener('click', async () => {
+        const nmRaw = String(appData.zipName || '').trim();
+        const finalClick = getFinalClickTag();
 
-      const content = await zip.generateAsync({ type: 'blob' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(content);
+        if (!finalClick){
+          alert('Bitte gib eine gültige Ziel-URL ein!');
+          return;
+        }
+        if (!nmRaw){
+          alert('Bitte gib ein Naming für die ZIP-Datei ein!');
+          return;
+        }
 
-      // ✅ Format vorne + Naming dahinter:
-      link.download = `${format}_${baseName}.zip`;
+        await exportBanners();
+        showStep(4);
+      });
 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
+      document.getElementById('startOver').addEventListener('click', () => {
+        selectedFormats = [];
+        uploadedImages = [];
+        appData = {
+          headline: 'Bereit für deine Ziele?',
+          subline: 'Sport Outfits entdecken!',
+          ctaText: 'Jetzt shoppen',
+          landingUrl: '',
+          zipName: ''
+        };
 
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
-  }
+        formatCheckboxes.forEach(cb => cb.checked = false);
+        nextButton1.disabled = true;
 
-  // -----------------------
-  // UI bindings
-  // -----------------------
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('headline').addEventListener('input', function() { appData.headline = this.value; });
-    document.getElementById('subline').addEventListener('input', function() { appData.subline = this.value; });
-    document.getElementById('ctaText').addEventListener('input', function() { appData.ctaText = this.value; });
-    document.getElementById('clickUrl').addEventListener('input', function() { appData.landingUrl = this.value; });
+        document.getElementById('uploadedImages').innerHTML = '';
+        document.getElementById('headline').value = appData.headline;
+        document.getElementById('subline').value = appData.subline;
+        document.getElementById('ctaText').value = appData.ctaText;
+        document.getElementById('clickUrl').value = '';
+        document.getElementById('zipName').value = '';
 
-    // ✅ Naming Input (falls vorhanden)
-    const zipNameEl = document.getElementById('zipName');
-    if (zipNameEl) {
-      zipNameEl.addEventListener('input', function() { appData.zipName = this.value; });
-    }
+        previewGrid.innerHTML = '';
+        detailsName.textContent = '-';
+        detailsClickTag.textContent = '-';
+        previewCard.classList.add('hidden');
 
-    document.getElementById('backStep1').addEventListener('click', () => showStep(1));
-    document.getElementById('backStep2').addEventListener('click', () => showStep(2));
-
-    document.getElementById('createPreview').addEventListener('click', async function() {
-      const finalClick = getFinalClickTag();
-      const nm = sanitizeFilePart(appData.zipName);
-
-      if (!finalClick) {
-        alert('Bitte gib eine gültige Ziel-URL ein!');
-        return;
-      }
-      if (!nm || nm === 'banner' && !String(appData.zipName || '').trim()) {
-        alert('Bitte gib ein Naming für die ZIP-Datei ein!');
-        return;
-      }
-
-      showStep(3);
-      await generatePreviews();
+        showStep(1);
+      });
     });
-
-    document.getElementById('exportBanners').addEventListener('click', async function() {
-      const finalClick = getFinalClickTag();
-      const nm = sanitizeFilePart(appData.zipName);
-
-      if (!finalClick) {
-        alert('Bitte gib eine gültige Ziel-URL ein!');
-        return;
-      }
-      if (!nm || nm === 'banner' && !String(appData.zipName || '').trim()) {
-        alert('Bitte gib ein Naming für die ZIP-Datei ein!');
-        return;
-      }
-
-      await exportBanners();
-      showStep(4);
-    });
-
-    document.getElementById('startOver').addEventListener('click', function() {
-      selectedFormats = [];
-      uploadedImages = [];
-      appData = {
-        headline: 'Bereit für deine Ziele?',
-        subline: 'Sport Outfits entdecken!',
-        ctaText: 'Jetzt shoppen',
-        landingUrl: '',
-        zipName: ''
-      };
-
-      formatCheckboxes.forEach(cb => cb.checked = false);
-      document.getElementById('uploadedImages').innerHTML = '';
-      document.getElementById('previewContainer').innerHTML = '';
-
-      document.getElementById('clickUrl').value = '';
-      document.getElementById('headline').value = appData.headline;
-      document.getElementById('subline').value = appData.subline;
-      document.getElementById('ctaText').value = appData.ctaText;
-
-      const zipNameEl = document.getElementById('zipName');
-      if (zipNameEl) zipNameEl.value = '';
-
-      nextButton1.disabled = true;
-      showStep(1);
-    });
-  });
-</script>
+  </script>
 </body>
 </html>
