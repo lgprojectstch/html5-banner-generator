@@ -320,6 +320,39 @@
             flex-direction: column;
         }
 
+        /* Preview Container Fix */
+#previewContainer {
+    min-height: 200px;
+    width: 100%;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.banner-preview {
+    border: 1px solid #ddd !important;
+    margin: 20px 0 !important;
+    padding: 20px !important;
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.banner-preview h4 {
+    color: #333 !important;
+    margin-bottom: 15px !important;
+    font-size: 1.2em !important;
+}
+
+/* Step 3 sichtbar machen */
+#step3 {
+    display: block !important;
+}
+
+#step3.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .header h1 { font-size: 2rem; }
