@@ -601,37 +601,56 @@
             showStep(3);
         });
 
-        // Generate Preview
+               // Generate Preview - DEBUG VERSION
         function generatePreviews() {
+            console.log('generatePreviews() gestartet');
+            console.log('Ausgewählte Formate:', selectedFormats);
+            console.log('App Data:', appData);
+            console.log('Hochgeladene Bilder:', uploadedImages);
+            
             const container = document.getElementById('previewContainer');
+            
+            if (!container) {
+                console.error('previewContainer nicht gefunden!');
+                return;
+            }
+            
             container.innerHTML = '';
 
+            if (selectedFormats.length === 0) {
+                container.innerHTML = '<p style="color: red;">Keine Formate ausgewählt!</p>';
+                return;
+            }
+
             selectedFormats.forEach(format => {
+                console.log('Erstelle Preview für:', format);
+                
                 const [width, height] = format.split('x').map(Number);
                 
                 const preview = document.createElement('div');
                 preview.className = 'banner-preview';
                 preview.innerHTML = `
-                    <h4>Banner ${format}</h4>
-                    <div class="banner-frame" style="width: ${Math.min(width, 400)}px; height: ${Math.min(height, 300)}px;">
-                        <div class="banner-content" style="width: 100%; height: 100%;">
-                            <div style="flex: 1; padding: 10px;">
-                                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">${appData.headline}</div>
-                                <div style="font-style: italic; color: #667eea; margin-bottom: 10px;">${appData.subline}</div>
-                                <div style="background: #667eea; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; font-size: 0.9em;">${appData.ctaText}</div>
-                            </div>
-                            ${uploadedImages.length > 0 ? `<div style="flex: 1; background-image: url('${uploadedImages[0].data}'); background-size: cover; background-position: center;"></div>` : ''}
+                    <h4>Banner ${format} (${width}x${height})</h4>
+                    <div class="banner-frame" style="width: ${Math.min(width/2, 400)}px; height: ${Math.min(height/2, 300)}px; border: 2px solid #333;">
+                        <div style="padding: 10px; background: #f0f0f0; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">${appData.headline || 'Keine Headline'}</div>
+                            <div style="font-style: italic; color: #667eea; margin-bottom: 10px;">${appData.subline || 'Keine Subline'}</div>
+                            <div style="background: #667eea; color: white; padding: 5px 15px; border-radius: 20px;">${appData.ctaText || 'Kein CTA'}</div>
+                            <div style="margin-top: 10px; font-size: 0.8em;">Bilder: ${uploadedImages.length}</div>
                         </div>
                     </div>
                     <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        <strong>URL:</strong> ${appData.clickUrl}<br>
-                        <strong>Bilder:</strong> ${uploadedImages.length} Bilder (${uploadedImages.map(img => img.name).join(', ')})
+                        <strong>URL:</strong> ${appData.clickUrl || 'Keine URL'}<br>
+                        <strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(img => img.name).join(', ') || 'keine'})
                     </p>
                 `;
                 container.appendChild(preview);
+                console.log('Preview hinzugefügt für:', format);
             });
+            
+            console.log('generatePreviews() beendet');
         }
-
+        
         // Step 3 Navigation
         document.getElementById('backStep2').addEventListener('click', () => showStep(2));
 
@@ -714,6 +733,24 @@
                     console.error(`Error loading template ${format}:`, error);
                     alert(`Template ${format}.html nicht gefunden!\n\nBitte lade es in den templates/ Ordner hoch:\n- templates/${format}.html`);
                 }
+            }
+        }
+
+                // Debug Step Navigation
+        function showStep(stepNumber) {
+            console.log('Wechsle zu Step:', stepNumber);
+            
+            document.querySelectorAll('.step-content').forEach(step => {
+                step.classList.remove('active');
+                console.log('Verstecke:', step.id);
+            });
+            
+            const targetStep = document.getElementById(`step${stepNumber}`);
+            if (targetStep) {
+                targetStep.classList.add('active');
+                console.log('Zeige:', targetStep.id);
+            } else {
+                console.error('Step nicht gefunden:', `step${stepNumber}`);
             }
         }
                 // Start Over
