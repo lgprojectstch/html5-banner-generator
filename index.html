@@ -601,54 +601,42 @@
             showStep(3);
         });
 
-               // Generate Preview - DEBUG VERSION
+                // Generate Preview - FINAL VERSION
         function generatePreviews() {
             console.log('generatePreviews() gestartet');
-            console.log('Ausgewählte Formate:', selectedFormats);
-            console.log('App Data:', appData);
-            console.log('Hochgeladene Bilder:', uploadedImages);
             
             const container = document.getElementById('previewContainer');
-            
-            if (!container) {
-                console.error('previewContainer nicht gefunden!');
-                return;
-            }
-            
             container.innerHTML = '';
 
-            if (selectedFormats.length === 0) {
-                container.innerHTML = '<p style="color: red;">Keine Formate ausgewählt!</p>';
-                return;
-            }
-
             selectedFormats.forEach(format => {
-                console.log('Erstelle Preview für:', format);
-                
                 const [width, height] = format.split('x').map(Number);
                 
                 const preview = document.createElement('div');
                 preview.className = 'banner-preview';
+                preview.style.marginBottom = '30px';
                 preview.innerHTML = `
-                    <h4>Banner ${format} (${width}x${height})</h4>
-                    <div class="banner-frame" style="width: ${Math.min(width/2, 400)}px; height: ${Math.min(height/2, 300)}px; border: 2px solid #333;">
-                        <div style="padding: 10px; background: #f0f0f0; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <div style="font-weight: bold; margin-bottom: 10px;">${appData.headline || 'Keine Headline'}</div>
-                            <div style="font-style: italic; color: #667eea; margin-bottom: 10px;">${appData.subline || 'Keine Subline'}</div>
-                            <div style="background: #667eea; color: white; padding: 5px 15px; border-radius: 20px;">${appData.ctaText || 'Kein CTA'}</div>
-                            <div style="margin-top: 10px; font-size: 0.8em;">Bilder: ${uploadedImages.length}</div>
+                    <h4 style="margin-bottom: 15px; color: #333;">Banner ${format}</h4>
+                    <div class="banner-frame" style="width: ${Math.min(width/2, 600)}px; height: ${Math.min(height/2, 400)}px; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; background: white; margin-bottom: 15px;">
+                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; padding: 20px; position: relative;">
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 2;">
+                                <div style="font-size: ${width > 500 ? '24px' : '18px'}; font-weight: bold; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${appData.headline}</div>
+                                <div style="font-style: italic; margin-bottom: 15px; opacity: 0.9;">${appData.subline}</div>
+                                <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 8px 20px; border-radius: 25px; display: inline-block; font-weight: bold; max-width: fit-content;">${appData.ctaText}</div>
+                            </div>
+                            ${uploadedImages.length > 0 ? `
+                                <div style="flex: 1; background-image: url('${uploadedImages[0].data}'); background-size: cover; background-position: center; border-radius: 8px; margin-left: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"></div>
+                            ` : ''}
                         </div>
                     </div>
-                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        <strong>URL:</strong> ${appData.clickUrl || 'Keine URL'}<br>
-                        <strong>Bilder:</strong> ${uploadedImages.length} (${uploadedImages.map(img => img.name).join(', ') || 'keine'})
-                    </p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 0.9em; color: #666;">
+                        <strong style="color: #333;">URL:</strong> ${appData.clickUrl}<br>
+                        <strong style="color: #333;">Bilder:</strong> ${uploadedImages.length} Dateien${uploadedImages.length > 0 ? ` (${uploadedImages.map(img => img.name).join(', ')})` : ''}
+                    </div>
                 `;
                 container.appendChild(preview);
-                console.log('Preview hinzugefügt für:', format);
             });
             
-            console.log('generatePreviews() beendet');
+            console.log('Preview erstellt!');
         }
         
         // Step 3 Navigation
