@@ -343,14 +343,28 @@
     font-size: 1.2em !important;
 }
 
-/* Step 3 sichtbar machen */
+/* Step 3 korrekt anzeigen */
 #step3 {
-    display: block !important;
+    display: none;
 }
 
 #step3.active {
     display: block !important;
     opacity: 1 !important;
+}
+
+#step3.active .card {
+    display: block !important;
+    visibility: visible !important;
+    background: white !important;
+}
+
+#step3.active #previewContainer {
+    display: block !important;
+    visibility: visible !important;
+    min-height: 200px !important;
+    background: white !important;
+    padding: 20px !important;
 }
 
 /* FORCE PREVIEW DISPLAY */
@@ -636,33 +650,39 @@
         updateImageDisplay();
     }
 
-    // Generate Preview
     function generatePreviews() {
-        console.log('generatePreviews() gestartet');
-        
-        const container = document.getElementById('previewContainer');
-        if (!container) {
-            console.error('previewContainer nicht gefunden!');
-            return;
-        }
-
-        container.style.display = 'block';
-        container.style.visibility = 'visible';
-        container.style.opacity = '1';
-        container.style.minHeight = '300px';
-        
-        container.innerHTML = `
-            <div style="background: red !important; color: white !important; border: 5px solid black !important; padding: 30px !important; margin: 20px 0 !important; border-radius: 8px !important; font-size: 18px !important;">
-                <h3 style="color: white !important; margin-bottom: 20px !important;">🔴 EMERGENCY PREVIEW TEST!</h3>
-                <p><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
-                <p><strong>Headline:</strong> ${appData.headline}</p>
-                <p><strong>URL:</strong> ${appData.clickUrl}</p>
-            </div>
-        `;
-        
-        console.log('Preview HTML gesetzt!');
+    console.log('🔴 generatePreviews() gestartet');
+    
+    const container = document.getElementById('previewContainer');
+    console.log('Container gefunden:', container);
+    
+    if (!container) {
+        alert('FEHLER: previewContainer nicht gefunden!');
+        return;
     }
 
+    // Absolut sicher machen, dass es sichtbar ist
+    container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; min-height: 300px !important; background: yellow !important; padding: 30px !important;';
+    
+    container.innerHTML = `
+        <div style="background: red !important; color: white !important; border: 5px solid black !important; padding: 30px !important; margin: 20px !important; border-radius: 8px !important; font-size: 20px !important; position: relative !important; z-index: 9999 !important;">
+            <h3 style="color: white !important; margin-bottom: 20px !important; font-size: 24px !important;">🔴 TEST ERFOLGREICH!</h3>
+            <p style="margin: 10px 0 !important;"><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
+            <p style="margin: 10px 0 !important;"><strong>Headline:</strong> ${appData.headline}</p>
+            <p style="margin: 10px 0 !important;"><strong>Subline:</strong> ${appData.subline}</p>
+            <p style="margin: 10px 0 !important;"><strong>CTA:</strong> ${appData.ctaText}</p>
+            <p style="margin: 10px 0 !important;"><strong>URL:</strong> ${appData.clickUrl}</p>
+            <p style="margin: 10px 0 !important;"><strong>Bilder:</strong> ${uploadedImages.length}</p>
+        </div>
+    `;
+    
+    console.log('✅ Preview HTML gesetzt!');
+    console.log('Container HTML:', container.innerHTML.substring(0, 200));
+    
+    // Prüfe ob Step3 aktiv ist
+    const step3 = document.getElementById('step3');
+    console.log('Step3 hat "active" class:', step3.classList.contains('active'));
+}
     // Export Function
     async function exportBanners() {
         for (const format of selectedFormats) {
