@@ -312,141 +312,141 @@
     </header>
 
     <!-- Step 1: Format Selection -->
-    <div class="step-content active" id="step1">
-      <div class="card">
-        <h2><i class="fas fa-th-large"></i> Banner-Formate auswählen</h2>
+<div class="step-content active" id="step1">
+  <div class="card">
+    <h2><i class="fas fa-th-large"></i> Banner-Formate auswählen</h2>
 
-        <div class="format-grid">
-          <label class="format-card" for="format-300x250">
-            <input type="checkbox" id="format-300x250" value="300x250">
-            <div class="format-preview">
-              <div class="preview-box">
-                <span style="font-weight: bold; font-size: 1.2em;">300×250</span>
-                <small>Medium Rectangle</small>
-              </div>
-            </div>
-            <span class="checkmark"><i class="fas fa-check"></i></span>
-          </label>
-
-          <label class="format-card" for="format-300x600">
-            <input type="checkbox" id="format-300x600" value="300x600">
-            <div class="format-preview">
-              <div class="preview-box">
-                <span style="font-weight: bold; font-size: 1.2em;">300×600</span>
-                <small>Half Page</small>
-              </div>
-            </div>
-            <span class="checkmark"><i class="fas fa-check"></i></span>
-          </label>
-
-          <label class="format-card" for="format-970x250">
-            <input type="checkbox" id="format-970x250" value="970x250">
-            <div class="format-preview">
-              <div class="preview-box">
-                <span style="font-weight: bold; font-size: 1.2em;">970×250</span>
-                <small>Billboard</small>
-              </div>
-            </div>
-            <span class="checkmark"><i class="fas fa-check"></i></span>
-          </label>
+    <div class="format-grid">
+      <label class="format-card" for="format-300x250">
+        <input type="checkbox" id="format-300x250" value="300x250">
+        <div class="format-preview">
+          <div class="preview-box">
+            <span style="font-weight: bold; font-size: 1.2em;">300×250</span>
+            <small>Medium Rectangle</small>
+          </div>
         </div>
+        <span class="checkmark"><i class="fas fa-check"></i></span>
+      </label>
 
-        <div class="button-group">
-          <button class="btn btn-primary" id="nextStep1" disabled>
-            Weiter <i class="fas fa-arrow-right"></i>
-          </button>
+      <label class="format-card" for="format-300x600">
+        <input type="checkbox" id="format-300x600" value="300x600">
+        <div class="format-preview">
+          <div class="preview-box">
+            <span style="font-weight: bold; font-size: 1.2em;">300×600</span>
+            <small>Half Page</small>
+          </div>
         </div>
+        <span class="checkmark"><i class="fas fa-check"></i></span>
+      </label>
+
+      <label class="format-card" for="format-970x250">
+        <input type="checkbox" id="format-970x250" value="970x250">
+        <div class="format-preview">
+          <div class="preview-box">
+            <span style="font-weight: bold; font-size: 1.2em;">970×250</span>
+            <small>Billboard</small>
+          </div>
+        </div>
+        <span class="checkmark"><i class="fas fa-check"></i></span>
+      </label>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-primary" id="nextStep1" disabled>
+        Weiter <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 2: Content Input -->
+<div class="step-content" id="step2">
+  <div class="input-grid">
+    <div class="card">
+      <h3><i class="fas fa-images"></i> Bilder hochladen</h3>
+      <div class="upload-area" id="uploadArea">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Bilder hier hinziehen oder klicken</p>
+        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+          Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
+        </p>
+        <input type="file" id="imageUpload" multiple accept="image/*">
+      </div>
+      <div class="uploaded-images" id="uploadedImages"></div>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-font"></i> Texte anpassen</h3>
+      <div class="input-group">
+        <label for="headline">Headline</label>
+        <input type="text" id="headline" value="Bereit für deine Ziele?" maxlength="50">
+      </div>
+      <div class="input-group">
+        <label for="subline">Subline</label>
+        <input type="text" id="subline" value="Sport Outfits entdecken!" maxlength="50">
+      </div>
+      <div class="input-group">
+        <label for="ctaText">CTA Text</label>
+        <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
       </div>
     </div>
 
-    <!-- Step 2: Content Input -->
-    <div class="step-content" id="step2">
-      <div class="input-grid">
-        <div class="card">
-          <h3><i class="fas fa-images"></i> Bilder hochladen</h3>
-          <div class="upload-area" id="uploadArea">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p>Bilder hier hinziehen oder klicken</p>
-            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-              Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
-            </p>
-            <input type="file" id="imageUpload" multiple accept="image/*">
-          </div>
-          <div class="uploaded-images" id="uploadedImages"></div>
-        </div>
-
-        <div class="card">
-          <h3><i class="fas fa-font"></i> Texte anpassen</h3>
-          <div class="input-group">
-            <label for="headline">Headline</label>
-            <input type="text" id="headline" value="Bereit für deine Ziele?" maxlength="50">
-          </div>
-          <div class="input-group">
-            <label for="subline">Subline</label>
-            <input type="text" id="subline" value="Sport Outfits entdecken!" maxlength="50">
-          </div>
-          <div class="input-group">
-            <label for="ctaText">CTA Text</label>
-            <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
-          </div>
-        </div>
-
-        <div class="card">
-          <h3><i class="fas fa-link"></i> Click-URL</h3>
-          <div class="input-group">
-            <label for="clickUrl">Ziel-URL</label>
-            <input type="url" id="clickUrl" placeholder="https://example.com" required>
-          </div>
-        </div>
-      </div> <!-- ✅ closes .input-grid -->
-
-      <div class="button-group">
-        <button class="btn btn-secondary" id="backStep1">
-          <i class="fas fa-arrow-left"></i> Zurück
-        </button>
-        <button class="btn btn-primary" id="createPreview">
-          Vorschau erstellen <i class="fas fa-eye"></i>
-        </button>
-      </div>
-    </div> <!-- ✅ closes #step2 -->
-
-    <!-- Step 3: Preview -->
-    <div class="step-content" id="step3">
-      <div class="card">
-        <h2><i class="fas fa-eye"></i> Banner-Vorschau</h2>
-        <div id="previewContainer"></div>
-      </div>
-
-      <div class="button-group">
-        <button class="btn btn-secondary" id="backStep2">
-          <i class="fas fa-arrow-left"></i> Zurück
-        </button>
-        <button class="btn btn-success" id="exportBanners">
-          Export starten <i class="fas fa-download"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 4: Export Status -->
-    <div class="step-content" id="step4">
-      <div class="card">
-        <h2><i class="fas fa-download"></i> Export Status</h2>
-        <div id="exportStatus" style="text-align: center; padding: 20px;">
-          <div style="margin-bottom: 20px;">
-            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
-          </div>
-          <h3>Export erfolgreich!</h3>
-          <p>Deine Banner wurden als ZIP-Dateien heruntergeladen.</p>
-        </div>
-      </div>
-
-      <div class="button-group">
-        <button class="btn btn-primary" id="startOver">
-          <i class="fas fa-plus"></i> Neue Banner erstellen
-        </button>
+    <div class="card">
+      <h3><i class="fas fa-link"></i> Click-URL</h3>
+      <div class="input-group">
+        <label for="clickUrl">Ziel-URL</label>
+        <input type="url" id="clickUrl" placeholder="https://example.com" required>
       </div>
     </div>
   </div>
+
+  <div class="button-group">
+    <button class="btn btn-secondary" id="backStep1">
+      <i class="fas fa-arrow-left"></i> Zurück
+    </button>
+    <button class="btn btn-primary" id="createPreview">
+      Vorschau erstellen <i class="fas fa-eye"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Step 3: Preview -->
+<div class="step-content" id="step3">
+  <div class="card">
+    <h2><i class="fas fa-eye"></i> Banner-Vorschau</h2>
+    <div id="previewContainer"></div>
+  </div>
+
+  <div class="button-group">
+    <button class="btn btn-secondary" id="backStep2">
+      <i class="fas fa-arrow-left"></i> Zurück
+    </button>
+    <button class="btn btn-success" id="exportBanners">
+      Export starten <i class="fas fa-download"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Step 4: Export Status -->
+<div class="step-content" id="step4">
+  <div class="card">
+    <h2><i class="fas fa-download"></i> Export Status</h2>
+    <div id="exportStatus" style="text-align: center; padding: 20px;">
+      <div style="margin-bottom: 20px;">
+        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
+      </div>
+      <h3>Export erfolgreich!</h3>
+      <p>Deine Banner wurden als ZIP-Dateien heruntergeladen.</p>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button class="btn btn-primary" id="startOver">
+      <i class="fas fa-plus"></i> Neue Banner erstellen
+    </button>
+  </div>
+</div>
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
