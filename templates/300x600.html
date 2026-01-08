@@ -6,7 +6,7 @@
   <meta name="ad.size" content="width=300,height=600" />
   <title>300x600_NF_DE_Active_HVK_2025KW02_Active_HTML5</title>
 
-   <script>
+  <script>
     // ====== GENERATOR VARS (werden ersetzt) ======
     // ✅ Wichtig: einfache, eindeutige Muster, damit dein Generator sicher ersetzen kann.
     var HEADLINE = "Bereit für deine Ziele?";
@@ -27,6 +27,30 @@
     window.clickTag = clickTag;
   </script>
 
+  <!-- ===== FONT PRELOADS (reduziert FOUT stark) =====
+       WICHTIG: Passe Dateinamen an deine echten Files an.
+       Best Practice: keine Leerzeichen in Dateinamen.
+       Wenn deine Files aktuell Leerzeichen haben:
+       - entweder umbenennen (empfohlen)
+       - oder URLs mit %20 verwenden (z.B. Interstate%20WGL%20Regular.woff2)
+  -->
+  <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- Optional, wenn du echte Italic-Datei hast -->
+  <link rel="preload" href="fonts/InterstateWGL-RegularItalic.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- ===== Optional: Banner erst zeigen, wenn Fonts geladen sind (verhindert sichtbaren Font-Swap) ===== -->
+  <style>
+    html.fonts-loading #ad { opacity: 0; }
+    html.fonts-loaded  #ad { opacity: 1; transition: opacity 80ms linear; }
+  </style>
+  <script>
+    document.documentElement.classList.add("fonts-loading");
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){
+      document.documentElement.classList.remove("fonts-loading");
+      document.documentElement.classList.add("fonts-loaded");
+    });
+  </script>
 
   <style>
     *{ box-sizing:border-box; }
@@ -73,40 +97,51 @@
       --heroBorderFalloff: 0.30;
       --heroBorderDur: 180ms;
 
-      
-
-      /* ✅ NEU: Rest-Highlight unten nach unten ziehen
-         +px = untere Kante des Rest-Highlights geht weiter runter
-         (damit es exakt die Bildkante trifft) */
+      /* ✅ NEU: Rest-Highlight unten nach unten ziehen */
       --restHlExtraBottom: -13px;
     }
 
+    /* ===== WEBFONTS (sauber nach Gewicht/Style getrennt) =====
+       Fixes gegenüber deiner Version:
+       - .ad hatte NICHT InterstateWGL als font-family -> jetzt gesetzt
+       - font-weight:700 hat vorher Regular geladen -> jetzt Bold-Datei
+       - subline italic: jetzt als echte italic-face (falls vorhanden); sonst fake-italic (siehe Hinweis unten)
+       - font-display: optional reduziert sichtbaren Swap (alternativ: swap/block)
+    */
     @font-face{
       font-family:"InterstateWGL";
       src:
-        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
-        url("fonts/Interstate WGL Regular.woff") format("woff");
+        url("fonts/InterstateWGL-Regular.woff2") format("woff2"),
+        url("fonts/InterstateWGL-Regular.woff") format("woff");
       font-weight:400;
       font-style:normal;
-      font-display:swap;
+      font-display:optional;
     }
     @font-face{
       font-family:"InterstateWGL";
       src:
-        url("fonts/Interstate WGL Regular.woff2") format("woff2"),
-        url("fonts/Interstate WGL Regular.woff") format("woff");
+        url("fonts/InterstateWGL-Bold.woff2") format("woff2"),
+        url("fonts/InterstateWGL-Bold.woff") format("woff");
       font-weight:700;
       font-style:normal;
-      font-display:swap;
+      font-display:optional;
     }
-
+    @font-face{
+      font-family:"InterstateWGL";
+      src:
+        url("fonts/InterstateWGL-RegularItalic.woff2") format("woff2"),
+        url("fonts/InterstateWGL-RegularItalic.woff") format("woff");
+      font-weight:400;
+      font-style:italic;
+      font-display:optional;
+    }
 
     .ad{
       width:var(--w);
       height:var(--h);
       overflow:hidden;
       background:#fff;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family:"InterstateWGL", Arial, Helvetica, sans-serif; /* ✅ wichtig */
       position:relative;
       cursor:pointer;
       display:flex;
@@ -171,7 +206,7 @@
       margin: var(--gapLogoToHeadline) 0 0 0;
       font-size:var(--hFont);
       line-height:var(--hLine);
-      font-weight:800;
+      font-weight:700; /* ✅ statt 800 (falls es keinen 800-Schnitt gibt) */
       color:#1b1b1b;
       max-width: 260px;
     }
@@ -185,6 +220,7 @@
       font-size:var(--sFont);
       line-height:var(--sLine);
       font-style: italic;
+      font-weight:400;
       color:var(--gold);
       max-width: 260px;
     }
@@ -197,7 +233,7 @@
       padding: var(--ctaPadY) var(--ctaPadX);
       border-radius: var(--ctaRadius);
       font-size: var(--ctaFont);
-      font-weight:800;
+      font-weight:700; /* ✅ statt 800 */
       text-decoration:none;
       user-select:none;
       cursor:pointer;
@@ -400,7 +436,7 @@
     }
 
     window.addEventListener("resize", updateRestHighlightHeight);
-    setTimeout(updateRestHighlightHeight, 50); // nach Layout
+    setTimeout(updateRestHighlightHeight, 50);   // nach Layout
     setTimeout(updateRestHighlightHeight, 1200); // nach Animation/Font-Load
 
     // ===== Slider / Swipe =====
