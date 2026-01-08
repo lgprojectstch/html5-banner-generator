@@ -542,12 +542,10 @@
     // Step Navigation
     function showStep(stepNumber) {
         console.log('Wechsle zu Step:', stepNumber);
-        
         document.querySelectorAll('.step-content').forEach(step => {
             step.classList.remove('active');
             console.log('Verstecke:', step.id);
         });
-        
         const targetStep = document.getElementById(`step${stepNumber}`);
         if (targetStep) {
             targetStep.classList.add('active');
@@ -632,104 +630,38 @@
 
     function removeImage(index) {
         uploadedImages.splice(index, 1);
-        // Renumber images
         uploadedImages.forEach((img, newIndex) => {
             img.name = `${newIndex + 1}.jpg`;
         });
         updateImageDisplay();
     }
 
-    // Text Input Updates
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('headline').addEventListener('input', function() {
-            appData.headline = this.value;
-        });
-
-        document.getElementById('subline').addEventListener('input', function() {
-            appData.subline = this.value;
-        });
-
-        document.getElementById('ctaText').addEventListener('input', function() {
-            appData.ctaText = this.value;
-        });
-
-        document.getElementById('clickUrl').addEventListener('input', function() {
-            appData.clickUrl = this.value;
-        });
-
-        // Step 2 Navigation
-        document.getElementById('backStep1').addEventListener('click', () => showStep(1));
-
-        document.getElementById('createPreview').addEventListener('click', function() {
-            if (!appData.clickUrl) {
-                alert('Bitte gib eine gültige URL ein!');
-                return;
-            }
-            generatePreviews();
-            showStep(3);
-        });
-
-        // Step 3 Navigation
-        document.getElementById('backStep2').addEventListener('click', () => showStep(2));
-
-        document.getElementById('exportBanners').addEventListener('click', async function() {
-            await exportBanners();
-            showStep(4);
-        });
-
-        // Start Over
-        document.getElementById('startOver').addEventListener('click', function() {
-            selectedFormats = [];
-            uploadedImages = [];
-            appData = {
-                headline: 'Bereit für deine Ziele?',
-                subline: 'Sport Outfits entdecken!',
-                ctaText: 'Jetzt shoppen',
-                clickUrl: ''
-            };
-            
-            formatCheckboxes.forEach(cb => cb.checked = false);
-            document.getElementById('uploadedImages').innerHTML = '';
-            document.getElementById('clickUrl').value = '';
-            document.getElementById('headline').value = appData.headline;
-            document.getElementById('subline').value = appData.subline;
-            document.getElementById('ctaText').value = appData.ctaText;
-            nextButton1.disabled = true;
-            
-            showStep(1);
-        });
-
-        console.log('HTML5 Banner Generator geladen!');
-    });
-
     // Generate Preview
     function generatePreviews() {
-    console.log('generatePreviews() gestartet');
-    
-    const container = document.getElementById('previewContainer');
-    if (!container) {
-        console.error('previewContainer nicht gefunden!');
-        return;
+        console.log('generatePreviews() gestartet');
+        
+        const container = document.getElementById('previewContainer');
+        if (!container) {
+            console.error('previewContainer nicht gefunden!');
+            return;
+        }
+
+        container.style.display = 'block';
+        container.style.visibility = 'visible';
+        container.style.opacity = '1';
+        container.style.minHeight = '300px';
+        
+        container.innerHTML = `
+            <div style="background: red !important; color: white !important; border: 5px solid black !important; padding: 30px !important; margin: 20px 0 !important; border-radius: 8px !important; font-size: 18px !important;">
+                <h3 style="color: white !important; margin-bottom: 20px !important;">🔴 EMERGENCY PREVIEW TEST!</h3>
+                <p><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
+                <p><strong>Headline:</strong> ${appData.headline}</p>
+                <p><strong>URL:</strong> ${appData.clickUrl}</p>
+            </div>
+        `;
+        
+        console.log('Preview HTML gesetzt!');
     }
-    
-    // Force container to be visible
-    container.style.display = 'block';
-    container.style.visibility = 'visible';
-    container.style.opacity = '1';
-    container.style.minHeight = '300px';
-    
-    container.innerHTML = `
-        <div style="background: red !important; color: white !important; border: 5px solid black !important; padding: 30px !important; margin: 20px 0 !important; border-radius: 8px !important; font-size: 18px !important;">
-            <h3 style="color: white !important; margin-bottom: 20px !important;">🔴 EMERGENCY PREVIEW TEST!</h3>
-            <p><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
-            <p><strong>Headline:</strong> ${appData.headline}</p>
-            <p><strong>URL:</strong> ${appData.clickUrl}</p>
-        </div>
-    `;
-    
-    console.log('Preview HTML gesetzt! Container:', container);
-    console.log('Container innerHTML:', container.innerHTML);
-}
 
     // Export Function
     async function exportBanners() {
@@ -740,7 +672,6 @@
                 const response = await fetch(`templates/${format}.html`);
                 let templateContent = await response.text();
                 
-                // Replace variables
                 templateContent = templateContent.replace(/var HEADLINE = ".*?";/, `var HEADLINE = "${appData.headline}";`);
                 templateContent = templateContent.replace(/var SUBLINE = ".*?";/, `var SUBLINE = "${appData.subline}";`);
                 templateContent = templateContent.replace(/var CTA_TEXT = ".*?";/, `var CTA_TEXT = "${appData.ctaText}";`);
@@ -773,6 +704,66 @@
             }
         }
     }
+
+    // Text Input Updates & Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('headline').addEventListener('input', function() {
+            appData.headline = this.value;
+        });
+
+        document.getElementById('subline').addEventListener('input', function() {
+            appData.subline = this.value;
+        });
+
+        document.getElementById('ctaText').addEventListener('input', function() {
+            appData.ctaText = this.value;
+        });
+
+        document.getElementById('clickUrl').addEventListener('input', function() {
+            appData.clickUrl = this.value;
+        });
+
+        document.getElementById('backStep1').addEventListener('click', () => showStep(1));
+
+        document.getElementById('createPreview').addEventListener('click', function() {
+            if (!appData.clickUrl) {
+                alert('Bitte gib eine gültige URL ein!');
+                return;
+            }
+            generatePreviews();
+            showStep(3);
+        });
+
+        document.getElementById('backStep2').addEventListener('click', () => showStep(2));
+
+        document.getElementById('exportBanners').addEventListener('click', async function() {
+            await exportBanners();
+            showStep(4);
+        });
+
+        document.getElementById('startOver').addEventListener('click', function() {
+            selectedFormats = [];
+            uploadedImages = [];
+            appData = {
+                headline: 'Bereit für deine Ziele?',
+                subline: 'Sport Outfits entdecken!',
+                ctaText: 'Jetzt shoppen',
+                clickUrl: ''
+            };
+            
+            formatCheckboxes.forEach(cb => cb.checked = false);
+            document.getElementById('uploadedImages').innerHTML = '';
+            document.getElementById('clickUrl').value = '';
+            document.getElementById('headline').value = appData.headline;
+            document.getElementById('subline').value = appData.subline;
+            document.getElementById('ctaText').value = appData.ctaText;
+            nextButton1.disabled = true;
+            
+            showStep(1);
+        });
+
+        console.log('HTML5 Banner Generator geladen!');
+    });
 </script>
 </body>
 </html>
