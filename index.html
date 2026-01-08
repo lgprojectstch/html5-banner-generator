@@ -13,25 +13,35 @@
       --danger:#ff6b6b;
       --dark:#2c3e50;
       --white:#ffffff;
-      --shadow:0 10px 30px rgba(0,0,0,0.1);
+      --shadow:0 10px 30px rgba(0,0,0,0.10);
       --border-radius:12px;
+
+      --bg1:#667eea;
+      --bg2:#764ba2;
     }
-    *{ margin:0; padding:0; box-sizing:border-box; }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
 
     body{
-      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
       min-height:100vh;
       color:var(--dark);
       line-height:1.6;
     }
-    .container{ max-width: 1400px; margin:0 auto; padding:20px; }
+
+    .container{
+      max-width:1500px;
+      margin:0 auto;
+      padding:20px;
+    }
 
     .header{
       text-align:center;
-      margin-bottom:40px;
+      margin-bottom:30px;
       color:var(--white);
     }
+
     .header h1{
       font-size:2.5rem;
       font-weight:700;
@@ -42,23 +52,70 @@
     .card{
       background:var(--white);
       border-radius:var(--border-radius);
-      padding:30px;
+      padding:26px;
       box-shadow:var(--shadow);
-      transition:all .3s ease;
+      transition:transform .25s ease, box-shadow .25s ease;
     }
     .card:hover{ transform:translateY(-2px); }
 
     .step-content{ display:none; }
-    .step-content.active{ display:block; animation:fadeIn .5s; }
-    @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+    .step-content.active{ display:block; animation:fadeIn .35s ease; }
+    @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
 
-    /* ---------- Step 1 ---------- */
+    /* ---------- Buttons ---------- */
+    .button-group{
+      display:flex;
+      gap:15px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:18px;
+    }
+
+    .btn{
+      padding:12px 30px;
+      border:none;
+      border-radius:25px;
+      font-size:1rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .25s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    .btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+    .btn-primary{
+      background: linear-gradient(135deg, var(--primary), #5a6fd8);
+      color:var(--white);
+    }
+    .btn-primary:hover:not(:disabled){
+      transform:translateY(-2px);
+      box-shadow:0 10px 25px rgba(102,126,234,.30);
+    }
+
+    .btn-secondary{ background:#6c757d; color:var(--white); }
+    .btn-secondary:hover{ background:#545b62; transform:translateY(-2px); }
+
+    .btn-success{
+      background: linear-gradient(135deg, var(--success), #00b4db);
+      color:var(--white);
+    }
+    .btn-success:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 25px rgba(79,172,254,.30);
+    }
+
+    /* ---------- Step 1: Formats ---------- */
     .format-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
       gap:20px;
-      margin:20px 0 30px;
+      margin-top:18px;
+      margin-bottom:22px;
     }
+
     .format-card{
       position:relative;
       cursor:pointer;
@@ -66,57 +123,33 @@
       border:3px solid #e0e0e0;
       background:#f8f9fa;
       overflow:hidden;
-      transition:all .3s ease;
+      transition:all .25s ease;
     }
     .format-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
     .format-card input[type="checkbox"]{ display:none; }
 
-    .format-preview{ padding:20px; text-align:center; transition:all .3s ease; }
+    .format-preview{ padding:20px; text-align:center; transition:all .25s ease; }
 
     .preview-box{
-      background:#fff;
+      background:var(--white);
       border-radius:10px;
-      padding:22px;
+      padding:20px;
+      margin-bottom:15px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       align-items:center;
       border:2px dashed #ddd;
       min-height:90px;
-    }
-
-    /* Checked State: modern, hoher Kontrast */
-    .format-card input[type="checkbox"]:checked + .format-preview{
-      background:linear-gradient(135deg,#5B6CFF,#35C6FF);
-      color:#fff;
-    }
-    .format-card:has(input[type="checkbox"]:checked){
-      border-color:rgba(53,198,255,.95);
-      box-shadow:0 14px 35px rgba(0,0,0,0.18);
-    }
-    .format-card input[type="checkbox"]:checked + .format-preview .preview-box{
-      background:rgba(10,15,30,.45);
-      border:1px solid rgba(255,255,255,.35);
-      box-shadow:0 10px 25px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.18);
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
-      color:#fff;
-    }
-    .format-card input[type="checkbox"]:checked + .format-preview .preview-box span{
-      color:#fff;
-      font-weight:800;
-      text-shadow:0 2px 10px rgba(0,0,0,.25);
-    }
-    .format-card input[type="checkbox"]:checked + .format-preview .preview-box small{
-      color:rgba(255,255,255,.92);
+      color:#1f2430;
     }
 
     .checkmark{
       position:absolute;
       top:10px;
       right:10px;
-      background:var(--success);
-      color:#fff;
+      background: var(--success);
+      color:var(--white);
       width:32px;
       height:32px;
       border-radius:50%;
@@ -124,63 +157,107 @@
       align-items:center;
       justify-content:center;
       opacity:0;
-      transform:scale(0.85);
+      transform:scale(.6);
       transition:all .25s ease;
-      box-shadow:0 10px 20px rgba(0,0,0,.18);
+      box-shadow:0 10px 25px rgba(0,0,0,.15);
+    }
+
+    /* Checked State: modern, hoher Kontrast */
+    .format-card input[type="checkbox"]:checked + .format-preview{
+      background: linear-gradient(135deg, #5B6CFF, #35C6FF);
+      color:#fff;
+    }
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box{
+      background: rgba(10, 15, 30, 0.42);
+      border:1px solid rgba(255,255,255,0.40);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color:#fff;
+    }
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box span{
+      color:#fff;
+      font-weight:900;
+      letter-spacing:.2px;
+      text-shadow:0 2px 10px rgba(0,0,0,.25);
+    }
+    .format-card input[type="checkbox"]:checked + .format-preview .preview-box small{
+      color: rgba(255,255,255,0.92);
+      text-shadow:0 2px 10px rgba(0,0,0,.20);
+    }
+    .format-card:has(input[type="checkbox"]:checked){
+      border-color: rgba(53,198,255,0.95);
+      box-shadow: 0 14px 35px rgba(0,0,0,0.18);
     }
     .format-card input[type="checkbox"]:checked ~ .checkmark{
       opacity:1;
       transform:scale(1);
     }
 
-    /* ---------- Inputs ---------- */
-    .input-group{ margin-bottom:18px; }
-    .input-group label{
-      display:block;
-      margin-bottom:8px;
-      font-weight:600;
-      color:var(--dark);
-    }
-    .input-group input{
+    /* ---------- Step 2: Stage (3 Cards + Preview) ---------- */
+    .stage{
       width:100%;
-      padding:12px 15px;
-      border:2px solid #e0e0e0;
-      border-radius:10px;
-      font-size:1rem;
-      transition:all .3s ease;
-    }
-    .input-group input:focus{
-      outline:none;
-      border-color:var(--primary);
-      box-shadow:0 0 0 3px rgba(102,126,234,0.12);
+      display:flex;
+      justify-content:center;
     }
 
+    /* Outer layout: left area + (optional) preview panel */
+    .stage-inner{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      gap:22px;
+    }
+
+    /* Left three cards wrapper */
+    .left-panels{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(280px, 340px));
+      gap:22px;
+      justify-content:center;
+      align-items:stretch;
+      transition:transform .35s ease;
+    }
+
+    /* Make all three cards same height */
+    .left-panels .card{
+      height: 100%;
+      min-height: 520px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Upload */
     .upload-area{
       border:3px dashed #ddd;
       border-radius:var(--border-radius);
-      padding:38px;
+      padding:32px;
       text-align:center;
       cursor:pointer;
-      transition:all .3s ease;
+      transition:all .25s ease;
       position:relative;
       background:#f8f9fa;
     }
     .upload-area:hover, .upload-area.dragover{
       border-color:var(--primary);
-      background:rgba(102,126,234,0.05);
+      background: rgba(102,126,234,0.06);
     }
     .upload-area input[type="file"]{
-      position:absolute; inset:0; opacity:0; cursor:pointer;
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
     }
     .upload-area i{
       font-size:3rem;
       color:var(--primary);
-      margin-bottom:15px;
+      margin-bottom:12px;
     }
 
     .uploaded-images{
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+      grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
       gap:10px;
       margin-top:16px;
     }
@@ -191,273 +268,246 @@
       overflow:hidden;
       background:#f0f0f0;
     }
-    .uploaded-image img{ width:100%; height:100%; object-fit:cover; }
+    .uploaded-image img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
     .uploaded-image .remove{
       position:absolute;
-      top:6px; right:6px;
+      top:6px;
+      right:6px;
       background:var(--danger);
-      color:#fff;
+      color:var(--white);
       border:none;
       border-radius:50%;
-      width:26px; height:26px;
+      width:26px;
+      height:26px;
       cursor:pointer;
-      font-size:.9rem;
+      font-size:.85rem;
     }
     .uploaded-image .number{
       position:absolute;
-      bottom:6px; left:6px;
+      bottom:6px;
+      left:6px;
       background:var(--primary);
-      color:#fff;
+      color:var(--white);
       padding:2px 6px;
       border-radius:6px;
-      font-size:.8rem;
-      font-weight:700;
+      font-size:.80rem;
+      font-weight:800;
     }
 
-    .btn{
-      padding:12px 30px;
-      border:none;
-      border-radius:999px;
+    /* Inputs */
+    .input-group{ margin-top:14px; }
+    .input-group label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:700;
+      color:var(--dark);
+    }
+    .input-group input{
+      width:100%;
+      padding:12px 14px;
+      border:2px solid #e0e0e0;
+      border-radius:10px;
       font-size:1rem;
-      font-weight:700;
-      cursor:pointer;
-      transition:all .3s ease;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+      transition:all .25s ease;
     }
-    .btn:disabled{ opacity:.6; cursor:not-allowed; }
-
-    .btn-primary{
-      background:linear-gradient(135deg,var(--primary),#5a6fd8);
-      color:#fff;
-    }
-    .btn-primary:hover:not(:disabled){
-      transform:translateY(-2px);
-      box-shadow:0 10px 25px rgba(102,126,234,0.3);
-    }
-    .btn-secondary{ background:#6c757d; color:#fff; }
-    .btn-secondary:hover{ background:#545b62; transform:translateY(-2px); }
-    .btn-success{
-      background:linear-gradient(135deg,var(--success),#00b4db);
-      color:#fff;
-    }
-    .btn-success:hover{
-      transform:translateY(-2px);
-      box-shadow:0 10px 25px rgba(79,172,254,0.3);
+    .input-group input:focus{
+      outline:none;
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(102,126,234,0.12);
     }
 
-    .button-group{
-      display:flex;
-      gap:15px;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
-
-    /* ---------- Step 2 Layout: 3 Karten zentriert + Preview erscheint rechts ---------- */
-    .stage{
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      gap:22px;
-      margin: 0 auto;
-      max-width: 1320px;
-    }
-
-    .input-panel{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(280px, 1fr));
-      gap:20px;
-      align-items:stretch;
-      transition:transform .35s ease;
-      width: 100%;
-      max-width: 980px;
-    }
-    .input-panel .card{
-      height:100%;
-      display:flex;
-      flex-direction:column;
-    }
-
+    /* Preview Panel (hidden until preview) */
     .preview-panel{
-      width: 0;
-      max-width: 0;
-      opacity: 0;
+      width:0;
+      max-width:0;
+      opacity:0;
       pointer-events:none;
-      overflow:hidden;
-      transition: max-width .35s ease, opacity .25s ease;
+      transition: width .35s ease, max-width .35s ease, opacity .25s ease;
     }
 
-    /* wenn Preview aktiv */
-    .stage.has-preview .input-panel{
-      transform: translateX(-18px);
+    .stage.has-preview .left-panels{
+      transform: translateX(-12px);
     }
+
     .stage.has-preview .preview-panel{
       width: 100%;
-      max-width: 520px;
-      opacity: 1;
+      max-width: clamp(460px, 42vw, 820px);
+      opacity:1;
       pointer-events:auto;
     }
 
-    /* ---------- Preview Card ---------- */
-    .preview-card-header{
+    .preview-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
       margin-bottom:14px;
     }
-    .preview-card-header h3{
+    .preview-head .title{
       display:flex;
       align-items:center;
       gap:10px;
-      margin:0;
+      font-weight:900;
       font-size:1.15rem;
     }
-    .btn-ghost{
-      background:#eef2ff;
-      color:#2c3e50;
-      border:1px solid #dbe3ff;
+
+    .toggle-preview{
+      border:1px solid rgba(102,126,234,.25);
+      background:#f3f6ff;
+      color:#3c4cb4;
       padding:8px 14px;
       border-radius:999px;
+      font-weight:800;
       cursor:pointer;
-      font-weight:700;
     }
-    .btn-ghost:hover{ filter:brightness(.97); }
 
     .preview-grid{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      width:100%;
-    }
-
-    /* Layout wenn alle 3 Formate da sind */
-    .preview-grid.layout-3{
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto;
-      gap:14px;
+      gap:16px;
       align-items:start;
-    }
-    .preview-item[data-format="300x600"]{ }
-    .preview-grid.layout-3 .preview-item[data-format="300x600"]{
-      grid-column:1;
-      grid-row:1 / span 2;
-    }
-    .preview-grid.layout-3 .preview-item[data-format="300x250"]{
-      grid-column:2;
-      grid-row:1;
-    }
-    .preview-grid.layout-3 .preview-item[data-format="970x250"]{
-      grid-column:2;
-      grid-row:2;
+      justify-items:stretch;
     }
 
-    /* wenn nur 1 Format -> zentriert */
+    /* Layout rules (set by JS) */
     .preview-grid.layout-1{
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
+      grid-template-columns: 1fr;
+      justify-items:center;
     }
 
-    /* wenn 2 Formate */
     .preview-grid.layout-2{
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:center;
-      gap:14px;
+      grid-template-columns: 1fr 1fr;
     }
-    /* Spezial: 300x250 + 970x250 untereinander */
-    .preview-grid.layout-2.stack{
-      flex-direction:column;
-      align-items:center;
+
+    /* 3 formats: 300x600 links groß, 300x250 rechts oben, 970x250 unten */
+    .preview-grid.layout-3{
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "a b"
+        "a c";
     }
+    .preview-grid.layout-3 .preview-item[data-format="300x600"]{ grid-area:a; }
+    .preview-grid.layout-3 .preview-item[data-format="300x250"]{ grid-area:b; }
+    .preview-grid.layout-3 .preview-item[data-format="970x250"]{ grid-area:c; }
 
     .preview-item{
-      background:#f8fafc;
-      border:1px solid #e6eaf2;
+      background:#f7f9ff;
+      border:1px solid rgba(0,0,0,0.06);
       border-radius:14px;
       padding:12px;
-      overflow:hidden; /* WICHTIG: nichts darf raus */
-    }
-    .preview-item h4{
-      margin:0 0 10px 0;
-      font-size:0.95rem;
-      color:#111827;
-      text-align:center;
-      font-weight:800;
+      overflow:hidden;            /* hält alles IM Kasten */
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
     }
 
-    /* Viewport hält iframe sicher im Kasten */
+    .preview-item h4{
+      margin:4px 0 10px 0;
+      text-align:center;
+      font-weight:900;
+      color:#1f2430;
+    }
+
     .iframe-viewport{
-      position:relative;
       width:100%;
-      overflow:hidden;       /* nichts raus */
+      border-radius:12px;
+      overflow:hidden;            /* wichtig: nichts darf raus */
       background:#fff;
-      border-radius:10px;    /* Kasten darf rund sein, Banner bleibt innen clean */
-      border:1px solid #e5e7eb;
+      border:1px solid rgba(0,0,0,0.08);
     }
     .iframe-viewport iframe{
-      display:block;
       border:0;
+      display:block;
       background:transparent;
+      transform-origin:0 0;
     }
 
-    details{
-      margin-top:12px;
-      background:#f8fafc;
-      border:1px solid #e6eaf2;
-      border-radius:12px;
+    /* Details accordion */
+    details.preview-details{
+      margin-top:14px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,0.08);
+      border-radius:14px;
       overflow:hidden;
     }
-    summary{
+    details.preview-details > summary{
       cursor:pointer;
-      padding:12px 14px;
-      font-weight:800;
+      list-style:none;
+      padding:14px 16px;
+      font-weight:900;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      list-style:none;
+      gap:10px;
+      background:#fbfcff;
     }
-    summary::-webkit-details-marker{ display:none; }
+    details.preview-details > summary::-webkit-details-marker{ display:none; }
     .details-body{
-      padding: 0 14px 14px;
-      font-size:.92rem;
-      color:#374151;
+      padding:14px 16px;
+      font-size:.95rem;
+      color:#334155;
+      border-top:1px solid rgba(0,0,0,0.06);
       word-break:break-word;
     }
-    .details-body code{
-      display:block;
-      background:#111827;
-      color:#fff;
-      padding:10px;
+    .details-label{ font-weight:900; color:#111827; }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:.88rem;
+      background:#f3f4f6;
+      padding:10px 12px;
       border-radius:10px;
       margin-top:8px;
-      font-size:.85rem;
       overflow:auto;
     }
 
-    @media (max-width: 1200px){
-      .stage{
-        flex-wrap:wrap;
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1260px){
+      .left-panels{
+        grid-template-columns: repeat(2, minmax(280px, 360px));
       }
-      .input-panel{
-        max-width: 100%;
+      .left-panels .card{ min-height: 480px; }
+      .stage.has-preview .preview-panel{
+        max-width: clamp(440px, 44vw, 760px);
       }
-      .preview-panel{
-        max-width: 100% !important;
-        width: 100% !important;
-      }
-      .stage.has-preview .input-panel{
-        transform:none;
+      /* when only 2 cols, keep click-card on second row */
+      .left-panels .card:nth-child(3){
+        grid-column: 1 / -1;
+        min-height: 340px;
       }
     }
+
     @media (max-width: 980px){
-      .input-panel{
-        grid-template-columns: 1fr;
+      .stage-inner{
+        flex-direction:column;
+        align-items:center;
       }
+      .left-panels{
+        grid-template-columns: 1fr;
+        width:min(520px, 100%);
+      }
+      .left-panels .card{
+        min-height: unset;
+      }
+      .preview-panel{
+        width:100% !important;
+        max-width: min(920px, 100%) !important;
+        opacity:1 !important;
+        pointer-events:auto !important;
+      }
+      .stage.has-preview .left-panels{ transform:none; }
+
+      .preview-grid.layout-2,
+      .preview-grid.layout-3{
+        grid-template-columns: 1fr;
+        grid-template-areas: none;
+      }
+      .preview-grid.layout-3 .preview-item{ grid-area:auto; }
+    }
+
+    @media (max-width: 600px){
+      .header h1{ font-size:2rem; }
+      .btn{ width:100%; justify-content:center; }
     }
   </style>
 </head>
@@ -479,7 +529,7 @@
             <input type="checkbox" id="format-300x250" value="300x250">
             <div class="format-preview">
               <div class="preview-box">
-                <span style="font-weight:800; font-size:1.2em;">300×250</span>
+                <span style="font-weight:900;font-size:1.2em;">300×250</span>
                 <small>Medium Rectangle</small>
               </div>
             </div>
@@ -490,7 +540,7 @@
             <input type="checkbox" id="format-300x600" value="300x600">
             <div class="format-preview">
               <div class="preview-box">
-                <span style="font-weight:800; font-size:1.2em;">300×600</span>
+                <span style="font-weight:900;font-size:1.2em;">300×600</span>
                 <small>Half Page</small>
               </div>
             </div>
@@ -501,7 +551,7 @@
             <input type="checkbox" id="format-970x250" value="970x250">
             <div class="format-preview">
               <div class="preview-box">
-                <span style="font-weight:800; font-size:1.2em;">970×250</span>
+                <span style="font-weight:900;font-size:1.2em;">970×250</span>
                 <small>Billboard</small>
               </div>
             </div>
@@ -520,80 +570,91 @@
     <!-- Step 2 -->
     <div class="step-content" id="step2">
       <div class="stage" id="stage">
-        <!-- Left: Inputs -->
-        <div class="input-panel" id="inputPanel">
+        <div class="stage-inner">
 
-          <div class="card">
-            <h3><i class="fas fa-images"></i> Bilder hochladen</h3>
-            <div class="upload-area" id="uploadArea">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <p>Bilder hier hinziehen oder klicken</p>
-              <p style="font-size:0.9em; color:#666; margin-top:10px;">
-                Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
-              </p>
-              <input type="file" id="imageUpload" multiple accept="image/*">
-            </div>
-            <div class="uploaded-images" id="uploadedImages"></div>
-          </div>
+          <!-- Left 3 cards (always visible) -->
+          <div class="left-panels">
 
-          <div class="card">
-            <h3><i class="fas fa-font"></i> Texte anpassen</h3>
-            <div class="input-group">
-              <label for="headline">Headline</label>
-              <input type="text" id="headline" value="Bereit für deine Ziele?" maxlength="50">
-            </div>
-            <div class="input-group">
-              <label for="subline">Subline</label>
-              <input type="text" id="subline" value="Sport Outfits entdecken!" maxlength="50">
-            </div>
-            <div class="input-group">
-              <label for="ctaText">CTA Text</label>
-              <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
-            </div>
-          </div>
-
-          <div class="card">
-            <h3><i class="fas fa-link"></i> Click-URL</h3>
-
-            <div class="input-group">
-              <label for="zipName">Naming (für ZIP-Datei)</label>
-              <input type="text" id="zipName" placeholder="z.B. KW02_BackToGym" required>
-            </div>
-
-            <div class="input-group">
-              <label for="clickUrl">Ziel-URL</label>
-              <input type="url" id="clickUrl" placeholder="https://example.com" required>
-            </div>
-
-            <p style="font-size:0.9em; color:#6b7280; margin-top:6px;">
-              Hinweis: utm_source=dbm &amp; utm_medium=cpm werden automatisch ergänzt.
-            </p>
-          </div>
-
-        </div>
-
-        <!-- Right: Preview (hidden until click) -->
-        <div class="preview-panel" id="previewPanel">
-          <div class="card">
-            <div class="preview-card-header">
-              <h3><i class="fas fa-eye"></i> Vorschau</h3>
-              <button class="btn-ghost" id="togglePreview" type="button">Ausblenden</button>
-            </div>
-
-            <div id="previewGrid" class="preview-grid"></div>
-
-            <details>
-              <summary>
-                Details
-                <span style="opacity:.6;"><i class="fas fa-chevron-down"></i></span>
-              </summary>
-              <div class="details-body">
-                <div><strong>Naming:</strong> <span id="detailName">-</span></div>
-                <div style="margin-top:8px;"><strong>Final clickTag:</strong></div>
-                <code id="detailClickTag">-</code>
+            <div class="card">
+              <h3><i class="fas fa-images"></i> Bilder hochladen</h3>
+              <div class="upload-area" id="uploadArea" style="margin-top:14px;">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Bilder hier hinziehen oder klicken</p>
+                <p style="font-size:0.9em;color:#666;margin-top:10px;">
+                  Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
+                </p>
+                <input type="file" id="imageUpload" multiple accept="image/*">
               </div>
-            </details>
+              <div class="uploaded-images" id="uploadedImages"></div>
+            </div>
+
+            <div class="card">
+              <h3><i class="fas fa-font"></i> Texte anpassen</h3>
+
+              <div class="input-group">
+                <label for="headline">Headline</label>
+                <input type="text" id="headline" value="Bereit für deine Ziele?" maxlength="50">
+              </div>
+
+              <div class="input-group">
+                <label for="subline">Subline</label>
+                <input type="text" id="subline" value="Sport Outfits entdecken!" maxlength="50">
+              </div>
+
+              <div class="input-group">
+                <label for="ctaText">CTA Text</label>
+                <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><i class="fas fa-link"></i> Click-URL</h3>
+
+              <div class="input-group">
+                <label for="zipName">Naming (für ZIP-Datei)</label>
+                <input type="text" id="zipName" placeholder="z.B. KW02_BackToGym" required>
+              </div>
+
+              <div class="input-group">
+                <label for="clickUrl">Ziel-URL</label>
+                <input type="url" id="clickUrl" placeholder="https://example.com" required>
+              </div>
+
+              <p style="margin-top:14px;font-size:0.9em;color:#6b7280;">
+                Hinweis: <b>utm_source=dbm</b> &amp; <b>utm_medium=cpm</b> werden automatisch ergänzt.
+              </p>
+            </div>
+
           </div>
+
+          <!-- Preview panel (hidden until "Vorschau erstellen") -->
+          <div class="preview-panel">
+            <div class="card">
+              <div class="preview-head">
+                <div class="title"><i class="fas fa-eye"></i> Vorschau</div>
+                <button class="toggle-preview" id="togglePreviewBtn" type="button">
+                  Ausblenden
+                </button>
+              </div>
+
+              <div class="preview-grid" id="previewGrid"></div>
+
+              <details class="preview-details" id="previewDetails">
+                <summary>
+                  Details
+                  <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                </summary>
+                <div class="details-body">
+                  <div class="details-label">Naming</div>
+                  <div id="detailName">-</div>
+
+                  <div class="details-label" style="margin-top:12px;">Final clickTag</div>
+                  <div class="mono" id="detailClickTag">-</div>
+                </div>
+              </details>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -612,11 +673,11 @@
 
     <!-- Step 4 -->
     <div class="step-content" id="step4">
-      <div class="card" style="text-align:center;">
+      <div class="card">
         <h2><i class="fas fa-download"></i> Export Status</h2>
-        <div style="padding:20px;">
+        <div style="text-align:center;padding:20px;">
           <div style="margin-bottom:20px;">
-            <i class="fas fa-check-circle" style="font-size:3rem; color: var(--success);"></i>
+            <i class="fas fa-check-circle" style="font-size:3rem;color:var(--success);"></i>
           </div>
           <h3>Export erfolgreich!</h3>
           <p>Deine Banner wurden als ZIP-Dateien heruntergeladen.</p>
@@ -637,8 +698,8 @@
     // -----------------------
     // Config (Ordnerstruktur)
     // -----------------------
-    const TEMPLATE_DIR = 'templates';
-    const ASSETS_DIR   = 'assets';
+    const TEMPLATE_DIR = 'templates';       // templates/300x250.html ...
+    const ASSETS_DIR   = 'assets';          // assets/Logo.png, assets/fonts/...
     const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
 
     const FONT_FILES = [
@@ -664,6 +725,14 @@
     };
 
     // -----------------------
+    // DOM refs
+    // -----------------------
+    const stage = document.getElementById('stage');
+    const previewGrid = document.getElementById('previewGrid');
+    const detailNameEl = document.getElementById('detailName');
+    const detailClickTagEl = document.getElementById('detailClickTag');
+
+    // -----------------------
     // Helpers
     // -----------------------
     function showStep(stepNumber){
@@ -674,32 +743,31 @@
 
     function escapeJs(str){
       return String(str)
-        .replaceAll('\\','\\\\')
-        .replaceAll('"','\\"')
-        .replaceAll('\n','\\n');
+        .replaceAll('\\', '\\\\')
+        .replaceAll('"', '\\"')
+        .replaceAll('\n', '\\n');
+    }
+
+    function parseFormat(format){
+      const [w, h] = format.split('x').map(n => parseInt(n, 10));
+      return { w, h };
+    }
+
+    function injectPreviewBase(html){
+      // Preview: Template referenziert "Logo.png" und "fonts/..."
+      // Repo: assets/Logo.png und assets/fonts/...
+      // base href="./assets/" => Logo.png -> assets/Logo.png, fonts/... -> assets/fonts/...
+      if (/<base\s/i.test(html)) return html;
+      return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
     }
 
     function sanitizeFilePart(name){
       const s = String(name || '').trim();
       const cleaned = s
-        .replace(/\s+/g,'_')
-        .replace(/[^\w.\-]+/g,'_')
-        .replace(/^_+|_+$/g,'');
+        .replace(/\s+/g, '_')
+        .replace(/[^\w.\-]+/g, '_')
+        .replace(/^_+|_+$/g, '');
       return cleaned || 'banner';
-    }
-
-    function parseFormat(format){
-      const [w,h] = format.split('x').map(n => parseInt(n,10));
-      return {w,h};
-    }
-
-    function computeScale(w,h,maxW,maxH){
-      return Math.min(1, maxW / w, maxH / h);
-    }
-
-    function injectPreviewBase(html){
-      if (/<base\s/i.test(html)) return html;
-      return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
     }
 
     // -----------------------
@@ -729,12 +797,12 @@
 
     function appendUtmParams(url){
       const u = new URL(url);
-      if (!u.searchParams.has('utm_source')) u.searchParams.set('utm_source','dbm');
-      if (!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium','cpm');
+      if (!u.searchParams.has('utm_source')) u.searchParams.set('utm_source', 'dbm');
+      if (!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium', 'cpm');
       return u.toString();
     }
 
-    // Unencoded (wie gewünscht)
+    // UNENCODED, wie gewünscht
     function buildTchiboClickTagUnencoded(landingUrlWithUtm){
       const base = 'https://tagm.tchibo.de/cl.aspx';
       const params =
@@ -764,9 +832,9 @@
     }
 
     // -----------------------
-    // Template replacement
+    // Template variable replacement
     // -----------------------
-    function replaceTemplateVars(html,{mode}){
+    function replaceTemplateVars(html, { mode }){
       html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
       html = html.replace(/var\s+SUBLINE\s*=\s*".*?";/s,  `var SUBLINE  = "${escapeJs(appData.subline)}";`);
       html = html.replace(/var\s+CTA_TEXT\s*=\s*".*?";/s, `var CTA_TEXT = "${escapeJs(appData.ctaText)}";`);
@@ -800,6 +868,19 @@
       zip.file(zipPath, buf);
     }
 
+    function getOrderedFormatsForPreview(formats){
+      // gewünschte Reihenfolge: 300x600 links, 300x250, 970x250 unten
+      const order = ['300x600','300x250','970x250'];
+      return [...formats].sort((a,b) => order.indexOf(a) - order.indexOf(b));
+    }
+
+    function applyPreviewLayoutClass(formats){
+      previewGrid.classList.remove('layout-1','layout-2','layout-3');
+      if (formats.length <= 1) previewGrid.classList.add('layout-1');
+      else if (formats.length === 2) previewGrid.classList.add('layout-2');
+      else previewGrid.classList.add('layout-3');
+    }
+
     // -----------------------
     // Step 1: Format selection
     // -----------------------
@@ -823,20 +904,25 @@
     const uploadedContainer = document.getElementById('uploadedImages');
 
     uploadArea.addEventListener('click', () => fileInput.click());
-    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
     uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-    uploadArea.addEventListener('drop', e => {
+    uploadArea.addEventListener('drop', (e) => {
       e.preventDefault();
       uploadArea.classList.remove('dragover');
       handleFiles(e.dataTransfer.files);
     });
-    fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
     function handleFiles(files){
       Array.from(files).forEach(file => {
         if (!file.type.startsWith('image/')) return;
         const reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = (e) => {
           uploadedImages.push({
             name: `${uploadedImages.length + 1}.jpg`,
             data: e.target.result,
@@ -856,8 +942,9 @@
         div.innerHTML = `
           <img src="${img.data}" alt="Bild ${index + 1}">
           <div class="number">${index + 1}.jpg</div>
-          <button class="remove" type="button" onclick="removeImage(${index})">×</button>
+          <button class="remove" type="button" data-index="${index}">×</button>
         `;
+        div.querySelector('button.remove').addEventListener('click', () => removeImage(index));
         uploadedContainer.appendChild(div);
       });
     }
@@ -867,54 +954,10 @@
       uploadedImages.forEach((img, i) => img.name = `${i + 1}.jpg`);
       updateImageDisplay();
     }
-    window.removeImage = removeImage;
 
     // -----------------------
-    // Preview (appears inside Step2)
+    // Live preview (responsive scaling)
     // -----------------------
-    const stage = document.getElementById('stage');
-    const previewGrid = document.getElementById('previewGrid');
-    const togglePreviewBtn = document.getElementById('togglePreview');
-    const detailNameEl = document.getElementById('detailName');
-    const detailClickTagEl = document.getElementById('detailClickTag');
-
-    function setPreviewVisible(on){
-      stage.classList.toggle('has-preview', !!on);
-    }
-
-    togglePreviewBtn.addEventListener('click', () => {
-      const isOn = stage.classList.contains('has-preview');
-      setPreviewVisible(!isOn);
-      togglePreviewBtn.textContent = isOn ? 'Einblenden' : 'Ausblenden';
-    });
-
-    function getOrderedFormatsForPreview(formats){
-      const set = new Set(formats);
-      const all3 = set.has('300x600') && set.has('300x250') && set.has('970x250');
-      if (all3) return ['300x600','300x250','970x250'];
-
-      // sonst: Reihenfolge wie gewählt, aber stabil
-      return formats.slice();
-    }
-
-    function applyPreviewLayoutClass(formats){
-      const set = new Set(formats);
-      if (formats.length === 1){
-        previewGrid.className = 'preview-grid layout-1';
-        return;
-      }
-      if (formats.length === 3 && set.has('300x600') && set.has('300x250') && set.has('970x250')){
-        previewGrid.className = 'preview-grid layout-3';
-        return;
-      }
-      // 2 Formate
-      if (formats.length === 2 && set.has('300x250') && set.has('970x250')){
-        previewGrid.className = 'preview-grid layout-2 stack';
-        return;
-      }
-      previewGrid.className = 'preview-grid layout-2';
-    }
-
     async function generatePreviews(){
       previewGrid.innerHTML = '';
 
@@ -926,15 +969,10 @@
       applyPreviewLayoutClass(formats);
 
       for (const format of formats){
-        const {w,h} = parseFormat(format);
+        const { w, h } = parseFormat(format);
 
-        // Zielgrößen pro Preview-Zelle (damit nichts überläuft)
-        const cellMaxW = 460;
-        const cellMaxH = (format === '300x600') ? 640 : 300;
-
-        const scale = computeScale(w, h, cellMaxW, cellMaxH);
-        const viewportW = Math.ceil(w * scale);
-        const viewportH = Math.ceil(h * scale);
+        // Max height inside preview item (tweak if needed)
+        const maxH = (format === '300x600') ? 680 : 340;
 
         let html;
         try{
@@ -949,7 +987,7 @@
         }
 
         html = injectPreviewBase(html);
-        html = replaceTemplateVars(html, {mode:'preview'});
+        html = replaceTemplateVars(html, { mode: 'preview' });
 
         const item = document.createElement('div');
         item.className = 'preview-item';
@@ -961,26 +999,33 @@
 
         const viewport = document.createElement('div');
         viewport.className = 'iframe-viewport';
-        viewport.style.width = `${viewportW}px`;
-        viewport.style.height = `${viewportH}px`;
+        viewport.style.width = '100%';
+        viewport.style.height = '12px'; // set after measuring
 
         const iframe = document.createElement('iframe');
         iframe.width = w;
         iframe.height = h;
         iframe.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox');
-        iframe.style.transform = `scale(${scale})`;
         iframe.style.transformOrigin = '0 0';
         iframe.srcdoc = html;
 
         viewport.appendChild(iframe);
         item.appendChild(viewport);
-
         previewGrid.appendChild(item);
+
+        // Wait for layout
+        await new Promise(requestAnimationFrame);
+
+        const availW = viewport.clientWidth;
+        const scale = Math.min(1, availW / w, maxH / h);
+
+        viewport.style.height = `${Math.ceil(h * scale)}px`;
+        iframe.style.transform = `scale(${scale})`;
       }
     }
 
     // -----------------------
-    // Export ZIP
+    // Export: ZIP
     // -----------------------
     async function exportBanners(){
       const baseName = sanitizeFilePart(appData.zipName);
@@ -992,35 +1037,38 @@
         try{
           templateContent = await fetchText(`${TEMPLATE_DIR}/${format}.html`);
         } catch (e){
+          console.error(`Template load failed (${format}):`, e);
           alert(`Template ${format}.html nicht gefunden oder nicht ladbar!`);
           continue;
         }
 
-        templateContent = replaceTemplateVars(templateContent, {mode:'export'});
+        // Export: KEIN base href injizieren.
+        templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
         zip.file('index.html', templateContent);
 
+        // Images
         uploadedImages.forEach(img => {
           const base64Data = img.data.split(',')[1];
-          zip.file(img.name, base64Data, {base64:true});
+          zip.file(img.name, base64Data, { base64:true });
         });
 
+        // Logo + fonts
         await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
-
         for (const url of FONT_FILES){
           const filename = url.split('/').pop();
           await addBinaryToZip(zip, `fonts/${filename}`, url);
         }
 
-        const content = await zip.generateAsync({type:'blob'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(content);
-        link.download = `${format}_${baseName}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
+        const blob = await zip.generateAsync({ type:'blob' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${format}_${baseName}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
 
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 250));
       }
     }
 
@@ -1028,50 +1076,66 @@
     // UI bindings
     // -----------------------
     document.addEventListener('DOMContentLoaded', () => {
+      // Inputs
       document.getElementById('headline').addEventListener('input', e => appData.headline = e.target.value);
       document.getElementById('subline').addEventListener('input', e => appData.subline = e.target.value);
       document.getElementById('ctaText').addEventListener('input', e => appData.ctaText = e.target.value);
       document.getElementById('clickUrl').addEventListener('input', e => appData.landingUrl = e.target.value);
       document.getElementById('zipName').addEventListener('input', e => appData.zipName = e.target.value);
 
-      document.getElementById('backStep1').addEventListener('click', () => {
-        setPreviewVisible(false);
-        togglePreviewBtn.textContent = 'Ausblenden';
-        showStep(1);
-      });
+      // Back
+      document.getElementById('backStep1').addEventListener('click', () => showStep(1));
 
+      // Preview button: show preview panel ONLY after click
       document.getElementById('createPreview').addEventListener('click', async () => {
         const finalClick = getFinalClickTag();
-        const nm = sanitizeFilePart(appData.zipName);
+        const nmRaw = String(appData.zipName || '').trim();
 
         if (!finalClick){
           alert('Bitte gib eine gültige Ziel-URL ein!');
           return;
         }
-        if (!String(appData.zipName || '').trim()){
+        if (!nmRaw){
           alert('Bitte gib ein Naming für die ZIP-Datei ein!');
           return;
         }
+        if (selectedFormats.length === 0){
+          alert('Bitte wähle mindestens ein Format aus.');
+          return;
+        }
 
-        setPreviewVisible(true);
-        togglePreviewBtn.textContent = 'Ausblenden';
+        stage.classList.add('has-preview');
         await generatePreviews();
       });
 
+      // Toggle preview visibility (keeps 3 cards visible always)
+      document.getElementById('togglePreviewBtn').addEventListener('click', () => {
+        stage.classList.remove('has-preview');
+      });
+
+      // Export
       document.getElementById('exportBanners').addEventListener('click', async () => {
         const finalClick = getFinalClickTag();
+        const nmRaw = String(appData.zipName || '').trim();
+
         if (!finalClick){
           alert('Bitte gib eine gültige Ziel-URL ein!');
           return;
         }
-        if (!String(appData.zipName || '').trim()){
+        if (!nmRaw){
           alert('Bitte gib ein Naming für die ZIP-Datei ein!');
           return;
         }
+        if (selectedFormats.length === 0){
+          alert('Bitte wähle mindestens ein Format aus.');
+          return;
+        }
+
         await exportBanners();
         showStep(4);
       });
 
+      // Start over
       document.getElementById('startOver').addEventListener('click', () => {
         selectedFormats = [];
         uploadedImages = [];
@@ -1086,21 +1150,18 @@
         formatCheckboxes.forEach(cb => cb.checked = false);
         nextButton1.disabled = true;
 
-        document.getElementById('uploadedImages').innerHTML = '';
         document.getElementById('headline').value = appData.headline;
         document.getElementById('subline').value = appData.subline;
         document.getElementById('ctaText').value = appData.ctaText;
         document.getElementById('clickUrl').value = '';
         document.getElementById('zipName').value = '';
 
+        uploadedContainer.innerHTML = '';
         previewGrid.innerHTML = '';
-        setPreviewVisible(false);
-        togglePreviewBtn.textContent = 'Ausblenden';
+        stage.classList.remove('has-preview');
 
         showStep(1);
       });
-
-      console.log('HTML5 Banner Generator geladen!');
     });
   </script>
 </body>
