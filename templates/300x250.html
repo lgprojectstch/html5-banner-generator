@@ -7,23 +7,23 @@
   <title>300x250_NF_DE_CATEGORY_KAT_AlwaysOn_CATEGORY_HTML5</title>
 
   <script>
+    // ====== GENERATOR VARS (werden ersetzt) ======
+    // ✅ Wichtig: einfache, eindeutige Muster, damit dein Generator sicher ersetzen kann.
     var HEADLINE = "Bereit für deine Ziele?";
     var SUBLINE  = "Sport Outfits entdecken!";
     var CTA_TEXT = "Jetzt shoppen";
 
+    // ✅ IMAGE_PATTERN kannst du drin lassen, aber der Generator wird primär IMAGE_LIST setzen
     var IMAGE_PATTERN = "960x1200-{n}_NF_DE_Active_HVK_2025KW02_Active.jpg";
+
+    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER Data-URLs in Preview)
     var IMAGE_LIST = [
       "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-3_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-4_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-5_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-6_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-7_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-8_NF_DE_Active_HVK_2025KW02_Active.jpg"
+      "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg"
     ];
 
-    var clickTag = "https://tagm.tchibo.de/cl.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=${INSERTION_ORDER_ID}&extPm=${CAMPAIGN_ID}&extCr=${CREATIVE_ID}&adslotid=${PUBLISHER_ID}&gdpr=${GDPR}&gdpr_consent=${GDPR_CONSENT_312}&url=https://www.tchibo.de/themeworlds/836/back-to-gym?utm_source=dbm&utm_medium=cpm";
+    // ✅ DV360 clickTag (muss global sein)
+    var clickTag = "https://example.com";
     window.clickTag = clickTag;
   </script>
 
@@ -59,7 +59,6 @@
       --heroBorderDur: 180ms;
     }
 
-    /* ✅ ROBUSTE FONT-PFADE (Root/fonts/...) */
     @font-face{
       font-family:"InterstateWGL";
       src:
@@ -78,7 +77,6 @@
       font-style:normal;
       font-display:swap;
     }
-
 
     .ad{
       width: var(--w);
@@ -297,13 +295,13 @@
         </div>
 
         <div class="copy">
-          <p class="headline seq show-headline" id="headlineEl">Headline</p>
-          <p class="subline  seq show-subline"  id="sublineEl">Subline</p>
+          <p class="headline seq show-headline" id="headlineEl"></p>
+          <p class="subline  seq show-subline"  id="sublineEl"></p>
         </div>
 
         <div class="cta-area">
           <a class="cta seq show-cta" href="javascript:void(0)" id="cta">
-            <span class="cta-inner" id="ctaInner">CTA</span>
+            <span class="cta-inner" id="ctaInner"></span>
           </a>
         </div>
       </div>
@@ -316,10 +314,12 @@
   </div>
 
   <script>
+    // Texte setzen
     document.getElementById("headlineEl").textContent = HEADLINE;
     document.getElementById("sublineEl").textContent  = SUBLINE;
     document.getElementById("ctaInner").textContent   = CTA_TEXT;
 
+    // ClickTag
     function doExit(){ window.open(clickTag, "_blank"); }
     document.getElementById("ad").addEventListener("click", doExit);
 
@@ -328,8 +328,7 @@
     cta.addEventListener("mouseenter", function(){ cta.classList.add("is-hover"); });
     cta.addEventListener("mouseleave", function(){ cta.classList.remove("is-hover"); });
 
-    setTimeout(function(){ document.getElementById("ctaInner").classList.add("cta-bounce"); }, 2200);
-
+    // ===== Slider =====
     var HOLD_MS  = 2000;
     var SWIPE_MS = 450;
     var heroFullyVisibleAt = 450 + 1000;
@@ -349,9 +348,11 @@
     }
 
     (function init(){
+      // ✅ Wichtig: IMAGE_LIST kann Dateinamen ODER Data-URLs enthalten
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
-      if (!images.length) images = [IMAGE_PATTERN.replace("{n}", "1")];
+      if (!images.length && IMAGE_PATTERN) images = [IMAGE_PATTERN.replace("{n}", "1")];
 
+      // Preload
       images.forEach(function(s){ var im = new Image(); im.src = s; });
 
       slideA.src = images[0] || "";
