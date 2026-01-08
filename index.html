@@ -704,23 +704,32 @@
 
     // Generate Preview
     function generatePreviews() {
-        console.log('generatePreviews() gestartet');
-        
-        const container = document.getElementById('previewContainer');
-        container.innerHTML = `
-            <div style="background: white; border: 2px solid #333; padding: 20px; margin: 20px 0; border-radius: 8px;">
-                <h3 style="color: #333; margin-bottom: 20px;">✅ PREVIEW FUNKTIONIERT!</h3>
-                <p><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
-                <p><strong>Headline:</strong> ${appData.headline}</p>
-                <p><strong>Subline:</strong> ${appData.subline}</p>
-                <p><strong>CTA:</strong> ${appData.ctaText}</p>
-                <p><strong>URL:</strong> ${appData.clickUrl}</p>
-                <p><strong>Bilder:</strong> ${uploadedImages.length}</p>
-            </div>
-        `;
-        
-        console.log('Preview HTML gesetzt!');
+    console.log('generatePreviews() gestartet');
+    
+    const container = document.getElementById('previewContainer');
+    if (!container) {
+        console.error('previewContainer nicht gefunden!');
+        return;
     }
+    
+    // Force container to be visible
+    container.style.display = 'block';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+    container.style.minHeight = '300px';
+    
+    container.innerHTML = `
+        <div style="background: red !important; color: white !important; border: 5px solid black !important; padding: 30px !important; margin: 20px 0 !important; border-radius: 8px !important; font-size: 18px !important;">
+            <h3 style="color: white !important; margin-bottom: 20px !important;">🔴 EMERGENCY PREVIEW TEST!</h3>
+            <p><strong>Formate:</strong> ${selectedFormats.join(', ')}</p>
+            <p><strong>Headline:</strong> ${appData.headline}</p>
+            <p><strong>URL:</strong> ${appData.clickUrl}</p>
+        </div>
+    `;
+    
+    console.log('Preview HTML gesetzt! Container:', container);
+    console.log('Container innerHTML:', container.innerHTML);
+}
 
     // Export Function
     async function exportBanners() {
