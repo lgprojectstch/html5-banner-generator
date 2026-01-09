@@ -162,7 +162,7 @@
       box-shadow:0 10px 25px rgba(0,0,0,.15);
     }
 
-    /* Checked State: modern, hoher Kontrast */
+    /* Checked State */
     .format-card input[type="checkbox"]:checked + .format-preview{
       background: linear-gradient(135deg, #5B6CFF, #35C6FF);
       color:#fff;
@@ -194,14 +194,13 @@
       transform:scale(1);
     }
 
-    /* ---------- Step 2: Stage (3 Cards + Preview) ---------- */
+    /* ---------- Step 2: Stage ---------- */
     .stage{
       width:100%;
       display:flex;
       justify-content:center;
     }
 
-    /* Outer layout: left area + (optional) preview panel */
     .stage-inner{
       width:100%;
       display:flex;
@@ -210,7 +209,6 @@
       gap:22px;
     }
 
-    /* Left three cards wrapper */
     .left-panels{
       display:grid;
       grid-template-columns: repeat(3, minmax(280px, 340px));
@@ -220,7 +218,6 @@
       transition:transform .35s ease;
     }
 
-    /* Make all three cards same height */
     .left-panels .card{
       height: 100%;
       min-height: 520px;
@@ -267,11 +264,25 @@
       border-radius:10px;
       overflow:hidden;
       background:#f0f0f0;
+      cursor:grab;
+      outline:2px solid transparent;
+      transition: outline .15s ease, transform .15s ease, opacity .15s ease;
+    }
+    .uploaded-image:active{ cursor:grabbing; }
+    .uploaded-image.dragging{
+      opacity:.55;
+      transform: scale(.98);
+    }
+    .uploaded-image.dragover{
+      outline:2px dashed rgba(102,126,234,0.9);
+      outline-offset:-2px;
     }
     .uploaded-image img{
       width:100%;
       height:100%;
       object-fit:cover;
+      pointer-events:none;
+      user-select:none;
     }
     .uploaded-image .remove{
       position:absolute;
@@ -285,6 +296,7 @@
       height:26px;
       cursor:pointer;
       font-size:.85rem;
+      z-index:2;
     }
     .uploaded-image .number{
       position:absolute;
@@ -296,6 +308,7 @@
       border-radius:6px;
       font-size:.80rem;
       font-weight:800;
+      z-index:2;
     }
 
     /* Inputs */
@@ -320,7 +333,26 @@
       box-shadow:0 0 0 3px rgba(102,126,234,0.12);
     }
 
-    /* Preview Panel (hidden until preview) */
+    /* Character hint / warning */
+    .char-hint{
+      margin-top:6px;
+      font-size:.85rem;
+      color:#6b7280;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      user-select:none;
+    }
+    .char-hint.over{
+      color: var(--danger);
+      font-weight:800;
+    }
+    .input-over{
+      border-color: var(--danger) !important;
+      box-shadow:0 0 0 3px rgba(255,107,107,0.18) !important;
+    }
+
+    /* Preview Panel */
     .preview-panel{
       width:0;
       max-width:0;
@@ -372,7 +404,6 @@
       justify-items:stretch;
     }
 
-    /* Layout rules (set by JS) */
     .preview-grid.layout-1{
       grid-template-columns: 1fr;
       justify-items:center;
@@ -382,7 +413,6 @@
       grid-template-columns: 1fr 1fr;
     }
 
-    /* 3 formats: 300x600 links groß, 300x250 rechts oben, 970x250 unten */
     .preview-grid.layout-3{
       grid-template-columns: 1fr 1fr;
       grid-template-areas:
@@ -398,7 +428,7 @@
       border:1px solid rgba(0,0,0,0.06);
       border-radius:14px;
       padding:12px;
-      overflow:hidden;            /* hält alles IM Kasten */
+      overflow:hidden;
       box-shadow: 0 10px 24px rgba(0,0,0,0.06);
     }
 
@@ -412,7 +442,7 @@
     .iframe-viewport{
       width:100%;
       border-radius:12px;
-      overflow:hidden;            /* wichtig: nichts darf raus */
+      overflow:hidden;
       background:#fff;
       border:1px solid rgba(0,0,0,0.08);
     }
@@ -459,6 +489,55 @@
       border-radius:10px;
       margin-top:8px;
       overflow:auto;
+      white-space:pre-wrap;
+    }
+
+    /* ---------- Export Modal ---------- */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:18px;
+    }
+    .modal.open{ display:flex; }
+    .modal-backdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(2px);
+    }
+    .modal-card{
+      position:relative;
+      width: min(520px, 100%);
+      background:#fff;
+      border-radius:16px;
+      box-shadow: 0 18px 55px rgba(0,0,0,0.25);
+      padding:22px;
+      z-index:1;
+    }
+    .modal-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      font-size:1.1rem;
+      margin-bottom:10px;
+      color:#111827;
+    }
+    .modal-body{
+      color:#374151;
+      font-size:0.98rem;
+      line-height:1.55;
+    }
+    .modal-actions{
+      display:flex;
+      gap:12px;
+      justify-content:flex-end;
+      margin-top:16px;
+      flex-wrap:wrap;
     }
 
     /* ---------- Responsive ---------- */
@@ -470,7 +549,6 @@
       .stage.has-preview .preview-panel{
         max-width: clamp(440px, 44vw, 760px);
       }
-      /* when only 2 cols, keep click-card on second row */
       .left-panels .card:nth-child(3){
         grid-column: 1 / -1;
         min-height: 340px;
@@ -508,6 +586,8 @@
     @media (max-width: 600px){
       .header h1{ font-size:2rem; }
       .btn{ width:100%; justify-content:center; }
+      .modal-actions{ justify-content:stretch; }
+      .modal-actions .btn{ width:100%; justify-content:center; }
     }
   </style>
 </head>
@@ -572,7 +652,7 @@
       <div class="stage" id="stage">
         <div class="stage-inner">
 
-          <!-- Left 3 cards (always visible) -->
+          <!-- Left 3 cards -->
           <div class="left-panels">
 
             <div class="card">
@@ -581,7 +661,7 @@
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Bilder hier hinziehen oder klicken</p>
                 <p style="font-size:0.9em;color:#666;margin-top:10px;">
-                  Werden automatisch zu 1.jpg, 2.jpg, etc. umbenannt
+                  Reihenfolge per Drag &amp; Drop ändern (wird neu zu 1.jpg, 2.jpg, ... durchnummeriert)
                 </p>
                 <input type="file" id="imageUpload" multiple accept="image/*">
               </div>
@@ -593,17 +673,20 @@
 
               <div class="input-group">
                 <label for="headline">Headline</label>
-                <input type="text" id="headline" value="Bereit für deine Ziele?" maxlength="50">
+                <input type="text" id="headline" value="Bereit für deine Ziele?">
+                <div class="char-hint" id="headlineHint"></div>
               </div>
 
               <div class="input-group">
                 <label for="subline">Subline</label>
-                <input type="text" id="subline" value="Sport Outfits entdecken!" maxlength="50">
+                <input type="text" id="subline" value="Sport Outfits entdecken!">
+                <div class="char-hint" id="sublineHint"></div>
               </div>
 
               <div class="input-group">
                 <label for="ctaText">CTA Text</label>
-                <input type="text" id="ctaText" value="Jetzt shoppen" maxlength="20">
+                <input type="text" id="ctaText" value="Jetzt shoppen">
+                <div class="char-hint" id="ctaHint"></div>
               </div>
             </div>
 
@@ -627,7 +710,7 @@
 
           </div>
 
-          <!-- Preview panel (hidden until "Vorschau erstellen") -->
+          <!-- Preview panel -->
           <div class="preview-panel">
             <div class="card">
               <div class="preview-head">
@@ -650,6 +733,9 @@
 
                   <div class="details-label" style="margin-top:12px;">Final clickTag</div>
                   <div class="mono" id="detailClickTag">-</div>
+
+                  <div class="details-label" style="margin-top:12px;">Impr.-Tag</div>
+                  <div class="mono" id="detailImprTag">-</div>
                 </div>
               </details>
             </div>
@@ -671,25 +757,25 @@
       </div>
     </div>
 
-    <!-- Step 4 -->
-    <div class="step-content" id="step4">
-      <div class="card">
-        <h2><i class="fas fa-download"></i> Export Status</h2>
-        <div style="text-align:center;padding:20px;">
-          <div style="margin-bottom:20px;">
-            <i class="fas fa-check-circle" style="font-size:3rem;color:var(--success);"></i>
-          </div>
-          <h3>Export erfolgreich!</h3>
-          <p>Deine Banner wurden als ZIP-Dateien heruntergeladen.</p>
-        </div>
-        <div class="button-group">
-          <button class="btn btn-primary" id="startOver">
-            <i class="fas fa-plus"></i> Neue Banner erstellen
-          </button>
-        </div>
+  </div>
+
+  <!-- Export Success Modal -->
+  <div class="modal" id="exportModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="exportModalBackdrop"></div>
+    <div class="modal-card">
+      <div class="modal-title">
+        <i class="fas fa-check-circle" style="color:var(--success);"></i>
+        Download erstellt
+      </div>
+      <div class="modal-body">
+        Deine ZIP-Dateien wurden erstellt und der Download wurde gestartet. Du kannst jetzt z. B. nur Texte anpassen (anderes Land) und erneut exportieren.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="exportModalClose">
+          Zurück zu den Eingaben
+        </button>
       </div>
     </div>
-
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -698,8 +784,8 @@
     // -----------------------
     // Config (Ordnerstruktur)
     // -----------------------
-    const TEMPLATE_DIR = 'templates';       // templates/300x250.html ...
-    const ASSETS_DIR   = 'assets';          // assets/Logo.png, assets/fonts/...
+    const TEMPLATE_DIR = 'templates';
+    const ASSETS_DIR   = 'assets';
     const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
 
     const FONT_FILES = [
@@ -710,6 +796,18 @@
       'Interstate WGL Regular.woff',
       'Interstate WGL Regular.woff2',
     ].map(f => `${ASSETS_DIR}/fonts/${f}`);
+
+    // -----------------------
+    // Limits
+    // -----------------------
+    const TEXT_LIMITS = {
+      headline: 25,
+      subline: 30,
+      ctaText: 17
+    };
+
+    // Statischer Impr.-Tag (soll als Code angezeigt werden, nicht gerendert)
+    const IMPR_TAG = `<img src="https://tagm.tchibo.de/ai.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=\${INSERTION_ORDER_ID}&extPm=\${CAMPAIGN_ID}&extCr=\${CREATIVE_ID}&adslotid=\${PUBLISHER_ID}&gdpr=\${GDPR}&gdpr_consent=\${GDPR_CONSENT_312}" style="display:none">`;
 
     // -----------------------
     // State
@@ -731,6 +829,21 @@
     const previewGrid = document.getElementById('previewGrid');
     const detailNameEl = document.getElementById('detailName');
     const detailClickTagEl = document.getElementById('detailClickTag');
+    const detailImprTagEl = document.getElementById('detailImprTag');
+
+    // Modal
+    const exportModal = document.getElementById('exportModal');
+    const exportModalCloseBtn = document.getElementById('exportModalClose');
+    const exportModalBackdrop = document.getElementById('exportModalBackdrop');
+
+    function showExportModal(){
+      exportModal.classList.add('open');
+      exportModal.setAttribute('aria-hidden', 'false');
+    }
+    function hideExportModal(){
+      exportModal.classList.remove('open');
+      exportModal.setAttribute('aria-hidden', 'true');
+    }
 
     // -----------------------
     // Helpers
@@ -754,9 +867,6 @@
     }
 
     function injectPreviewBase(html){
-      // Preview: Template referenziert "Logo.png" und "fonts/..."
-      // Repo: assets/Logo.png und assets/fonts/...
-      // base href="./assets/" => Logo.png -> assets/Logo.png, fonts/... -> assets/fonts/...
       if (/<base\s/i.test(html)) return html;
       return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
     }
@@ -768,6 +878,36 @@
         .replace(/[^\w.\-]+/g, '_')
         .replace(/^_+|_+$/g, '');
       return cleaned || 'banner';
+    }
+
+    function renumberImages(){
+      uploadedImages.forEach((img, i) => img.name = `${i + 1}.jpg`);
+    }
+
+    // -----------------------
+    // Character counter
+    // -----------------------
+    function updateCharUI(inputEl, hintEl, max){
+      const len = (inputEl.value || '').length; // inkl. Leerzeichen
+      hintEl.textContent = `${len}/${max} Zeichen`;
+      const over = len > max;
+
+      hintEl.classList.toggle('over', over);
+      inputEl.classList.toggle('input-over', over);
+    }
+
+    function bindCharLimit(inputId, hintId, max, onChange){
+      const inputEl = document.getElementById(inputId);
+      const hintEl = document.getElementById(hintId);
+
+      const handler = () => {
+        onChange(inputEl.value);
+        updateCharUI(inputEl, hintEl, max);
+      };
+
+      inputEl.addEventListener('input', handler);
+      // initial
+      handler();
     }
 
     // -----------------------
@@ -802,7 +942,6 @@
       return u.toString();
     }
 
-    // UNENCODED, wie gewünscht
     function buildTchiboClickTagUnencoded(landingUrlWithUtm){
       const base = 'https://tagm.tchibo.de/cl.aspx';
       const params =
@@ -869,7 +1008,6 @@
     }
 
     function getOrderedFormatsForPreview(formats){
-      // gewünschte Reihenfolge: 300x600 links, 300x250, 970x250 unten
       const order = ['300x600','300x250','970x250'];
       return [...formats].sort((a,b) => order.indexOf(a) - order.indexOf(b));
     }
@@ -897,11 +1035,13 @@
     nextButton1.addEventListener('click', () => showStep(2));
 
     // -----------------------
-    // Step 2: Image upload
+    // Step 2: Image upload + reorder (DnD)
     // -----------------------
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('imageUpload');
     const uploadedContainer = document.getElementById('uploadedImages');
+
+    let dragSrcIndex = null;
 
     uploadArea.addEventListener('click', () => fileInput.click());
 
@@ -928,30 +1068,87 @@
             data: e.target.result,
             original: file.name
           });
+          renumberImages();
           updateImageDisplay();
         };
         reader.readAsDataURL(file);
       });
     }
 
+    function moveImage(fromIndex, toIndex){
+      if (fromIndex === toIndex) return;
+      const item = uploadedImages.splice(fromIndex, 1)[0];
+      // Insert BEFORE target index (damit "auf 1 ziehen" => wird 1)
+      uploadedImages.splice(toIndex, 0, item);
+      renumberImages();
+      updateImageDisplay();
+    }
+
     function updateImageDisplay(){
       uploadedContainer.innerHTML = '';
+
       uploadedImages.forEach((img, index) => {
         const div = document.createElement('div');
         div.className = 'uploaded-image';
+        div.setAttribute('draggable', 'true');
+        div.dataset.index = String(index);
+
         div.innerHTML = `
           <img src="${img.data}" alt="Bild ${index + 1}">
           <div class="number">${index + 1}.jpg</div>
-          <button class="remove" type="button" data-index="${index}">×</button>
+          <button class="remove" type="button" data-index="${index}" aria-label="Bild entfernen">×</button>
         `;
-        div.querySelector('button.remove').addEventListener('click', () => removeImage(index));
+
+        // Remove
+        div.querySelector('button.remove').addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          removeImage(index);
+        });
+
+        // Drag events
+        div.addEventListener('dragstart', (e) => {
+          dragSrcIndex = index;
+          div.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          try { e.dataTransfer.setData('text/plain', String(index)); } catch {}
+        });
+
+        div.addEventListener('dragend', () => {
+          dragSrcIndex = null;
+          div.classList.remove('dragging');
+          uploadedContainer.querySelectorAll('.uploaded-image.dragover').forEach(el => el.classList.remove('dragover'));
+        });
+
+        div.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          div.classList.add('dragover');
+          e.dataTransfer.dropEffect = 'move';
+        });
+
+        div.addEventListener('dragleave', () => div.classList.remove('dragover'));
+
+        div.addEventListener('drop', (e) => {
+          e.preventDefault();
+          div.classList.remove('dragover');
+
+          const targetIndex = Number(div.dataset.index);
+          const from = dragSrcIndex;
+
+          if (Number.isInteger(from) && from !== null && !Number.isNaN(targetIndex) && from !== targetIndex){
+            // Wenn von oben nach unten gezogen wird, muss Zielindex nach dem Entfernen ggf. korrigiert werden,
+            // damit "vor Ziel einfügen" stabil bleibt.
+            const adjustedTarget = (from < targetIndex) ? targetIndex - 1 : targetIndex;
+            moveImage(from, adjustedTarget);
+          }
+        });
+
         uploadedContainer.appendChild(div);
       });
     }
 
     function removeImage(index){
       uploadedImages.splice(index, 1);
-      uploadedImages.forEach((img, i) => img.name = `${i + 1}.jpg`);
+      renumberImages();
       updateImageDisplay();
     }
 
@@ -964,6 +1161,7 @@
       const nm = sanitizeFilePart(appData.zipName);
       detailNameEl.textContent = nm || '-';
       detailClickTagEl.textContent = getFinalClickTag() || '-';
+      detailImprTagEl.textContent = IMPR_TAG;
 
       const formats = getOrderedFormatsForPreview(selectedFormats);
       applyPreviewLayoutClass(formats);
@@ -971,7 +1169,6 @@
       for (const format of formats){
         const { w, h } = parseFormat(format);
 
-        // Max height inside preview item (tweak if needed)
         const maxH = (format === '300x600') ? 680 : 340;
 
         let html;
@@ -1000,7 +1197,7 @@
         const viewport = document.createElement('div');
         viewport.className = 'iframe-viewport';
         viewport.style.width = '100%';
-        viewport.style.height = '12px'; // set after measuring
+        viewport.style.height = '12px';
 
         const iframe = document.createElement('iframe');
         iframe.width = w;
@@ -1013,7 +1210,6 @@
         item.appendChild(viewport);
         previewGrid.appendChild(item);
 
-        // Wait for layout
         await new Promise(requestAnimationFrame);
 
         const availW = viewport.clientWidth;
@@ -1042,11 +1238,10 @@
           continue;
         }
 
-        // Export: KEIN base href injizieren.
         templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
         zip.file('index.html', templateContent);
 
-        // Images
+        // Images (geordnet, entsprechend aktueller Reihenfolge)
         uploadedImages.forEach(img => {
           const base64Data = img.data.split(',')[1];
           zip.file(img.name, base64Data, { base64:true });
@@ -1076,17 +1271,19 @@
     // UI bindings
     // -----------------------
     document.addEventListener('DOMContentLoaded', () => {
-      // Inputs
-      document.getElementById('headline').addEventListener('input', e => appData.headline = e.target.value);
-      document.getElementById('subline').addEventListener('input', e => appData.subline = e.target.value);
-      document.getElementById('ctaText').addEventListener('input', e => appData.ctaText = e.target.value);
+      // Character-limited inputs (Warnung, aber nicht blockieren)
+      bindCharLimit('headline', 'headlineHint', TEXT_LIMITS.headline, v => appData.headline = v);
+      bindCharLimit('subline',  'sublineHint',  TEXT_LIMITS.subline,  v => appData.subline  = v);
+      bindCharLimit('ctaText',  'ctaHint',      TEXT_LIMITS.ctaText,  v => appData.ctaText  = v);
+
+      // Other inputs
       document.getElementById('clickUrl').addEventListener('input', e => appData.landingUrl = e.target.value);
       document.getElementById('zipName').addEventListener('input', e => appData.zipName = e.target.value);
 
       // Back
       document.getElementById('backStep1').addEventListener('click', () => showStep(1));
 
-      // Preview button: show preview panel ONLY after click
+      // Preview button
       document.getElementById('createPreview').addEventListener('click', async () => {
         const finalClick = getFinalClickTag();
         const nmRaw = String(appData.zipName || '').trim();
@@ -1108,13 +1305,21 @@
         await generatePreviews();
       });
 
-      // Toggle preview visibility (keeps 3 cards visible always)
+      // Toggle preview visibility
       document.getElementById('togglePreviewBtn').addEventListener('click', () => {
         stage.classList.remove('has-preview');
       });
 
+      // Export modal close
+      exportModalCloseBtn.addEventListener('click', hideExportModal);
+      exportModalBackdrop.addEventListener('click', hideExportModal);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && exportModal.classList.contains('open')) hideExportModal();
+      });
+
       // Export
-      document.getElementById('exportBanners').addEventListener('click', async () => {
+      const exportBtn = document.getElementById('exportBanners');
+      exportBtn.addEventListener('click', async () => {
         const finalClick = getFinalClickTag();
         const nmRaw = String(appData.zipName || '').trim();
 
@@ -1131,36 +1336,24 @@
           return;
         }
 
-        await exportBanners();
-        showStep(4);
-      });
+        // Optional: Mindestanzahl Bilder? (falls gewünscht, kannst du es aktivieren)
+        // if (uploadedImages.length === 0){
+        //   alert('Bitte lade mindestens ein Bild hoch.');
+        //   return;
+        // }
 
-      // Start over
-      document.getElementById('startOver').addEventListener('click', () => {
-        selectedFormats = [];
-        uploadedImages = [];
-        appData = {
-          headline: 'Bereit für deine Ziele?',
-          subline: 'Sport Outfits entdecken!',
-          ctaText: 'Jetzt shoppen',
-          landingUrl: '',
-          zipName: ''
-        };
+        const oldText = exportBtn.innerHTML;
+        exportBtn.disabled = true;
+        exportBtn.innerHTML = `Export läuft... <i class="fas fa-spinner fa-spin"></i>`;
 
-        formatCheckboxes.forEach(cb => cb.checked = false);
-        nextButton1.disabled = true;
-
-        document.getElementById('headline').value = appData.headline;
-        document.getElementById('subline').value = appData.subline;
-        document.getElementById('ctaText').value = appData.ctaText;
-        document.getElementById('clickUrl').value = '';
-        document.getElementById('zipName').value = '';
-
-        uploadedContainer.innerHTML = '';
-        previewGrid.innerHTML = '';
-        stage.classList.remove('has-preview');
-
-        showStep(1);
+        try{
+          await exportBanners();
+          // Statt Step-Wechsel: Popup anzeigen, Daten bleiben erhalten
+          showExportModal();
+        } finally {
+          exportBtn.disabled = false;
+          exportBtn.innerHTML = oldText;
+        }
       });
     });
   </script>
