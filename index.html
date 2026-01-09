@@ -312,41 +312,42 @@
     }
 
     /* Inputs */
-    .input-group{ margin-top:14px; }
+    /* Inputs: weniger Abstand */
+    .input-group{
+      margin-top: 10px;          /* vorher 14px */
+      position: relative;        /* neu: damit der Counter absolut sitzen kann */
+    }
+    
+    /* Label etwas kompakter */
     .input-group label{
-      display:block;
-      margin-bottom:8px;
-      font-weight:700;
-      color:var(--dark);
+      margin-bottom: 6px;        /* vorher 8px */
+      padding-right: 90px;       /* Platz für den Zähler rechts */
     }
+    
+    /* Zeichenzähler: leiser + nimmt keinen Platz mehr ein */
+    .char-hint{
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin-top: 0;
+      font-size: .78rem;         /* kleiner */
+      color: rgba(17,24,39,0.38);/* deutlich leiser */
+      line-height: 1;
+      display: block;
+      user-select: none;
+    }
+    
+    /* Bei Überschreitung rot, aber immer noch "kompakt" */
+    .char-hint.over{
+      color: rgba(255,107,107,0.95);
+      font-weight: 800;
+    }
+    
+    /* Optional: Input etwas kompakter */
     .input-group input{
-      width:100%;
-      padding:12px 14px;
-      border:2px solid #e0e0e0;
-      border-radius:10px;
-      font-size:1rem;
-      transition:all .25s ease;
-    }
-    .input-group input:focus{
-      outline:none;
-      border-color:var(--primary);
-      box-shadow:0 0 0 3px rgba(102,126,234,0.12);
+      padding: 11px 14px;        /* vorher 12px 14px */
     }
 
-    /* Character hint / warning */
-    .char-hint{
-      margin-top:6px;
-      font-size:.85rem;
-      color:#6b7280;
-      display:flex;
-      justify-content:flex-end;
-      gap:10px;
-      user-select:none;
-    }
-    .char-hint.over{
-      color: var(--danger);
-      font-weight:800;
-    }
     .input-over{
       border-color: var(--danger) !important;
       box-shadow:0 0 0 3px rgba(255,107,107,0.18) !important;
@@ -362,9 +363,8 @@
     }
 
     .stage.has-preview .left-panels{
-      transform: translateX(-12px);
+    transform: none;   /* statt translateX(-12px) */
     }
-
     .stage.has-preview .preview-panel{
       width: 100%;
       max-width: clamp(460px, 42vw, 820px);
@@ -413,15 +413,18 @@
       grid-template-columns: 1fr 1fr;
     }
 
+    /* 3 Formate: 300x600 links, 300x250 rechts oben, 970x250 unten über volle Breite */
     .preview-grid.layout-3{
       grid-template-columns: 1fr 1fr;
       grid-template-areas:
         "a b"
-        "a c";
+        "c c";
     }
+    
     .preview-grid.layout-3 .preview-item[data-format="300x600"]{ grid-area:a; }
     .preview-grid.layout-3 .preview-item[data-format="300x250"]{ grid-area:b; }
     .preview-grid.layout-3 .preview-item[data-format="970x250"]{ grid-area:c; }
+
 
     .preview-item{
       background:#f7f9ff;
@@ -1165,6 +1168,7 @@
 
       const formats = getOrderedFormatsForPreview(selectedFormats);
       applyPreviewLayoutClass(formats);
+      setPreviewPanelSize(formats);
 
       for (const format of formats){
         const { w, h } = parseFormat(format);
@@ -1219,6 +1223,22 @@
         iframe.style.transform = `scale(${scale})`;
       }
     }
+    function setPreviewPanelSize(formats){
+  const panel = document.querySelector('.preview-panel');
+  if (!panel) return;
+
+  // Reset (wichtig, falls man Formate wechselt)
+  panel.style.maxWidth = '';
+  
+  if (formats.length <= 1){
+    panel.style.maxWidth = 'clamp(420px, 36vw, 700px)';
+  } else if (formats.length === 2){
+    panel.style.maxWidth = 'clamp(460px, 42vw, 820px)';
+  } else {
+    // 3 Formate: spürbar breiter, damit 970x250 gut sichtbar ist
+    panel.style.maxWidth = 'clamp(560px, 56vw, 1100px)';
+  }
+}
 
     // -----------------------
     // Export: ZIP
