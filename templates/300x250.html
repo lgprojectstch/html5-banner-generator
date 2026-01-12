@@ -13,10 +13,8 @@
     var SUBLINE  = "Sport Outfits entdecken!";
     var CTA_TEXT = "Jetzt shoppen";
 
-    // ✅ IMAGE_PATTERN kannst du drin lassen, aber der Generator wird primär IMAGE_LIST setzen
-    var IMAGE_PATTERN = "960x1200-{n}_NF_DE_Active_HVK_2025KW02_Active.jpg";
-
     // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER Data-URLs in Preview)
+    // Hinweis: IMAGE_PATTERN wurde entfernt, da IMAGE_LIST immer korrekt ist.
     var IMAGE_LIST = [
       "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
       "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg"
@@ -28,13 +26,8 @@
   </script>
 
   <!-- ===== FONT PRELOADS (reduziert FOUT stark) ===== -->
-  <!-- WICHTIG: Passe die Dateinamen an deine echten Files an.
-       Best Practice: keine Leerzeichen in Dateinamen.
-       Falls deine Files weiterhin Leerzeichen haben, nutze %20 oder benenne um. -->
   <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <!-- Optional, wenn du echte Italic-Datei hast -->
-  <!-- <link rel="preload" href="fonts/InterstateWGL-RegularItalic.woff2" as="font" type="font/woff2" crossorigin> -->
 
   <!-- ===== Optional: Banner erst zeigen, wenn Fonts geladen sind (verhindert sichtbaren Font-Swap) ===== -->
   <style>
@@ -82,10 +75,7 @@
     }
 
     /* ===== WEBFONTS (sauber nach Gewicht/Style getrennt) =====
-       WICHTIG:
-       - font-weight:700 darf NICHT die Regular-Datei laden
-       - Italic braucht eine eigene @font-face Regel, sonst ist es "fake italic"
-       - font-display: optional reduziert sichtbaren Swap (alternativ: swap/block)
+       Italic wurde entfernt, da du ausschließlich normal (Regular/Bold) möchtest.
     */
     @font-face{
       font-family:"InterstateWGL";
@@ -103,19 +93,6 @@
         url("fonts/InterstateWGL-Bold.woff") format("woff");
       font-weight:700;
       font-style:normal;
-      font-display:optional;
-    }
-
-    /* Optional: echte Italic-Datei (wenn vorhanden).
-       Wenn du KEINE Italic-Datei hast, kannst du diese Regel weglassen
-       und unten bei .subline font-style: normal setzen, um Fake-Italic zu vermeiden. */
-    @font-face{
-      font-family:"InterstateWGL";
-      src:
-        url("fonts/InterstateWGL-RegularItalic.woff2") format("woff2"),
-        url("fonts/InterstateWGL-RegularItalic.woff") format("woff");
-      font-weight:400;
-      font-style:italic;
       font-display:optional;
     }
 
@@ -194,7 +171,8 @@
       margin:0; width:100%;
       font-size: var(--sublineFs);
       line-height: var(--sublineLh);
-      font-style: italic; /* Wenn du keine Italic-Fontdatei hast: auf normal setzen */
+      font-style: normal; /* ✅ kein Italic */
+      font-weight: 400;
       color: var(--gold);
       display:-webkit-box;
       -webkit-line-clamp:2;
@@ -390,8 +368,8 @@
 
     (function init(){
       // ✅ Wichtig: IMAGE_LIST kann Dateinamen ODER Data-URLs enthalten
+      // IMAGE_PATTERN wurde entfernt (IMAGE_LIST ist immer korrekt).
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
-      if (!images.length && IMAGE_PATTERN) images = [IMAGE_PATTERN.replace("{n}", "1")];
 
       // Preload
       images.forEach(function(s){ var im = new Image(); im.src = s; });
