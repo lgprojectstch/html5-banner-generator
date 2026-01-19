@@ -13,6 +13,15 @@
     var SUBLINE  = "Sport Outfits entdecken!";
     var CTA_TEXT = "Jetzt shoppen";
 
+    // ====== THEME VARS (werden ersetzt / vom Generator injiziert) ======
+    // Standard: leere Strings => Template Default
+    // Sale:    THEME_HEADLINE_COLOR=#BE2D2F, THEME_SUBLINE_COLOR=#1b1b1b, THEME_CTA_ACCENT=#BE2D2F
+    // TC:      THEME_HEADLINE_COLOR=#004266, THEME_SUBLINE_COLOR=#1b1b1b, THEME_CTA_ACCENT=#004266
+    var THEME_KEY = "standard";
+    var THEME_HEADLINE_COLOR = "";
+    var THEME_SUBLINE_COLOR  = "";
+    var THEME_CTA_ACCENT     = "";
+
     // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER Data-URLs in Preview)
     // Hinweis: IMAGE_PATTERN wurde entfernt, da IMAGE_LIST immer korrekt ist.
     var IMAGE_LIST = [
@@ -52,7 +61,14 @@
     :root{
       --w: 300px;
       --h: 600px;
+
+      /* Default Gold (Standard) */
       --gold: #C0A468;
+
+      /* Theme Overrides (werden via JS gesetzt, wenn Theme-Variablen vorhanden sind) */
+      --headlineColor: #1b1b1b;     /* Default Headline (wie bisher) */
+      --sublineColor:  var(--gold); /* Default Subline (wie bisher) */
+      --ctaAccent:     var(--gold); /* Default CTA "Gold" */
 
       --topPad: 16px;
       --sidePad: 14px;
@@ -126,6 +142,8 @@
       cursor:pointer;
       display:flex;
       flex-direction:column;
+
+      /* Rahmen bleibt IMMER Gold (wie gewünscht) */
       border: var(--frameW) solid var(--gold);
     }
 
@@ -140,6 +158,8 @@
       opacity:0;
       transition: opacity var(--heroBorderDur) ease;
       z-index: 4; /* über Layout, aber pointer-events none */
+
+      /* Highlight bleibt IMMER Gold (wie gewünscht) */
       background:
         linear-gradient(to bottom,
           rgba(192,164,104,var(--heroBorderAlpha)) 0%,
@@ -186,7 +206,7 @@
       font-size:var(--hFont);
       line-height:var(--hLine);
       font-weight:700;
-      color:#1b1b1b;
+      color: var(--headlineColor);
       max-width: 260px;
     }
 
@@ -200,7 +220,7 @@
       line-height:var(--sLine);
       font-style: normal; /* ✅ kein Italic */
       font-weight:400;
-      color:var(--gold);
+      color: var(--sublineColor);
       max-width: 260px;
     }
 
@@ -216,7 +236,10 @@
       text-decoration:none;
       user-select:none;
       cursor:pointer;
-      background:var(--gold);
+
+      /* CTA "Gold" wird themable */
+      background: var(--ctaAccent);
+
       border:2px solid transparent;
       overflow:hidden;
     }
@@ -249,14 +272,17 @@
         -webkit-text-fill-color:transparent;
         -webkit-background-clip:text;
         background-clip:text;
-        background-image:linear-gradient(90deg,var(--gold) 0%,var(--gold) 50%,#ffffff 50%,#ffffff 100%);
+
+        /* Gradient nutzt CTA Accent statt Gold */
+        background-image:linear-gradient(90deg,var(--ctaAccent) 0%,var(--ctaAccent) 50%,#ffffff 50%,#ffffff 100%);
+
         background-size:200% 100%;
         background-position:100% 0;
       }
     }
-    .cta.is-hover{ border-color: var(--gold); }
+    .cta.is-hover{ border-color: var(--ctaAccent); }
     .cta.is-hover::before{ width:100%; transition: width var(--hoverDur) linear; }
-    .cta.is-hover .cta-inner{ color: var(--gold); }
+    .cta.is-hover .cta-inner{ color: var(--ctaAccent); }
     @supports (-webkit-background-clip:text) or (background-clip:text){
       .cta.is-hover .cta-inner{ background-position:0% 0; transition: background-position var(--hoverDur) linear; }
     }
@@ -283,7 +309,7 @@
       will-change: opacity, transform;
     }
 
-    /* Bild-Hover Highlight */
+    /* Bild-Hover Highlight (bleibt Gold) */
     .hero::after{
       content:"";
       position:absolute;
@@ -369,6 +395,20 @@
   </div>
 
   <script>
+    // -----------------------
+    // Theme apply (NEU)
+    // -----------------------
+    (function applyTheme(){
+      var headlineColor = (typeof THEME_HEADLINE_COLOR === "string" && THEME_HEADLINE_COLOR.trim()) ? THEME_HEADLINE_COLOR.trim() : "";
+      var sublineColor  = (typeof THEME_SUBLINE_COLOR  === "string" && THEME_SUBLINE_COLOR.trim())  ? THEME_SUBLINE_COLOR.trim()  : "";
+      var ctaAccent     = (typeof THEME_CTA_ACCENT     === "string" && THEME_CTA_ACCENT.trim())     ? THEME_CTA_ACCENT.trim()     : "";
+
+      // Nur überschreiben, wenn gesetzt (Standard bleibt template-default)
+      if (headlineColor) document.documentElement.style.setProperty("--headlineColor", headlineColor);
+      if (sublineColor)  document.documentElement.style.setProperty("--sublineColor",  sublineColor);
+      if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
+    })();
+
     // Text setzen
     document.getElementById("headlineEl").textContent = HEADLINE;
     document.getElementById("sublineEl").textContent  = SUBLINE;
