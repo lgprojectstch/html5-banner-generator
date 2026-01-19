@@ -319,18 +319,62 @@
       font-weight:700;
       color:var(--dark);
     }
-    .input-group input{
+    .input-group input,
+    .input-group select{
       width:100%;
       padding:12px 14px;
       border:2px solid #e0e0e0;
       border-radius:10px;
       font-size:1rem;
       transition:all .25s ease;
+      background:#fff;
     }
-    .input-group input:focus{
+    .input-group input:focus,
+    .input-group select:focus{
       outline:none;
       border-color:var(--primary);
       box-shadow:0 0 0 3px rgba(102,126,234,0.12);
+    }
+
+    /* Small helper row for template */
+    .template-row{
+      margin-top:10px;
+      padding:12px 12px;
+      border:1px solid rgba(0,0,0,0.08);
+      border-radius:12px;
+      background:#fbfcff;
+    }
+    .template-meta{
+      margin-top:8px;
+      font-size:.85rem;
+      color:#6b7280;
+      line-height:1.35;
+    }
+    .template-swatch{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:8px;
+      flex-wrap:wrap;
+    }
+    .swatch{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border:1px solid rgba(0,0,0,0.10);
+      border-radius:999px;
+      background:#fff;
+      font-size:.82rem;
+      color:#374151;
+      user-select:none;
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#999;
+      display:inline-block;
     }
 
     /* Character hint / warning */
@@ -751,6 +795,28 @@
             <div class="card">
               <h3><i class="fas fa-font"></i> Texte anpassen</h3>
 
+              <!-- NEU: Template wählen -->
+              <div class="template-row">
+                <div class="input-group" style="margin-top:0;">
+                  <label for="templateSelect">Template wählen</label>
+                  <select id="templateSelect">
+                    <option value="standard">Standard</option>
+                    <option value="sale">Sale</option>
+                    <option value="tchibocard">Tchibocard</option>
+                  </select>
+                </div>
+
+                <div class="template-meta" id="templateMeta">
+                  Farben: Standard (wie aktuell)
+                </div>
+
+                <div class="template-swatch" id="templateSwatches" aria-hidden="false">
+                  <span class="swatch"><span class="dot" id="dotHeadline"></span>Headline</span>
+                  <span class="swatch"><span class="dot" id="dotSubline"></span>Subline</span>
+                  <span class="swatch"><span class="dot" id="dotCta"></span>CTA (Gold → Farbe)</span>
+                </div>
+              </div>
+
               <div class="input-group">
                 <label for="headline">Headline</label>
                 <input type="text" id="headline" value="Bereit für deine Ziele?">
@@ -810,6 +876,9 @@
                 <div class="details-body">
                   <div class="details-label">Naming</div>
                   <div id="detailName">-</div>
+
+                  <div class="details-label" style="margin-top:12px;">Template</div>
+                  <div id="detailTemplate">-</div>
 
                   <div class="details-label" style="margin-top:12px;">Final clickTag</div>
                   <div class="mono" id="detailClickTag">-</div>
@@ -926,6 +995,40 @@
     const IMPR_TAG = `<img src="https://tagm.tchibo.de/ai.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=\${INSERTION_ORDER_ID}&extPm=\${CAMPAIGN_ID}&extCr=\${CREATIVE_ID}&adslotid=\${PUBLISHER_ID}&gdpr=\${GDPR}&gdpr_consent=\${GDPR_CONSENT_312}" style="display:none">`;
 
     // -----------------------
+    // Theme presets (NEU)
+    // Standard: keine Änderungen (Templates bleiben wie aktuell)
+    // Sale: Headline #BE2D2F, Subline #1b1b1b, CTA "Gold" -> #BE2D2F
+    // Tchibocard: wie Sale, aber Rot -> #004266
+    // -----------------------
+    const THEMES = {
+      standard: {
+        key: 'standard',
+        label: 'Standard',
+        headlineColor: null,     // null => Template Default
+        sublineColor: null,      // null => Template Default
+        ctaAccentColor: null     // null => Template Default
+      },
+      sale: {
+        key: 'sale',
+        label: 'Sale',
+        headlineColor: '#BE2D2F',
+        sublineColor: '#1b1b1b',
+        ctaAccentColor: '#BE2D2F'
+      },
+      tchibocard: {
+        key: 'tchibocard',
+        label: 'Tchibocard',
+        headlineColor: '#004266',
+        sublineColor: '#1b1b1b',
+        ctaAccentColor: '#004266'
+      }
+    };
+
+    function getActiveTheme(){
+      return THEMES[appData.themeKey] || THEMES.standard;
+    }
+
+    // -----------------------
     // State
     // -----------------------
     let selectedFormats = [];
@@ -935,7 +1038,8 @@
       subline: 'Sport Outfits entdecken!',
       ctaText: 'Jetzt shoppen',
       landingUrl: '',
-      zipName: ''
+      zipName: '',
+      themeKey: 'standard' // NEU
     };
 
     // -----------------------
@@ -944,8 +1048,16 @@
     const stage = document.getElementById('stage');
     const previewGrid = document.getElementById('previewGrid');
     const detailNameEl = document.getElementById('detailName');
+    const detailTemplateEl = document.getElementById('detailTemplate'); // NEU
     const detailClickTagEl = document.getElementById('detailClickTag');
     const detailImprTagEl = document.getElementById('detailImprTag');
+
+    // Template UI (NEU)
+    const templateSelect = document.getElementById('templateSelect');
+    const templateMeta = document.getElementById('templateMeta');
+    const dotHeadline = document.getElementById('dotHeadline');
+    const dotSubline = document.getElementById('dotSubline');
+    const dotCta = document.getElementById('dotCta');
 
     // Modal
     const exportModal = document.getElementById('exportModal');
@@ -1087,6 +1199,41 @@
     }
 
     // -----------------------
+    // Theme vars injection (NEU)
+    // Ziel: App setzt Theme-Variablen in Templates.
+    // Heute haben die Templates sie noch nicht -> keine sichtbare Änderung.
+    // In der nächsten Runde bauen wir Templates so um, dass sie diese Variablen nutzen.
+    // -----------------------
+    function upsertGeneratorVar(html, varName, valueStr){
+      // ersetzt: var X = "...";
+      const re = new RegExp(`var\\s+${varName}\\s*=\\s*".*?";`, 's');
+      if (re.test(html)){
+        return html.replace(re, `var ${varName} = "${escapeJs(valueStr)}";`);
+      }
+      return html;
+    }
+
+    function injectThemeVarsNearGeneratorBlock(html){
+      const theme = getActiveTheme();
+
+      // Wir versuchen, nach "var CTA_TEXT" einzufügen (nah am Generator-Block)
+      const anchorRe = /var\s+CTA_TEXT\s*=\s*".*?";/s;
+      if (!anchorRe.test(html)) return html;
+
+      // nur einfügen, wenn THEME_KEY noch nicht existiert
+      if (/var\s+THEME_KEY\s*=/.test(html)) return html;
+
+      const insert =
+`\n    // ====== THEME VARS (vom Generator) ======\n` +
+`    var THEME_KEY = "${escapeJs(theme.key)}";\n` +
+`    var THEME_HEADLINE_COLOR = "${escapeJs(theme.headlineColor || '')}";\n` +
+`    var THEME_SUBLINE_COLOR  = "${escapeJs(theme.sublineColor || '')}";\n` +
+`    var THEME_CTA_ACCENT     = "${escapeJs(theme.ctaAccentColor || '')}";\n`;
+
+      return html.replace(anchorRe, (m) => m + insert);
+    }
+
+    // -----------------------
     // Template variable replacement
     // -----------------------
     function replaceTemplateVars(html, { mode }){
@@ -1096,6 +1243,16 @@
 
       const finalClickTag = getFinalClickTag();
       html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
+
+      // NEU: Theme-Variablen einfügen (heute noch ohne Effekt, Templates folgen danach)
+      html = injectThemeVarsNearGeneratorBlock(html);
+
+      // Optional: falls du später Variablen schon in Templates anlegst, upserten wir sie ebenfalls robust.
+      const t = getActiveTheme();
+      html = upsertGeneratorVar(html, 'THEME_KEY', t.key);
+      html = upsertGeneratorVar(html, 'THEME_HEADLINE_COLOR', t.headlineColor || '');
+      html = upsertGeneratorVar(html, 'THEME_SUBLINE_COLOR', t.sublineColor || '');
+      html = upsertGeneratorVar(html, 'THEME_CTA_ACCENT', t.ctaAccentColor || '');
 
       if (uploadedImages.length > 0){
         const list = (mode === 'preview')
@@ -1133,6 +1290,27 @@
       if (formats.length <= 1) previewGrid.classList.add('layout-1');
       else if (formats.length === 2) previewGrid.classList.add('layout-2');
       else previewGrid.classList.add('layout-3');
+    }
+
+    // -----------------------
+    // Template selector UI (NEU)
+    // -----------------------
+    function paintTemplateUI(){
+      const t = getActiveTheme();
+
+      // Meta text
+      if (t.key === 'standard'){
+        templateMeta.textContent = 'Farben: Standard (wie aktuell)';
+      } else if (t.key === 'sale'){
+        templateMeta.textContent = `Farben: Sale — Headline ${t.headlineColor}, Subline ${t.sublineColor}, CTA-Akzent ${t.ctaAccentColor}`;
+      } else {
+        templateMeta.textContent = `Farben: Tchibocard — Headline ${t.headlineColor}, Subline ${t.sublineColor}, CTA-Akzent ${t.ctaAccentColor}`;
+      }
+
+      // Dots (Standard: neutral)
+      dotHeadline.style.background = t.headlineColor || '#9ca3af';
+      dotSubline.style.background  = t.sublineColor  || '#9ca3af';
+      dotCta.style.background      = t.ctaAccentColor || '#9ca3af';
     }
 
     // -----------------------
@@ -1274,6 +1452,10 @@
 
       const nm = sanitizeFilePart(appData.zipName);
       detailNameEl.textContent = nm || '-';
+
+      const t = getActiveTheme();
+      detailTemplateEl.textContent = t.label || '-';
+
       detailClickTagEl.textContent = getFinalClickTag() || '-';
       detailImprTagEl.textContent = IMPR_TAG;
 
@@ -1392,6 +1574,20 @@
         if (e.key === 'Enter') checkPassword();
       });
       pwInput.focus();
+
+      // Template selector bindings (NEU)
+      templateSelect.value = appData.themeKey;
+      templateSelect.addEventListener('change', async (e) => {
+        appData.themeKey = String(e.target.value || 'standard');
+
+        paintTemplateUI();
+
+        // Wenn Preview offen ist, sofort neu generieren, damit Theme in srcdoc landet
+        if (stage.classList.contains('has-preview')){
+          await generatePreviews();
+        }
+      });
+      paintTemplateUI();
 
       // Character-limited inputs (Warnung, aber nicht blockieren)
       bindCharLimit('headline', 'headlineHint', TEXT_LIMITS.headline, v => appData.headline = v);
