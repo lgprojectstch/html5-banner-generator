@@ -1538,7 +1538,7 @@
         const iframe = document.createElement('iframe');
         iframe.width = w;
         iframe.height = h;
-        iframe.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox');
+        iframe.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');
         iframe.style.transformOrigin = '0 0';
         iframe.srcdoc = html;
 
