@@ -22,7 +22,7 @@
     var THEME_SUBLINE_COLOR  = "";
     var THEME_CTA_ACCENT     = "";
 
-    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER blob:-URLs in Preview)
+    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER blob:-URLs / data:-URLs in Preview)
     // Hinweis: IMAGE_PATTERN wurde entfernt, da IMAGE_LIST immer korrekt ist.
     var IMAGE_LIST = [
       "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
@@ -332,7 +332,8 @@
     <div class="wrap">
       <div class="left">
         <div class="logo seq show-logo">
-          <img src="Logo.png" alt="Logo">
+          <!-- ✅ robust: Logo wird per JS ggf. auf ../Logo.png umgeschrieben (Preview mit <base href="./assets/"> ) -->
+          <img id="logoImg" src="Logo.png" alt="Logo">
         </div>
 
         <div class="copy">
@@ -368,12 +369,66 @@
       if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
     })();
 
+    // -----------------------
+    // ✅ Preview/Export Path Resolver
+    // Problem: Generator setzt in Preview oft <base href="./assets/">
+    // Dann werden "Logo.png" / "1.jpg" fälschlich zu "./assets/Logo.png" / "./assets/1.jpg".
+    // Export ZIP hat die Dateien aber im Root => wir müssen in Preview auf "../" umbiegen.
+    // -----------------------
+    function resolveSrc(s){
+      s = String(s || "");
+      if (!s) return s;
+
+      // data/blob/http(s) bleiben unverändert
+      if (/^(data:|blob:|https?:\/\/)/i.test(s)) return s;
+
+      // Wenn bereits relativ/absolut geschrieben wurde, lassen wir es
+      if (s.indexOf("../") === 0 || s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
+
+      var baseEl = document.querySelector("base");
+      var baseHref = baseEl ? (baseEl.getAttribute("href") || "") : "";
+
+      // Wenn base auf assets zeigt: Root-Dateien liegen eine Ebene höher
+      if (baseHref && /(^|\/)assets\/?$/i.test(baseHref.trim())){
+        return "../" + s;
+      }
+
+      // Normalfall (ohne base): Root-Datei direkt
+      return s;
+    }
+
+    // -----------------------
     // Texte setzen
+    // -----------------------
     document.getElementById("headlineEl").textContent = HEADLINE;
     document.getElementById("sublineEl").textContent  = SUBLINE;
     document.getElementById("ctaInner").textContent   = CTA_TEXT;
 
+    // -----------------------
+    // ✅ Logo robust machen (Preview <base> + Export)
+    // -----------------------
+    (function fixLogo(){
+      var img = document.getElementById("logoImg");
+      if (!img) return;
+
+      // Setze direkt resolved src (ohne onerror-Wartezeit)
+      img.src = resolveSrc("Logo.png");
+
+      // Fallbacks, falls ein Setup abweicht (z.B. Logo wirklich in assets/)
+      img.onerror = function(){
+        // 1) wenn base-assets aktiv war, könnte Logo doch in assets liegen
+        img.onerror = function(){
+          // 2) letzter Versuch: ../assets/Logo.png
+          img.onerror = null;
+          img.src = "../assets/Logo.png";
+        };
+        img.src = "assets/Logo.png";
+      };
+    })();
+
+    // -----------------------
     // ClickTag
+    // -----------------------
     function doExit(){ window.open(clickTag, "_blank"); }
     document.getElementById("ad").addEventListener("click", doExit);
 
@@ -401,31 +456,14 @@
       el.classList.remove("no-trans");
     }
 
-    function normalizeImageSrc(s){
-      s = String(s || "");
-      if (!s) return s;
-
-      // Preview: blob:... bleibt
-      if (s.indexOf("blob:") === 0) return s;
-
-      // Absolute URLs bleiben
-      if (/^https?:\/\//i.test(s)) return s;
-
-      // Schon "root-ish"
-      if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
-
-      // ✅ Fix für Preview mit <base href="./assets/">
-      return "./" + s;
-    }
-
     (function init(){
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (images.length === 0) return;
 
-      // ✅ Robust gegen <base> (Generator-Preview) + blob:-URLs
-      images = images.map(normalizeImageSrc);
+      // ✅ Robust gegen <base href="./assets/"> + blob:/data:
+      images = images.map(resolveSrc);
 
-      // Preload (nach Normalisierung!)
+      // Preload
       images.forEach(function(s){ var im = new Image(); im.src = s; });
 
       slideA.src = images[0] || "";
