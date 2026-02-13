@@ -457,58 +457,111 @@
     }
 
     (function init(){
-      var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
-      if (images.length === 0) return;
+  var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
+  if (images.length === 0) return;
 
-      // ✅ Robust gegen <base href="./assets/"> + blob:/data:
-      images = images.map(resolveSrc);
+  function candidatesFor(s){
+    s = String(s || "");
+    if (!s) return [];
 
-      // Preload
-      images.forEach(function(s){ var im = new Image(); im.src = s; });
+    // data/blob/http(s) sind immer direkt gültig
+    if (/^(data:|blob:|https?:\/\/)/i.test(s)) return [s];
 
-      slideA.src = images[0] || "";
-      slideB.src = images[images.length > 1 ? 1 : 0] || "";
-      slideA.className = "slide pos-center";
-      slideB.className = "slide pos-right";
+    // Wenn schon relativ/absolut geschrieben, trotzdem Fallbacks anbieten
+    var raw = s.replace(/^(\.\/)+/,''); // "./1.jpg" -> "1.jpg"
 
-      var idx = 0;
-      var busy = false;
-      var aIsCurrent = true;
+    return [
+      s,                 // wie es kommt (kann durch <base> zu assets/... werden)
+      "./" + raw,         // explizit local
+      "assets/" + raw,    // falls Bilder doch in assets liegen
+      "../" + raw,        // Preview mit <base href="./assets/">
+      "../assets/" + raw  // letzter Versuch
+    ];
+  }
 
-      function swipeOnce(){
-        if (busy || images.length < 2) return;
-        busy = true;
+  function setImgWithFallback(imgEl, src){
+    var list = candidatesFor(src);
+    var i = 0;
 
-        var currentEl = aIsCurrent ? slideA : slideB;
-        var nextEl    = aIsCurrent ? slideB : slideA;
-
-        var nextIdx = (idx + 1) % images.length;
-        var afterNextIdx = (idx + 2) % images.length;
-
-        nextEl.src = images[nextIdx];
-        moveInstant(nextEl, "pos-right");
-
-        requestAnimationFrame(function(){
-          setPos(currentEl, "pos-left");
-          setPos(nextEl, "pos-center");
-        });
-
-        setTimeout(function(){
-          moveInstant(currentEl, "pos-right");
-          currentEl.src = images[afterNextIdx];
-
-          idx = nextIdx;
-          aIsCurrent = !aIsCurrent;
-          busy = false;
-
-          setTimeout(swipeOnce, HOLD_MS);
-        }, SWIPE_MS);
+    imgEl.onerror = function(){
+      i++;
+      if (i >= list.length){
+        imgEl.onerror = null;
+        return;
       }
+      imgEl.src = list[i];
+    };
 
-      setTimeout(function(){
-        setTimeout(swipeOnce, HOLD_MS);
-      }, heroFullyVisibleAt);
-    })();
+    // Start
+    imgEl.src = list[0];
+  }
+
+  // Preload (best effort)
+  images.forEach(function(s){
+    candidatesFor(s).forEach(function(c){
+      var im = new Image();
+      im.src = c;
+    });
+  });
+
+  // Erstbefüllung
+  setImgWithFallback(slideA, images[0] || "");
+  setImgWithFallback(slideB, images[images.length > 1 ? 1 : 0] || "");
+
+  slideA.className = "slide pos-center";
+  slideB.className = "slide pos-right";
+
+  var idx = 0;
+  var busy = false;
+  var aIsCurrent = true;
+
+  function setPos(el, posClass){
+    el.classList.remove("pos-left","pos-center","pos-right");
+    el.classList.add(posClass);
+  }
+  function moveInstant(el, posClass){
+    el.classList.add("no-trans");
+    setPos(el, posClass);
+    el.offsetHeight;
+    el.classList.remove("no-trans");
+  }
+
+  function swipeOnce(){
+    if (busy || images.length < 2) return;
+    busy = true;
+
+    var currentEl = aIsCurrent ? slideA : slideB;
+    var nextEl    = aIsCurrent ? slideB : slideA;
+
+    var nextIdx = (idx + 1) % images.length;
+    var afterNextIdx = (idx + 2) % images.length;
+
+    // Wichtig: immer mit Fallback setzen
+    setImgWithFallback(nextEl, images[nextIdx]);
+
+    moveInstant(nextEl, "pos-right");
+
+    requestAnimationFrame(function(){
+      setPos(currentEl, "pos-left");
+      setPos(nextEl, "pos-center");
+    });
+
+    setTimeout(function(){
+      moveInstant(currentEl, "pos-right");
+      setImgWithFallback(currentEl, images[afterNextIdx]);
+
+      idx = nextIdx;
+      aIsCurrent = !aIsCurrent;
+      busy = false;
+
+      setTimeout(swipeOnce, HOLD_MS);
+    }, SWIPE_MS);
+  }
+
+  setTimeout(function(){
+    setTimeout(swipeOnce, HOLD_MS);
+  }, heroFullyVisibleAt);
+})();
   </script>
 </body>
 </html>
