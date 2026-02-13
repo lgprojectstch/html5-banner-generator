@@ -380,7 +380,7 @@
     /* Character hint / warning */
     .char-hint{
       margin-top:6px;
-      font-size:.72rem; /* geändert: nur Schriftgröße kleiner */
+      font-size:.72rem;
       color:#6b7280;
       display:flex;
       justify-content:flex-end;
@@ -411,7 +411,7 @@
 
     .stage.has-preview .preview-panel{
       width: 100%;
-      max-width: clamp(520px, 52vw, 980px); /* geändert: rechte Kachel responsiv etwas größer */
+      max-width: clamp(520px, 52vw, 980px);
       opacity:1;
       pointer-events:auto;
     }
@@ -457,9 +457,8 @@
       grid-template-columns: 1fr 1fr;
     }
 
-    /* Layout 3: gleiche Positionen, aber rechte Spalte breiter (970x250 wird größer, bleibt an gleicher Stelle) */
     .preview-grid.layout-3{
-      grid-template-columns: 1fr 1.35fr; /* geändert */
+      grid-template-columns: 1fr 1.35fr;
       grid-template-areas:
         "a b"
         "a c";
@@ -585,7 +584,7 @@
       flex-wrap:wrap;
     }
 
-    /* ---------- Password Gate (NEU) ---------- */
+    /* ---------- Password Gate ---------- */
     .pw-gate{
       position:fixed;
       inset:0;
@@ -646,7 +645,7 @@
       }
       .left-panels .card{ min-height: 480px; }
       .stage.has-preview .preview-panel{
-        max-width: clamp(480px, 54vw, 900px); /* angepasst: ebenfalls etwas größer */
+        max-width: clamp(480px, 54vw, 900px);
       }
       .left-panels .card:nth-child(3){
         grid-column: 1 / -1;
@@ -694,7 +693,7 @@
 </head>
 
 <body>
-  <!-- Password Gate (NEU) -->
+  <!-- Password Gate -->
   <div class="pw-gate" id="pwGate" aria-hidden="false" role="dialog" aria-modal="true">
     <div class="pw-backdrop"></div>
     <div class="pw-card">
@@ -795,7 +794,6 @@
             <div class="card">
               <h3><i class="fas fa-font"></i> Texte anpassen</h3>
 
-              <!-- NEU: Template wählen -->
               <div class="template-row">
                 <div class="input-group" style="margin-top:0;">
                   <label for="templateSelect">Template wählen</label>
@@ -930,8 +928,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <script>
+    // ==========================================================
+    // Änderungen gegenüber alter Version (kurz, technisch):
+    // - Upload akzeptiert weiterhin beliebige image/* Dateien.
+    // - Beim Import: Konvertierung/Kompression zu JPEG Blob (kein Base64).
+    // - In UI/Preview: Object-URLs statt DataURLs.
+    // - Im Export: Blobs direkt in ZIP (keine Base64-Strings).
+    // ==========================================================
+
     // -----------------------
-    // Password gate (NEU)
+    // Password gate
     // -----------------------
     const GATE_PASSWORD = 'html5';
     const pwGate = document.getElementById('pwGate');
@@ -943,17 +949,14 @@
       pwGate.style.display = 'none';
       pwGate.setAttribute('aria-hidden', 'true');
     }
-
     function showPwError(){
       pwError.style.display = 'block';
       pwInput.classList.add('input-over');
     }
-
     function clearPwError(){
       pwError.style.display = 'none';
       pwInput.classList.remove('input-over');
     }
-
     function checkPassword(){
       const val = String(pwInput.value || '').trim();
       if (val === GATE_PASSWORD){
@@ -967,13 +970,17 @@
     }
 
     // -----------------------
-    // Config (Ordnerstruktur)
+    // Config
     // -----------------------
     const TEMPLATE_DIR = 'templates';
     const ASSETS_DIR   = 'assets';
     const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
 
-    const FONT_FILES = [
+    // DV360-Optimierung: nur woff2 exportieren (optional)
+    // Wenn du ALLE Fonts wie vorher willst, setz EXPORT_WOFF_ONLY = false.
+    const EXPORT_WOFF_ONLY = true;
+
+    const FONT_FILES_ALL = [
       'InterstateWGL-Bold.woff',
       'InterstateWGL-Bold.woff2',
       'InterstateWGL-Light.woff',
@@ -981,6 +988,21 @@
       'InterstateWGL-Regular.woff',
       'InterstateWGL-Regular.woff2',
     ].map(f => `${ASSETS_DIR}/fonts/${f}`);
+
+    const FONT_FILES = EXPORT_WOFF_ONLY
+      ? FONT_FILES_ALL.filter(u => u.endsWith('.woff2'))
+      : FONT_FILES_ALL;
+
+    // -----------------------
+    // Image conversion settings (Upload)
+    // -----------------------
+    // User lädt beliebige Formate hoch -> wir normalisieren in JPEG.
+    // MaxLongEdge begrenzt die Import-Größe, Export kann später noch weiter reduzieren.
+    const IMAGE_IMPORT = {
+      maxLongEdge: 1800,
+      quality: 0.82,
+      background: '#ffffff' // wichtig, wenn PNG Transparenz hat
+    };
 
     // -----------------------
     // Limits
@@ -991,45 +1013,20 @@
       ctaText: 17
     };
 
-    // Statischer Impr.-Tag (soll als Code angezeigt werden, nicht gerendert)
     const IMPR_TAG = `<img src="https://tagm.tchibo.de/ai.aspx?extProvId=300&extProvApi=129768&extPu=tchibo-dv360&extLi=\${INSERTION_ORDER_ID}&extPm=\${CAMPAIGN_ID}&extCr=\${CREATIVE_ID}&adslotid=\${PUBLISHER_ID}&gdpr=\${GDPR}&gdpr_consent=\${GDPR_CONSENT_312}" style="display:none">`;
 
     // -----------------------
-    // Theme presets (NEU)
-    // Standard: keine Änderungen (Templates bleiben wie aktuell)
-    // Sale: Headline #BE2D2F, Subline #1b1b1b, CTA "Gold" -> #BE2D2F
-    // Tchibocard: wie Sale, aber Rot -> #004266
+    // Theme presets
     // -----------------------
     const THEMES = {
-      standard: {
-        key: 'standard',
-        label: 'Standard',
-        headlineColor: null,     // null => Template Default
-        sublineColor: null,      // null => Template Default
-        ctaAccentColor: null     // null => Template Default
-      },
-      sale: {
-        key: 'sale',
-        label: 'Sale',
-        headlineColor: '#BE2D2F',
-        sublineColor: '#1b1b1b',
-        ctaAccentColor: '#BE2D2F'
-      },
-      tchibocard: {
-        key: 'tchibocard',
-        label: 'Tchibocard',
-        headlineColor: '#004266',
-        sublineColor: '#1b1b1b',
-        ctaAccentColor: '#004266'
-      }
+      standard: { key:'standard', label:'Standard', headlineColor:null, sublineColor:null, ctaAccentColor:null },
+      sale:     { key:'sale',     label:'Sale',     headlineColor:'#BE2D2F', sublineColor:'#1b1b1b', ctaAccentColor:'#BE2D2F' },
+      tchibocard:{key:'tchibocard',label:'Tchibocard',headlineColor:'#004266', sublineColor:'#1b1b1b', ctaAccentColor:'#004266' }
     };
-
-    function getActiveTheme(){
-      return THEMES[appData.themeKey] || THEMES.standard;
-    }
 
     // -----------------------
     // State
+    // uploadedImages: { name:'1.jpg', blob:Blob, url:ObjectURL, original:'...' }
     // -----------------------
     let selectedFormats = [];
     let uploadedImages = [];
@@ -1039,8 +1036,12 @@
       ctaText: 'Jetzt shoppen',
       landingUrl: '',
       zipName: '',
-      themeKey: 'standard' // NEU
+      themeKey: 'standard'
     };
+
+    function getActiveTheme(){
+      return THEMES[appData.themeKey] || THEMES.standard;
+    }
 
     // -----------------------
     // DOM refs
@@ -1048,18 +1049,16 @@
     const stage = document.getElementById('stage');
     const previewGrid = document.getElementById('previewGrid');
     const detailNameEl = document.getElementById('detailName');
-    const detailTemplateEl = document.getElementById('detailTemplate'); // NEU
+    const detailTemplateEl = document.getElementById('detailTemplate');
     const detailClickTagEl = document.getElementById('detailClickTag');
     const detailImprTagEl = document.getElementById('detailImprTag');
 
-    // Template UI (NEU)
     const templateSelect = document.getElementById('templateSelect');
     const templateMeta = document.getElementById('templateMeta');
     const dotHeadline = document.getElementById('dotHeadline');
     const dotSubline = document.getElementById('dotSubline');
     const dotCta = document.getElementById('dotCta');
 
-    // Modal
     const exportModal = document.getElementById('exportModal');
     const exportModalCloseBtn = document.getElementById('exportModalClose');
     const exportModalBackdrop = document.getElementById('exportModalBackdrop');
@@ -1112,11 +1111,54 @@
       uploadedImages.forEach((img, i) => img.name = `${i + 1}.jpg`);
     }
 
+    function revokeAllObjectUrls(){
+      uploadedImages.forEach(img => { if (img.url) URL.revokeObjectURL(img.url); });
+    }
+
+    // -----------------------
+    // JPEG-Konvertierung (Upload Normalisierung)
+    // -----------------------
+    async function convertToJpegBlob(file, {
+      maxLongEdge = 1800,
+      quality = 0.82,
+      background = '#ffffff'
+    } = {}){
+      const bitmap = await createImageBitmap(file);
+
+      const w = bitmap.width;
+      const h = bitmap.height;
+
+      const longEdge = Math.max(w, h);
+      const scale = longEdge > maxLongEdge ? (maxLongEdge / longEdge) : 1;
+
+      const targetW = Math.max(1, Math.round(w * scale));
+      const targetH = Math.max(1, Math.round(h * scale));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+
+      // Hintergrund (wichtig bei PNG alpha)
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, targetW, targetH);
+
+      ctx.drawImage(bitmap, 0, 0, targetW, targetH);
+
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, 'image/jpeg', quality);
+      });
+
+      if (!blob) throw new Error('JPEG conversion failed (toBlob returned null)');
+      return blob;
+    }
+
     // -----------------------
     // Character counter
     // -----------------------
     function updateCharUI(inputEl, hintEl, max){
-      const len = (inputEl.value || '').length; // inkl. Leerzeichen
+      const len = (inputEl.value || '').length;
       hintEl.textContent = `${len}/${max} Zeichen`;
       const over = len > max;
 
@@ -1134,7 +1176,6 @@
       };
 
       inputEl.addEventListener('input', handler);
-      // initial
       handler();
     }
 
@@ -1199,13 +1240,9 @@
     }
 
     // -----------------------
-    // Theme vars injection (NEU)
-    // Ziel: App setzt Theme-Variablen in Templates.
-    // Heute haben die Templates sie noch nicht -> keine sichtbare Änderung.
-    // In der nächsten Runde bauen wir Templates so um, dass sie diese Variablen nutzen.
+    // Theme vars injection
     // -----------------------
     function upsertGeneratorVar(html, varName, valueStr){
-      // ersetzt: var X = "...";
       const re = new RegExp(`var\\s+${varName}\\s*=\\s*".*?";`, 's');
       if (re.test(html)){
         return html.replace(re, `var ${varName} = "${escapeJs(valueStr)}";`);
@@ -1215,12 +1252,8 @@
 
     function injectThemeVarsNearGeneratorBlock(html){
       const theme = getActiveTheme();
-
-      // Wir versuchen, nach "var CTA_TEXT" einzufügen (nah am Generator-Block)
       const anchorRe = /var\s+CTA_TEXT\s*=\s*".*?";/s;
       if (!anchorRe.test(html)) return html;
-
-      // nur einfügen, wenn THEME_KEY noch nicht existiert
       if (/var\s+THEME_KEY\s*=/.test(html)) return html;
 
       const insert =
@@ -1235,6 +1268,8 @@
 
     // -----------------------
     // Template variable replacement
+    // - Preview: IMAGE_LIST = ObjectURLs (klein, schnell)
+    // - Export : IMAGE_LIST = ["1.jpg","2.jpg"...]
     // -----------------------
     function replaceTemplateVars(html, { mode }){
       html = html.replace(/var\s+HEADLINE\s*=\s*".*?";/s, `var HEADLINE = "${escapeJs(appData.headline)}";`);
@@ -1244,10 +1279,8 @@
       const finalClickTag = getFinalClickTag();
       html = html.replace(/var\s+clickTag\s*=\s*".*?";/s, `var clickTag = "${escapeJs(finalClickTag)}";`);
 
-      // NEU: Theme-Variablen einfügen (heute noch ohne Effekt, Templates folgen danach)
       html = injectThemeVarsNearGeneratorBlock(html);
 
-      // Optional: falls du später Variablen schon in Templates anlegst, upserten wir sie ebenfalls robust.
       const t = getActiveTheme();
       html = upsertGeneratorVar(html, 'THEME_KEY', t.key);
       html = upsertGeneratorVar(html, 'THEME_HEADLINE_COLOR', t.headlineColor || '');
@@ -1256,7 +1289,7 @@
 
       if (uploadedImages.length > 0){
         const list = (mode === 'preview')
-          ? uploadedImages.map(img => `"${img.data}"`).join(',\n      ')
+          ? uploadedImages.map(img => `"${img.url}"`).join(',\n      ')
           : uploadedImages.map(img => `"${img.name}"`).join(',\n      ');
 
         html = html.replace(/var\s+IMAGE_LIST\s*=\s*\[[\s\S]*?\];/s, `var IMAGE_LIST = [\n      ${list}\n    ];`);
@@ -1293,12 +1326,11 @@
     }
 
     // -----------------------
-    // Template selector UI (NEU)
+    // Template selector UI
     // -----------------------
     function paintTemplateUI(){
       const t = getActiveTheme();
 
-      // Meta text
       if (t.key === 'standard'){
         templateMeta.textContent = 'Farben: Standard (wie aktuell)';
       } else if (t.key === 'sale'){
@@ -1307,7 +1339,6 @@
         templateMeta.textContent = `Farben: Tchibocard — Headline ${t.headlineColor}, Subline ${t.sublineColor}, CTA-Akzent ${t.ctaAccentColor}`;
       }
 
-      // Dots (Standard: neutral)
       dotHeadline.style.background = t.headlineColor || '#9ca3af';
       dotSubline.style.background  = t.sublineColor  || '#9ca3af';
       dotCta.style.background      = t.ctaAccentColor || '#9ca3af';
@@ -1344,35 +1375,45 @@
       uploadArea.classList.add('dragover');
     });
     uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-    uploadArea.addEventListener('drop', (e) => {
+    uploadArea.addEventListener('drop', async (e) => {
       e.preventDefault();
       uploadArea.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
+      await handleFiles(e.dataTransfer.files);
     });
 
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+    fileInput.addEventListener('change', async (e) => await handleFiles(e.target.files));
 
-    function handleFiles(files){
-      Array.from(files).forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
+    async function handleFiles(files){
+      for (const file of Array.from(files)){
+        if (!file.type.startsWith('image/')) continue;
+
+        try{
+          // (1) Konvertieren/komprimieren -> JPEG Blob
+          const blob = await convertToJpegBlob(file, IMAGE_IMPORT);
+
+          // (2) Object URL für UI + Preview
+          const url = URL.createObjectURL(blob);
+
           uploadedImages.push({
-            name: `${uploadedImages.length + 1}.jpg`,
-            data: e.target.result,
+            name: '', // wird durch renumberImages gesetzt
+            blob,
+            url,
             original: file.name
           });
+
           renumberImages();
           updateImageDisplay();
-        };
-        reader.readAsDataURL(file);
-      });
+
+        } catch (err){
+          console.warn('Bild konnte nicht verarbeitet werden:', file.name, err);
+          alert(`Bild konnte nicht verarbeitet werden: ${file.name}\n\nHinweis: HEIC/HEIF wird je nach Browser nicht unterstützt. Bitte ggf. als JPG/PNG exportieren.`);
+        }
+      }
     }
 
     function moveImage(fromIndex, toIndex){
       if (fromIndex === toIndex) return;
       const item = uploadedImages.splice(fromIndex, 1)[0];
-      // Insert BEFORE target index (damit "auf 1 ziehen" => wird 1)
       uploadedImages.splice(toIndex, 0, item);
       renumberImages();
       updateImageDisplay();
@@ -1388,18 +1429,16 @@
         div.dataset.index = String(index);
 
         div.innerHTML = `
-          <img src="${img.data}" alt="Bild ${index + 1}">
+          <img src="${img.url}" alt="Bild ${index + 1}">
           <div class="number">${index + 1}.jpg</div>
           <button class="remove" type="button" data-index="${index}" aria-label="Bild entfernen">×</button>
         `;
 
-        // Remove
         div.querySelector('button.remove').addEventListener('click', (ev) => {
           ev.stopPropagation();
           removeImage(index);
         });
 
-        // Drag events
         div.addEventListener('dragstart', (e) => {
           dragSrcIndex = index;
           div.classList.add('dragging');
@@ -1439,6 +1478,8 @@
     }
 
     function removeImage(index){
+      const item = uploadedImages[index];
+      if (item?.url) URL.revokeObjectURL(item.url);
       uploadedImages.splice(index, 1);
       renumberImages();
       updateImageDisplay();
@@ -1464,7 +1505,6 @@
 
       for (const format of formats){
         const { w, h } = parseFormat(format);
-
         const maxH = (format === '300x600') ? 680 : 340;
 
         let html;
@@ -1537,10 +1577,9 @@
         templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
         zip.file('index.html', templateContent);
 
-        // Images (geordnet, entsprechend aktueller Reihenfolge)
+        // Images: direkt Blobs in ZIP (immer jpg)
         uploadedImages.forEach(img => {
-          const base64Data = img.data.split(',')[1];
-          zip.file(img.name, base64Data, { base64:true });
+          zip.file(img.name, img.blob);
         });
 
         // Logo + fonts
@@ -1567,7 +1606,7 @@
     // UI bindings
     // -----------------------
     document.addEventListener('DOMContentLoaded', () => {
-      // Password gate bindings (NEU)
+      // Password gate
       pwInput.addEventListener('input', clearPwError);
       pwSubmit.addEventListener('click', checkPassword);
       pwInput.addEventListener('keydown', (e) => {
@@ -1575,21 +1614,18 @@
       });
       pwInput.focus();
 
-      // Template selector bindings (NEU)
+      // Template selector
       templateSelect.value = appData.themeKey;
       templateSelect.addEventListener('change', async (e) => {
         appData.themeKey = String(e.target.value || 'standard');
-
         paintTemplateUI();
-
-        // Wenn Preview offen ist, sofort neu generieren, damit Theme in srcdoc landet
         if (stage.classList.contains('has-preview')){
           await generatePreviews();
         }
       });
       paintTemplateUI();
 
-      // Character-limited inputs (Warnung, aber nicht blockieren)
+      // Character-limited inputs
       bindCharLimit('headline', 'headlineHint', TEXT_LIMITS.headline, v => appData.headline = v);
       bindCharLimit('subline',  'sublineHint',  TEXT_LIMITS.subline,  v => appData.subline  = v);
       bindCharLimit('ctaText',  'ctaHint',      TEXT_LIMITS.ctaText,  v => appData.ctaText  = v);
@@ -1601,7 +1637,7 @@
       // Back
       document.getElementById('backStep1').addEventListener('click', () => showStep(1));
 
-      // Preview button
+      // Preview
       document.getElementById('createPreview').addEventListener('click', async () => {
         const finalClick = getFinalClickTag();
         const nmRaw = String(appData.zipName || '').trim();
@@ -1666,6 +1702,9 @@
           exportBtn.innerHTML = oldText;
         }
       });
+
+      // Cleanup: wenn User Seite verlässt, ObjectURLs freigeben
+      window.addEventListener('beforeunload', revokeAllObjectUrls);
     });
   </script>
 </body>
