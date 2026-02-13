@@ -22,10 +22,8 @@
     var THEME_SUBLINE_COLOR  = "";
     var THEME_CTA_ACCENT     = "";
 
-    // ✅ IMAGE_PATTERN kannst du drin lassen, aber der Generator wird primär IMAGE_LIST setzen
-    var IMAGE_PATTERN = "960x1200-{n}_NF_DE_Active_HVK_2025KW02_Active.jpg";
-
-    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER Data-URLs in Preview)
+    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER blob:-URLs in Preview)
+    // Hinweis: IMAGE_PATTERN wurde entfernt, da IMAGE_LIST immer korrekt ist.
     var IMAGE_LIST = [
       "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
       "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg"
@@ -79,7 +77,7 @@
       --heroBorderDur: 180ms;
     }
 
-    /* ✅ ROBUSTE FONT-PFADE (Root/fonts/...) */
+    /* ✅ FONTS */
     @font-face{
       font-family:"InterstateWGL";
       src:
@@ -358,7 +356,6 @@
       <div class="right seq-img show-image" aria-hidden="true">
         <div class="img-col" id="colLeft">
           <div class="stack">
-            <!-- ✅ WICHTIG: keine image1.jpg Platzhalter -->
             <img id="leftCur"  src="" alt="">
             <img id="leftNext" class="next" src="" alt="">
           </div>
@@ -376,14 +373,13 @@
 
   <script>
     // -----------------------
-    // Theme apply (NEU)
+    // Theme apply
     // -----------------------
     (function applyTheme(){
       var headlineColor = (typeof THEME_HEADLINE_COLOR === "string" && THEME_HEADLINE_COLOR.trim()) ? THEME_HEADLINE_COLOR.trim() : "";
       var sublineColor  = (typeof THEME_SUBLINE_COLOR  === "string" && THEME_SUBLINE_COLOR.trim())  ? THEME_SUBLINE_COLOR.trim()  : "";
       var ctaAccent     = (typeof THEME_CTA_ACCENT     === "string" && THEME_CTA_ACCENT.trim())     ? THEME_CTA_ACCENT.trim()     : "";
 
-      // Nur überschreiben, wenn gesetzt (Standard bleibt template-default)
       if (headlineColor) document.documentElement.style.setProperty("--headlineColor", headlineColor);
       if (sublineColor)  document.documentElement.style.setProperty("--sublineColor",  sublineColor);
       if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
@@ -410,6 +406,23 @@
     }
     var DWELL_MS = cssVarMs('--dwellMs', 2000);
     var SLIDE_MS = cssVarMs('--slideMs', 520);
+
+    function normalizeImageSrc(s){
+      s = String(s || "");
+      if (!s) return s;
+
+      // Preview: blob:... bleibt
+      if (s.indexOf("blob:") === 0) return s;
+
+      // Absolute URLs bleiben
+      if (/^https?:\/\//i.test(s)) return s;
+
+      // Schon "root-ish"
+      if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
+
+      // ✅ Fix für Preview mit <base href="./assets/">
+      return "./" + s;
+    }
 
     function setAnim(imgEl, y){
       imgEl.style.transition = "transform " + SLIDE_MS + "ms ease";
@@ -439,8 +452,15 @@
     }
 
     (function init(){
+      // ✅ IMAGE_PATTERN ist entfernt.
+      // IMAGE_LIST ist immer die Quelle der Wahrheit (Export: 1.jpg/2.jpg..., Preview: blob:-URLs)
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
-      if (!images.length) images = [IMAGE_PATTERN.replace("{n}", "1")];
+      if (images.length === 0) return;
+
+      // ✅ Robust gegen <base> (Generator-Preview) + blob:-URLs
+      images = images.map(normalizeImageSrc);
+
+      // Preload (nach Normalisierung!)
       images.forEach(function(s){ var im = new Image(); im.src = s; });
 
       var leftCur   = document.getElementById("leftCur");
