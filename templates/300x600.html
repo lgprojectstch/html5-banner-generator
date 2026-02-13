@@ -481,9 +481,22 @@
       el.style.transform = "translateX(" + x + "%) scale(1.001)";
     }
 
-    (function(){
+        (function(){
       var imgs = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (imgs.length === 0) return;
+
+      // ✅ Pfade robust machen:
+      // - blob:... bleibt wie es ist
+      // - http(s) bleibt wie es ist
+      // - "1.jpg" wird "./1.jpg" (Root relativ), damit <base href="./assets/"> nichts kaputt macht
+      imgs = imgs.map(function(s){
+        s = String(s || "");
+        if (!s) return s;
+        if (s.indexOf("blob:") === 0) return s;
+        if (/^https?:\/\//i.test(s)) return s;
+        if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
+        return "./" + s;
+      });
 
       // Preload
       imgs.forEach(function(s){ var im = new Image(); im.src = s; });
@@ -519,6 +532,7 @@
       setTimeout(function(){
         setInterval(function(){ swipeNext(); }, dwell + swipeMs);
       }, 4500 + dwell);
+    })();
     })();
   </script>
 </body>
