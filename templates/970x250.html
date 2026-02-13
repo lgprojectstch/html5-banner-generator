@@ -22,16 +22,33 @@
     var THEME_SUBLINE_COLOR  = "";
     var THEME_CTA_ACCENT     = "";
 
-    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER blob:-URLs in Preview)
-    // Hinweis: IMAGE_PATTERN wurde entfernt, da IMAGE_LIST immer korrekt ist.
+    // ✅ IMAGE_LIST: Generator ersetzt komplett (Export: 1.jpg,2.jpg... | Preview: blob:-URLs oder Data-URLs)
+    // Hinweis: IMAGE_PATTERN ist entfernt, da IMAGE_LIST immer korrekt ist.
     var IMAGE_LIST = [
-      "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg"
+      "1.jpg",
+      "2.jpg"
     ];
 
     // ✅ DV360 clickTag (muss global sein)
     var clickTag = "https://example.com";
     window.clickTag = clickTag;
+  </script>
+
+  <!-- Optional (empfohlen): Font Preloads (reduziert FOUT) -->
+  <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Optional: Banner erst zeigen, wenn Fonts geladen sind (verhindert sichtbaren Font-Swap) -->
+  <style>
+    html.fonts-loading #ad { opacity: 0; }
+    html.fonts-loaded  #ad { opacity: 1; transition: opacity 80ms linear; }
+  </style>
+  <script>
+    document.documentElement.classList.add("fonts-loading");
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){
+      document.documentElement.classList.remove("fonts-loading");
+      document.documentElement.classList.add("fonts-loaded");
+    });
   </script>
 
   <style>
@@ -46,9 +63,9 @@
       --gold: #C0A468;
 
       /* Theme Overrides (werden via JS gesetzt, wenn Theme-Variablen vorhanden sind) */
-      --headlineColor: #1f2430;     /* Default Headline (wie bisher) */
-      --sublineColor:  var(--gold); /* Default Subline (wie bisher) */
-      --ctaAccent:     var(--gold); /* Default CTA "Gold" */
+      --headlineColor: #1f2430;
+      --sublineColor:  var(--gold);
+      --ctaAccent:     var(--gold);
 
       --padX: 22px;
       --padY: 12px;
@@ -77,22 +94,20 @@
       --heroBorderDur: 180ms;
     }
 
-    /* ✅ FONTS */
+    /* ✅ FONTS (korrigiert: kein trailing comma, optional statt swap für weniger Reflow) */
     @font-face{
       font-family:"InterstateWGL";
-      src:
-        url("fonts/InterstateWGL-Regular.woff2") format("woff2"),
+      src: url("fonts/InterstateWGL-Regular.woff2") format("woff2");
       font-weight:400;
       font-style:normal;
-      font-display:swap;
+      font-display:optional;
     }
     @font-face{
       font-family:"InterstateWGL";
-      src:
-        url("fonts/InterstateWGL-Bold.woff2") format("woff2"),
+      src: url("fonts/InterstateWGL-Bold.woff2") format("woff2");
       font-weight:700;
       font-style:normal;
-      font-display:swap;
+      font-display:optional;
     }
 
     .ad{
@@ -104,7 +119,7 @@
       position: relative;
       cursor: pointer;
 
-      /* Rahmen bleibt IMMER Gold (wie gewünscht) */
+      /* Rahmen bleibt IMMER Gold */
       border: var(--frameW) solid var(--gold);
     }
 
@@ -152,8 +167,10 @@
 
     .seq{ opacity:0; transform: translateY(10px); }
     .seq-img{ opacity:0; }
+
     @keyframes fadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
     @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+
     .show-logo{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:0ms; }
     .show-headline{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:200ms; }
     .show-image{ animation:fadeIn 1000ms ease forwards; animation-delay:450ms; }
@@ -210,9 +227,7 @@
       user-select:none;
       cursor:pointer;
 
-      /* CTA "Gold" wird themable */
       background: var(--ctaAccent);
-
       border: 2px solid transparent;
       overflow:hidden;
     }
@@ -241,10 +256,7 @@
         -webkit-text-fill-color:transparent;
         -webkit-background-clip:text;
         background-clip:text;
-
-        /* Gradient nutzt CTA Accent statt Gold */
         background-image: linear-gradient(90deg, var(--ctaAccent) 0%, var(--ctaAccent) 50%, #ffffff 50%, #ffffff 100%);
-
         background-size:200% 100%;
         background-position:100% 0;
       }
@@ -340,13 +352,13 @@
         </div>
 
         <div class="copy">
-          <p class="headline seq show-headline" id="headlineEl">Headline</p>
-          <p class="subline  seq show-subline"  id="sublineEl">Subline</p>
+          <p class="headline seq show-headline" id="headlineEl"></p>
+          <p class="subline  seq show-subline"  id="sublineEl"></p>
         </div>
 
         <div class="cta-area">
           <a class="cta seq show-cta" href="javascript:void(0)" id="cta">
-            <span class="cta-inner" id="ctaInner">CTA</span>
+            <span class="cta-inner" id="ctaInner"></span>
           </a>
         </div>
       </div>
@@ -383,13 +395,16 @@
       if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
     })();
 
+    // Texte
     document.getElementById("headlineEl").textContent = HEADLINE;
     document.getElementById("sublineEl").textContent  = SUBLINE;
     document.getElementById("ctaInner").textContent   = CTA_TEXT;
 
+    // ClickTag
     function doExit(){ window.open(clickTag, "_blank"); }
     document.getElementById("ad").addEventListener("click", doExit);
 
+    // CTA hover
     var cta = document.getElementById("cta");
     cta.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); doExit(); });
     cta.addEventListener("mouseenter", function(){ cta.classList.add("is-hover"); });
@@ -397,28 +412,25 @@
 
     setTimeout(function(){ document.getElementById("ctaInner").classList.add("cta-bounce"); }, 2200);
 
+    // Timing
     function cssVarMs(name, fallback){
       var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       var n = parseFloat(v);
       return isNaN(n) ? fallback : n;
     }
-    var DWELL_MS = cssVarMs('--dwellMs', 2000);
-    var SLIDE_MS = cssVarMs('--slideMs', 520);
+    var DWELL_MS = cssVarMs("--dwellMs", 2000);
+    var SLIDE_MS = cssVarMs("--slideMs", 520);
 
+    // ✅ Pfad-Normalisierung:
+    // - blob: bleibt wie es ist
+    // - http(s): bleibt wie es ist
+    // - sonst: "./" davor, damit <base href="./assets/"> im Preview nicht "assets/1.jpg" erzwingt
     function normalizeImageSrc(s){
       s = String(s || "");
       if (!s) return s;
-
-      // Preview: blob:... bleibt
       if (s.indexOf("blob:") === 0) return s;
-
-      // Absolute URLs bleiben
       if (/^https?:\/\//i.test(s)) return s;
-
-      // Schon "root-ish"
       if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
-
-      // ✅ Fix für Preview mit <base href="./assets/">
       return "./" + s;
     }
 
@@ -450,39 +462,42 @@
     }
 
     (function init(){
-      // ✅ IMAGE_PATTERN ist entfernt.
-      // IMAGE_LIST ist immer die Quelle der Wahrheit (Export: 1.jpg/2.jpg..., Preview: blob:-URLs)
+      // ✅ Nur IMAGE_LIST (Export: 1.jpg/2.jpg..., Preview: blob:-URLs)
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (images.length === 0) return;
 
-      // ✅ Robust gegen <base> (Generator-Preview) + blob:-URLs
       images = images.map(normalizeImageSrc);
 
-      // Preload (nach Normalisierung!)
-      images.forEach(function(s){ var im = new Image(); im.src = s; });
+      // Preload
+      images.forEach(function(s){
+        try { var im = new Image(); im.src = s; } catch(e){}
+      });
 
       var leftCur   = document.getElementById("leftCur");
       var leftNext  = document.getElementById("leftNext");
       var rightCur  = document.getElementById("rightCur");
       var rightNext = document.getElementById("rightNext");
 
+      // Startbelegung: links 0, rechts 1 (oder 0 wenn nur eins)
       var leftIdx  = 0;
       var rightIdx = images.length > 1 ? 1 : 0;
 
       leftCur.src  = images[leftIdx]  || "";
       rightCur.src = images[rightIdx] || "";
 
-      // next slots initialisieren
-      leftNext.src  = images[(leftIdx + 1) % images.length] || "";
-      rightNext.src = images[(rightIdx + 1) % images.length] || "";
+      leftNext.src  = images[(leftIdx + 1) % images.length]  || images[leftIdx]  || "";
+      rightNext.src = images[(rightIdx + 1) % images.length] || images[rightIdx] || "";
       snap(leftNext, -100);
       snap(rightNext, -100);
 
+      // Nächster globaler Slot (falls >2)
       var nextGlobal = images.length > 2 ? 2 : 0;
       var flipLeft = true;
       var busy = false;
 
-      setInterval(function(){
+      var intervalId = null;
+
+      function tick(){
         if (images.length < 2 || busy) return;
         busy = true;
 
@@ -495,7 +510,24 @@
           flipLeft = !flipLeft;
           busy = false;
         });
-      }, DWELL_MS);
+      }
+
+      // ✅ DV360/Performance: pausieren, wenn Tab hidden
+      function start(){
+        if (intervalId) return;
+        intervalId = setInterval(tick, DWELL_MS);
+      }
+      function stop(){
+        if (!intervalId) return;
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+
+      start();
+      document.addEventListener("visibilitychange", function(){
+        if (document.visibilityState === "hidden") stop();
+        else start();
+      });
     })();
   </script>
 </body>
