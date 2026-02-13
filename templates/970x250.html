@@ -8,22 +8,17 @@
 
   <script>
     // ====== GENERATOR VARS (werden ersetzt) ======
-    // ✅ Wichtig: einfache, eindeutige Muster, damit dein Generator sicher ersetzen kann.
     var HEADLINE = "Bereit für deine Ziele?";
     var SUBLINE  = "Sport Outfits entdecken!";
     var CTA_TEXT = "Jetzt shoppen";
 
     // ====== THEME VARS (werden ersetzt / vom Generator injiziert) ======
-    // Standard: leere Strings => Template Default
-    // Sale:    THEME_HEADLINE_COLOR=#BE2D2F, THEME_SUBLINE_COLOR=#1b1b1b, THEME_CTA_ACCENT=#BE2D2F
-    // TC:      THEME_HEADLINE_COLOR=#004266, THEME_SUBLINE_COLOR=#1b1b1b, THEME_CTA_ACCENT=#004266
     var THEME_KEY = "standard";
     var THEME_HEADLINE_COLOR = "";
     var THEME_SUBLINE_COLOR  = "";
     var THEME_CTA_ACCENT     = "";
 
-    // ✅ IMAGE_LIST: Generator ersetzt komplett (Export: 1.jpg,2.jpg... | Preview: blob:-URLs oder Data-URLs)
-    // Hinweis: IMAGE_PATTERN ist entfernt, da IMAGE_LIST immer korrekt ist.
+    // ✅ IMAGE_LIST: Generator ersetzt komplett (Export: 1.jpg,2.jpg... | Preview: blob:/data:)
     var IMAGE_LIST = [
       "1.jpg",
       "2.jpg"
@@ -34,11 +29,11 @@
     window.clickTag = clickTag;
   </script>
 
-  <!-- Optional (empfohlen): Font Preloads (reduziert FOUT) -->
+  <!-- Font Preloads -->
   <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
 
-  <!-- Optional: Banner erst zeigen, wenn Fonts geladen sind (verhindert sichtbaren Font-Swap) -->
+  <!-- Optional: Banner erst zeigen, wenn Fonts geladen sind -->
   <style>
     html.fonts-loading #ad { opacity: 0; }
     html.fonts-loaded  #ad { opacity: 1; transition: opacity 80ms linear; }
@@ -62,7 +57,7 @@
       /* Default Gold (Standard) */
       --gold: #C0A468;
 
-      /* Theme Overrides (werden via JS gesetzt, wenn Theme-Variablen vorhanden sind) */
+      /* Theme Overrides */
       --headlineColor: #1f2430;
       --sublineColor:  var(--gold);
       --ctaAccent:     var(--gold);
@@ -94,20 +89,20 @@
       --heroBorderDur: 180ms;
     }
 
-    /* ✅ FONTS (korrigiert: kein trailing comma, optional statt swap für weniger Reflow) */
+    /* Fonts (woff2 only, no trailing comma) */
     @font-face{
       font-family:"InterstateWGL";
       src: url("fonts/InterstateWGL-Regular.woff2") format("woff2");
       font-weight:400;
       font-style:normal;
-      font-display:optional;
+      font-display:swap;
     }
     @font-face{
       font-family:"InterstateWGL";
       src: url("fonts/InterstateWGL-Bold.woff2") format("woff2");
       font-weight:700;
       font-style:normal;
-      font-display:optional;
+      font-display:swap;
     }
 
     .ad{
@@ -118,8 +113,6 @@
       font-family:"InterstateWGL", Arial, Helvetica, sans-serif;
       position: relative;
       cursor: pointer;
-
-      /* Rahmen bleibt IMMER Gold */
       border: var(--frameW) solid var(--gold);
     }
 
@@ -348,7 +341,8 @@
     <div class="wrap">
       <div class="left">
         <div class="logo seq show-logo">
-          <img src="Logo.png" alt="Logo">
+          <!-- ✅ robust (Preview mit <base href="./assets/">): wird per JS auf ../Logo.png umgeschrieben -->
+          <img id="logoImg" src="Logo.png" alt="Logo">
         </div>
 
         <div class="copy">
@@ -400,6 +394,31 @@
     document.getElementById("sublineEl").textContent  = SUBLINE;
     document.getElementById("ctaInner").textContent   = CTA_TEXT;
 
+    // -----------------------
+    // ✅ Preview robustness for root files (Logo)
+    // If preview injects <base href="./assets/">, root files must be loaded from "../"
+    // Export has no <base>, and files are at ZIP root.
+    // -----------------------
+    function resolveRootFile(name){
+      name = String(name || "");
+      if (!name) return name;
+
+      if (/^(data:|blob:|https?:\/\/)/i.test(name)) return name;
+      if (name.indexOf("../") === 0 || name.indexOf("./") === 0 || name.indexOf("/") === 0) return name;
+
+      var baseEl = document.querySelector("base");
+      var baseHref = baseEl ? (baseEl.getAttribute("href") || "").trim() : "";
+      if (baseHref && /(^|\/)assets\/?$/i.test(baseHref)) return "../" + name;
+
+      return name;
+    }
+
+    (function fixLogo(){
+      var img = document.getElementById("logoImg");
+      if (!img) return;
+      img.src = resolveRootFile("Logo.png");
+    })();
+
     // ClickTag
     function doExit(){ window.open(clickTag, "_blank"); }
     document.getElementById("ad").addEventListener("click", doExit);
@@ -421,17 +440,21 @@
     var DWELL_MS = cssVarMs("--dwellMs", 2000);
     var SLIDE_MS = cssVarMs("--slideMs", 520);
 
-    // ✅ Pfad-Normalisierung:
-    // - blob: bleibt wie es ist
-    // - http(s): bleibt wie es ist
-    // - sonst: "./" davor, damit <base href="./assets/"> im Preview nicht "assets/1.jpg" erzwingt
+    // ✅ Root-filenames robust machen (für Preview mit <base>)
+    // - blob/data/http(s) bleiben
+    // - "1.jpg" -> resolveRootFile("1.jpg")
+    // - "./1.jpg" bleibt "./1.jpg"
     function normalizeImageSrc(s){
       s = String(s || "");
       if (!s) return s;
-      if (s.indexOf("blob:") === 0) return s;
-      if (/^https?:\/\//i.test(s)) return s;
-      if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
-      return "./" + s;
+
+      if (/^(data:|blob:|https?:\/\/)/i.test(s)) return s;
+
+      // keep explicit relative paths
+      if (s.indexOf("../") === 0 || s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
+
+      // plain filename -> resolveRootFile
+      return resolveRootFile(s);
     }
 
     function setAnim(imgEl, y){
@@ -462,13 +485,12 @@
     }
 
     (function init(){
-      // ✅ Nur IMAGE_LIST (Export: 1.jpg/2.jpg..., Preview: blob:-URLs)
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (images.length === 0) return;
 
       images = images.map(normalizeImageSrc);
 
-      // Preload
+      // Preload (best effort)
       images.forEach(function(s){
         try { var im = new Image(); im.src = s; } catch(e){}
       });
@@ -478,7 +500,6 @@
       var rightCur  = document.getElementById("rightCur");
       var rightNext = document.getElementById("rightNext");
 
-      // Startbelegung: links 0, rechts 1 (oder 0 wenn nur eins)
       var leftIdx  = 0;
       var rightIdx = images.length > 1 ? 1 : 0;
 
@@ -490,7 +511,6 @@
       snap(leftNext, -100);
       snap(rightNext, -100);
 
-      // Nächster globaler Slot (falls >2)
       var nextGlobal = images.length > 2 ? 2 : 0;
       var flipLeft = true;
       var busy = false;
@@ -514,7 +534,7 @@
 
       // ✅ DV360/Performance: pausieren, wenn Tab hidden
       function start(){
-        if (intervalId) return;
+        if (intervalId || images.length < 2) return;
         intervalId = setInterval(tick, DWELL_MS);
       }
       function stop(){
@@ -523,6 +543,7 @@
         intervalId = null;
       }
 
+      // Start nach Intro
       start();
       document.addEventListener("visibilitychange", function(){
         if (document.visibilityState === "hidden") stop();
