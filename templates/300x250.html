@@ -22,7 +22,7 @@
     var THEME_SUBLINE_COLOR  = "";
     var THEME_CTA_ACCENT     = "";
 
-    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER Data-URLs in Preview)
+    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER blob:-URLs in Preview)
     // Hinweis: IMAGE_PATTERN wurde entfernt, da IMAGE_LIST immer korrekt ist.
     var IMAGE_LIST = [
       "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
@@ -90,9 +90,7 @@
       --heroBorderDur: 180ms;
     }
 
-    /* ===== WEBFONTS (sauber nach Gewicht/Style getrennt) =====
-       Italic wurde entfernt, da du ausschließlich normal (Regular/Bold) möchtest.
-    */
+    /* ===== WEBFONTS (sauber nach Gewicht/Style getrennt) ===== */
     @font-face{
       font-family:"InterstateWGL";
       src:
@@ -190,7 +188,7 @@
       margin:0; width:100%;
       font-size: var(--sublineFs);
       line-height: var(--sublineLh);
-      font-style: normal; /* ✅ kein Italic */
+      font-style: normal;
       font-weight: 400;
       color: var(--sublineColor);
       display:-webkit-box;
@@ -248,9 +246,7 @@
         -webkit-background-clip:text;
         background-clip:text;
 
-        /* Gradient nutzt CTA Accent statt Gold */
         background-image: linear-gradient(90deg, var(--ctaAccent) 0%, var(--ctaAccent) 50%, #ffffff 50%, #ffffff 100%);
-
         background-size:200% 100%;
         background-position:100% 0;
       }
@@ -360,15 +356,13 @@
 
   <script>
     // -----------------------
-    // Theme apply (NEU)
+    // Theme apply
     // -----------------------
     (function applyTheme(){
-      // Falls Generator noch nichts gesetzt hat: Standard (leere Strings)
       var headlineColor = (typeof THEME_HEADLINE_COLOR === "string" && THEME_HEADLINE_COLOR.trim()) ? THEME_HEADLINE_COLOR.trim() : "";
       var sublineColor  = (typeof THEME_SUBLINE_COLOR  === "string" && THEME_SUBLINE_COLOR.trim())  ? THEME_SUBLINE_COLOR.trim()  : "";
       var ctaAccent     = (typeof THEME_CTA_ACCENT     === "string" && THEME_CTA_ACCENT.trim())     ? THEME_CTA_ACCENT.trim()     : "";
 
-      // Nur überschreiben, wenn gesetzt (Standard bleibt template-default)
       if (headlineColor) document.documentElement.style.setProperty("--headlineColor", headlineColor);
       if (sublineColor)  document.documentElement.style.setProperty("--sublineColor",  sublineColor);
       if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
@@ -407,12 +401,31 @@
       el.classList.remove("no-trans");
     }
 
-    (function init(){
-      // ✅ Wichtig: IMAGE_LIST kann Dateinamen ODER Data-URLs enthalten
-      // IMAGE_PATTERN wurde entfernt (IMAGE_LIST ist immer korrekt).
-      var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
+    function normalizeImageSrc(s){
+      s = String(s || "");
+      if (!s) return s;
 
-      // Preload
+      // Preview: blob:... bleibt
+      if (s.indexOf("blob:") === 0) return s;
+
+      // Absolute URLs bleiben
+      if (/^https?:\/\//i.test(s)) return s;
+
+      // Schon "root-ish"
+      if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
+
+      // ✅ Fix für Preview mit <base href="./assets/">
+      return "./" + s;
+    }
+
+    (function init(){
+      var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
+      if (images.length === 0) return;
+
+      // ✅ Robust gegen <base> (Generator-Preview) + blob:-URLs
+      images = images.map(normalizeImageSrc);
+
+      // Preload (nach Normalisierung!)
       images.forEach(function(s){ var im = new Image(); im.src = s; });
 
       slideA.src = images[0] || "";
