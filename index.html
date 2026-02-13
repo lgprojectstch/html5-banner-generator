@@ -1104,8 +1104,12 @@
     // ✅ Preview-only: base helps templates refer to assets/ in generator environment
     // 🚫 Export MUST NOT add <base> (DV360 safety)
     function injectPreviewBase(html){
-      if (/<base\s/i.test(html)) return html;
-      return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
+    if (/<base\s/i.test(html)) return html;
+
+    // ✅ absolute Basis-URL (wichtig für srcdoc!)
+    const baseHref = new URL(`./${ASSETS_DIR}/`, window.location.href).href;
+
+    return html.replace(/<\/head>/i, `  <base href="${baseHref}">\n</head>`);
     }
 
     function sanitizeFilePart(name){
