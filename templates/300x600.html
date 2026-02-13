@@ -22,11 +22,11 @@
     var THEME_SUBLINE_COLOR  = "";
     var THEME_CTA_ACCENT     = "";
 
-    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER Data-URLs in Preview)
+    // ✅ IMAGE_LIST: Generator ersetzt komplett (mit 1.jpg,2.jpg... ODER blob:-URLs in Preview)
     // Hinweis: IMAGE_PATTERN wurde entfernt, da IMAGE_LIST immer korrekt ist.
     var IMAGE_LIST = [
-      "960x1200-1_NF_DE_Active_HVK_2025KW02_Active.jpg",
-      "960x1200-2_NF_DE_Active_HVK_2025KW02_Active.jpg"
+      "1.jpg",
+      "2.jpg"
     ];
 
     // ✅ DV360 clickTag (muss global sein)
@@ -34,10 +34,7 @@
     window.clickTag = clickTag;
   </script>
 
-  <!-- ===== FONT PRELOADS (reduziert FOUT stark) =====
-       WICHTIG: Passe Dateinamen an deine echten Files an.
-       Best Practice: keine Leerzeichen in Dateinamen.
-  -->
+  <!-- ===== FONT PRELOADS (reduziert FOUT stark) ===== -->
   <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -66,8 +63,8 @@
       --gold: #C0A468;
 
       /* Theme Overrides (werden via JS gesetzt, wenn Theme-Variablen vorhanden sind) */
-      --headlineColor: #1b1b1b;     /* Default Headline (wie bisher) */
-      --sublineColor:  var(--gold); /* Default Subline (wie bisher) */
+      --headlineColor: #1b1b1b;     /* Default Headline */
+      --sublineColor:  var(--gold); /* Default Subline */
       --ctaAccent:     var(--gold); /* Default CTA "Gold" */
 
       --topPad: 16px;
@@ -106,25 +103,21 @@
       --heroBorderFalloff: 0.30;
       --heroBorderDur: 180ms;
 
-      /* ✅ NEU: Rest-Highlight unten nach unten ziehen */
+      /* ✅ Rest-Highlight unten nach unten ziehen */
       --restHlExtraBottom: -13px;
     }
 
-    /* ===== WEBFONTS (sauber nach Gewicht/Style getrennt) =====
-       Italic wurde entfernt, da du ausschließlich normal (Regular/Bold) möchtest.
-    */
+    /* ===== WEBFONTS (sauber nach Gewicht/Style getrennt) ===== */
     @font-face{
       font-family:"InterstateWGL";
-      src:
-        url("fonts/InterstateWGL-Regular.woff2") format("woff2"),
+      src: url("fonts/InterstateWGL-Regular.woff2") format("woff2");
       font-weight:400;
       font-style:normal;
       font-display:optional;
     }
     @font-face{
       font-family:"InterstateWGL";
-      src:
-        url("fonts/InterstateWGL-Bold.woff2") format("woff2"),
+      src: url("fonts/InterstateWGL-Bold.woff2") format("woff2");
       font-weight:700;
       font-style:normal;
       font-display:optional;
@@ -135,13 +128,13 @@
       height:var(--h);
       overflow:hidden;
       background:#fff;
-      font-family:"InterstateWGL", Arial, Helvetica, sans-serif; /* ✅ wichtig */
+      font-family:"InterstateWGL", Arial, Helvetica, sans-serif;
       position:relative;
       cursor:pointer;
       display:flex;
       flex-direction:column;
 
-      /* Rahmen bleibt IMMER Gold (wie gewünscht) */
+      /* Rahmen bleibt IMMER Gold */
       border: var(--frameW) solid var(--gold);
     }
 
@@ -155,9 +148,9 @@
       pointer-events:none;
       opacity:0;
       transition: opacity var(--heroBorderDur) ease;
-      z-index: 4; /* über Layout, aber pointer-events none */
+      z-index: 4;
 
-      /* Highlight bleibt IMMER Gold (wie gewünscht) */
+      /* Highlight bleibt IMMER Gold */
       background:
         linear-gradient(to bottom,
           rgba(192,164,104,var(--heroBorderAlpha)) 0%,
@@ -216,7 +209,7 @@
         0;
       font-size:var(--sFont);
       line-height:var(--sLine);
-      font-style: normal; /* ✅ kein Italic */
+      font-style: normal;
       font-weight:400;
       color: var(--sublineColor);
       max-width: 260px;
@@ -235,9 +228,7 @@
       user-select:none;
       cursor:pointer;
 
-      /* CTA "Gold" wird themable */
       background: var(--ctaAccent);
-
       border:2px solid transparent;
       overflow:hidden;
     }
@@ -271,9 +262,7 @@
         -webkit-background-clip:text;
         background-clip:text;
 
-        /* Gradient nutzt CTA Accent statt Gold */
         background-image:linear-gradient(90deg,var(--ctaAccent) 0%,var(--ctaAccent) 50%,#ffffff 50%,#ffffff 100%);
-
         background-size:200% 100%;
         background-position:100% 0;
       }
@@ -357,9 +346,7 @@
     .show-cta      { animation: fadeUp 3000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:3000ms; }
     .show-hero     { animation: heroIn 3000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:1500ms; }
 
-    /* ===== Hover-Logik wie 300x250 =====
-       - Hover auf Bild => nur Bild highlight
-       - Hover sonst => nur Rest highlight */
+    /* Hover-Logik */
     .ad.hover-hero .hero::after{ opacity:1; }
     .ad:hover:not(.hover-hero) .rest-hl{ opacity:1; }
   </style>
@@ -372,7 +359,6 @@
   >
 
   <div class="ad" id="ad">
-    <!-- ✅ Rest-Highlight Layer (bis zur Bildkante) -->
     <div class="rest-hl" id="restHl" aria-hidden="true"></div>
 
     <div class="top">
@@ -394,14 +380,13 @@
 
   <script>
     // -----------------------
-    // Theme apply (NEU)
+    // Theme apply
     // -----------------------
     (function applyTheme(){
       var headlineColor = (typeof THEME_HEADLINE_COLOR === "string" && THEME_HEADLINE_COLOR.trim()) ? THEME_HEADLINE_COLOR.trim() : "";
       var sublineColor  = (typeof THEME_SUBLINE_COLOR  === "string" && THEME_SUBLINE_COLOR.trim())  ? THEME_SUBLINE_COLOR.trim()  : "";
       var ctaAccent     = (typeof THEME_CTA_ACCENT     === "string" && THEME_CTA_ACCENT.trim())     ? THEME_CTA_ACCENT.trim()     : "";
 
-      // Nur überschreiben, wenn gesetzt (Standard bleibt template-default)
       if (headlineColor) document.documentElement.style.setProperty("--headlineColor", headlineColor);
       if (sublineColor)  document.documentElement.style.setProperty("--sublineColor",  sublineColor);
       if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
@@ -424,50 +409,38 @@
 
     setTimeout(function(){ document.getElementById("ctaInner").classList.add("cta-bounce"); }, 4200);
 
-    // ✅ Hover-Status (Bild vs. Rest)
+    // Hover-Status (Bild vs. Rest)
     var ad = document.getElementById("ad");
     var hero = document.getElementById("hero");
-
     hero.addEventListener("mouseenter", function(){ ad.classList.add("hover-hero"); });
     hero.addEventListener("mouseleave", function(){ ad.classList.remove("hover-hero"); });
 
-    // ✅ Rest-Highlight Höhe bis zur Bildkante berechnen (+ Variable)
+    // Rest-Highlight Höhe bis zur Bildkante berechnen (+ Variable)
     function readPxVar(el, name, fallback){
       var v = getComputedStyle(el).getPropertyValue(name).trim();
       var n = parseFloat(v);
       return isNaN(n) ? fallback : n;
     }
-
     function updateRestHighlightHeight(){
       var adRect = ad.getBoundingClientRect();
       var heroRect = hero.getBoundingClientRect();
-
-      // Höhe von Banner-Top bis zur Oberkante vom Bild
       var baseH = (heroRect.top - adRect.top);
-
-      // Benutzer-Extra (untere Kante nach unten verlängern)
       var extra = readPxVar(document.documentElement, "--restHlExtraBottom", 0);
-
       var h = Math.max(0, Math.round(baseH + extra));
       ad.style.setProperty("--restHlH", h + "px");
     }
-
     window.addEventListener("resize", updateRestHighlightHeight);
-    setTimeout(updateRestHighlightHeight, 50);   // nach Layout
-    setTimeout(updateRestHighlightHeight, 1200); // nach Animation/Font-Load
+    setTimeout(updateRestHighlightHeight, 50);
+    setTimeout(updateRestHighlightHeight, 1200);
 
     // ===== Slider / Swipe =====
-    var dwell = (function(){
-      var v = getComputedStyle(document.documentElement).getPropertyValue('--dwellMs').trim();
+    function cssVarMs(name, fallback){
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       var n = parseFloat(v);
-      return isNaN(n) ? 2000 : n;
-    })();
-
-    var swipeMs = (function(){
-      var v = getComputedStyle(document.documentElement).getPropertyValue('--swipeMs').trim();
-      var n = parseFloat(v);
-      return isNaN(n) ? 450 : n;
-    })();
+      return isNaN(n) ? fallback : n;
+    }
+    var dwellMs = cssVarMs("--dwellMs", 2000);
+    var swipeMs = cssVarMs("--swipeMs", 450);
 
     function snapNoAnim(el, x){
       el.style.transition = "none";
@@ -479,25 +452,29 @@
       el.style.transform = "translateX(" + x + "%) scale(1.001)";
     }
 
-        (function(){
+    // ✅ Pfad-Normalisierung:
+    // - blob: bleibt wie es ist
+    // - http(s): bleibt wie es ist
+    // - sonst: "./" davor, damit <base href="./assets/"> im Preview die Root-Images nicht kaputt macht
+    function normalizeImageSrc(s){
+      s = String(s || "");
+      if (!s) return s;
+      if (s.indexOf("blob:") === 0) return s;
+      if (/^https?:\/\//i.test(s)) return s;
+      if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
+      return "./" + s;
+    }
+
+    (function(){
       var imgs = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (imgs.length === 0) return;
 
-      // ✅ Pfade robust machen:
-      // - blob:... bleibt wie es ist
-      // - http(s) bleibt wie es ist
-      // - "1.jpg" wird "./1.jpg" (Root relativ), damit <base href="./assets/"> nichts kaputt macht
-      imgs = imgs.map(function(s){
-        s = String(s || "");
-        if (!s) return s;
-        if (s.indexOf("blob:") === 0) return s;
-        if (/^https?:\/\//i.test(s)) return s;
-        if (s.indexOf("./") === 0 || s.indexOf("/") === 0) return s;
-        return "./" + s;
-      });
+      imgs = imgs.map(normalizeImageSrc);
 
-      // Preload
-      imgs.forEach(function(s){ var im = new Image(); im.src = s; });
+      // Preload (nach Normalisierung)
+      imgs.forEach(function(s){
+        try { var im = new Image(); im.src = s; } catch(e){}
+      });
 
       var idx = 0;
       var cur = document.getElementById("heroCurrent");
@@ -505,6 +482,8 @@
 
       cur.src = imgs[0] || "";
       nxt.src = imgs[imgs.length > 1 ? 1 : 0] || "";
+
+      var intervalId = null;
 
       function swipeNext(){
         if (imgs.length < 2) return;
@@ -527,10 +506,25 @@
         }, swipeMs);
       }
 
+      // ✅ DV360/Performance: Slider pausieren, wenn Tab hidden
+      function start(){
+        if (intervalId || imgs.length < 2) return;
+        intervalId = setInterval(swipeNext, dwellMs + swipeMs);
+      }
+      function stop(){
+        if (!intervalId) return;
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+
       setTimeout(function(){
-        setInterval(function(){ swipeNext(); }, dwell + swipeMs);
-      }, 4500 + dwell);
-    })();
+        start();
+      }, 4500 + dwellMs);
+
+      document.addEventListener("visibilitychange", function(){
+        if (document.visibilityState === "hidden") stop();
+        else start();
+      });
     })();
   </script>
 </body>
