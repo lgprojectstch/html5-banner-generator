@@ -929,11 +929,12 @@
 
   <script>
     // ==========================================================
-    // Änderungen gegenüber alter Version (kurz, technisch):
-    // - Upload akzeptiert weiterhin beliebige image/* Dateien.
-    // - Beim Import: Konvertierung/Kompression zu JPEG Blob (kein Base64).
-    // - In UI/Preview: Object-URLs statt DataURLs.
-    // - Im Export: Blobs direkt in ZIP (keine Base64-Strings).
+    // DV360/Performance-Strategie (WICHTIG):
+    // - Preview darf "komfortabel" sein. Export ist entscheidend.
+    // - Export-HTML darf KEIN <base> enthalten (häufiger DV360-Fail).
+    // - Export-Assets: relative Pfade, alles in ZIP root (index.html + images + Logo.png + /fonts).
+    // - Fonts: optional nur woff2 (EXPORT_WOFF_ONLY = true) => weniger KB, schneller.
+    // - Images: Upload wird auf JPEG normalisiert + skaliert (maxLongEdge) => weniger KB, weniger Decode-Last.
     // ==========================================================
 
     // -----------------------
@@ -977,7 +978,6 @@
     const LOGO_ASSET   = `${ASSETS_DIR}/Logo.png`;
 
     // DV360-Optimierung: nur woff2 exportieren (optional)
-    // Wenn du ALLE Fonts wie vorher willst, setz EXPORT_WOFF_ONLY = false.
     const EXPORT_WOFF_ONLY = true;
 
     const FONT_FILES_ALL = [
@@ -996,12 +996,11 @@
     // -----------------------
     // Image conversion settings (Upload)
     // -----------------------
-    // User lädt beliebige Formate hoch -> wir normalisieren in JPEG.
-    // MaxLongEdge begrenzt die Import-Größe, Export kann später noch weiter reduzieren.
+    // DV360: weniger Decode/Memory => kleinere JPGs
     const IMAGE_IMPORT = {
       maxLongEdge: 1800,
       quality: 0.82,
-      background: '#ffffff' // wichtig, wenn PNG Transparenz hat
+      background: '#ffffff'
     };
 
     // -----------------------
@@ -1073,6 +1072,15 @@
     }
 
     // -----------------------
+    // Preview HTML URLs (Blob) - IMPORTANT (fix for blob loading in iframes)
+    // -----------------------
+    let previewHtmlUrls = [];
+    function revokePreviewHtmlUrls(){
+      previewHtmlUrls.forEach(u => URL.revokeObjectURL(u));
+      previewHtmlUrls = [];
+    }
+
+    // -----------------------
     // Helpers
     // -----------------------
     function showStep(stepNumber){
@@ -1093,6 +1101,8 @@
       return { w, h };
     }
 
+    // ✅ Preview-only: base helps templates refer to assets/ in generator environment
+    // 🚫 Export MUST NOT add <base> (DV360 safety)
     function injectPreviewBase(html){
       if (/<base\s/i.test(html)) return html;
       return html.replace(/<\/head>/i, `  <base href="./${ASSETS_DIR}/">\n</head>`);
@@ -1140,10 +1150,8 @@
 
       const ctx = canvas.getContext('2d', { alpha: false });
 
-      // Hintergrund (wichtig bei PNG alpha)
       ctx.fillStyle = background;
       ctx.fillRect(0, 0, targetW, targetH);
-
       ctx.drawImage(bitmap, 0, 0, targetW, targetH);
 
       const blob = await new Promise((resolve) => {
@@ -1268,7 +1276,7 @@
 
     // -----------------------
     // Template variable replacement
-    // - Preview: IMAGE_LIST = ObjectURLs (klein, schnell)
+    // - Preview: IMAGE_LIST = ObjectURLs
     // - Export : IMAGE_LIST = ["1.jpg","2.jpg"...]
     // -----------------------
     function replaceTemplateVars(html, { mode }){
@@ -1388,14 +1396,11 @@
         if (!file.type.startsWith('image/')) continue;
 
         try{
-          // (1) Konvertieren/komprimieren -> JPEG Blob
           const blob = await convertToJpegBlob(file, IMAGE_IMPORT);
-
-          // (2) Object URL für UI + Preview
           const url = URL.createObjectURL(blob);
 
           uploadedImages.push({
-            name: '', // wird durch renumberImages gesetzt
+            name: '',
             blob,
             url,
             original: file.name
@@ -1487,8 +1492,14 @@
 
     // -----------------------
     // Live preview (responsive scaling)
+    // IMPORTANT FIX:
+    // - Use iframe.src = blob(html) instead of srcdoc
+    //   => prevents "Not allowed to load local resource: blob:..."
     // -----------------------
     async function generatePreviews(){
+      // cleanup old preview html URLs (avoid leaks)
+      revokePreviewHtmlUrls();
+
       previewGrid.innerHTML = '';
 
       const nm = sanitizeFilePart(appData.zipName);
@@ -1519,7 +1530,10 @@
           continue;
         }
 
+        // Preview-only base for assets in generator environment
         html = injectPreviewBase(html);
+
+        // Replace vars (IMAGE_LIST becomes objectURLs here)
         html = replaceTemplateVars(html, { mode: 'preview' });
 
         const item = document.createElement('div');
@@ -1538,9 +1552,16 @@
         const iframe = document.createElement('iframe');
         iframe.width = w;
         iframe.height = h;
+
+        // sandbox ok
         iframe.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');
         iframe.style.transformOrigin = '0 0';
-        iframe.srcdoc = html;
+
+        // ✅ FIX: load preview HTML via blob URL (not srcdoc)
+        const htmlBlob = new Blob([html], { type: 'text/html' });
+        const htmlUrl = URL.createObjectURL(htmlBlob);
+        previewHtmlUrls.push(htmlUrl);
+        iframe.src = htmlUrl;
 
         viewport.appendChild(iframe);
         item.appendChild(viewport);
@@ -1557,10 +1578,19 @@
     }
 
     // -----------------------
-    // Export: ZIP
+    // Export: ZIP (DV360-safe)
+    // - No <base>
+    // - IMAGE_LIST => ["1.jpg","2.jpg",...]
+    // - Files at zip root: index.html, 1.jpg..., Logo.png, /fonts/*.woff2
     // -----------------------
     async function exportBanners(){
       const baseName = sanitizeFilePart(appData.zipName);
+
+      // Optional: small sanity check for DV360 (not hard-fail)
+      if (uploadedImages.length === 0){
+        alert('Bitte lade mindestens 1 Bild hoch.');
+        return;
+      }
 
       for (const format of selectedFormats){
         const zip = new JSZip();
@@ -1574,16 +1604,19 @@
           continue;
         }
 
+        // DV360: ensure we do NOT inject <base> in export
         templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
         zip.file('index.html', templateContent);
 
-        // Images: direkt Blobs in ZIP (immer jpg)
+        // Images: blobs => zip root (1.jpg, 2.jpg, ...)
         uploadedImages.forEach(img => {
           zip.file(img.name, img.blob);
         });
 
-        // Logo + fonts
+        // Logo
         await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
+
+        // Fonts
         for (const url of FONT_FILES){
           const filename = url.split('/').pop();
           await addBinaryToZip(zip, `fonts/${filename}`, url);
@@ -1654,6 +1687,10 @@
           alert('Bitte wähle mindestens ein Format aus.');
           return;
         }
+        if (uploadedImages.length === 0){
+          alert('Bitte lade mindestens 1 Bild hoch.');
+          return;
+        }
 
         stage.classList.add('has-preview');
         await generatePreviews();
@@ -1662,6 +1699,8 @@
       // Toggle preview visibility
       document.getElementById('togglePreviewBtn').addEventListener('click', () => {
         stage.classList.remove('has-preview');
+        // optional: free preview html urls when hiding
+        revokePreviewHtmlUrls();
       });
 
       // Export modal close
@@ -1689,6 +1728,10 @@
           alert('Bitte wähle mindestens ein Format aus.');
           return;
         }
+        if (uploadedImages.length === 0){
+          alert('Bitte lade mindestens 1 Bild hoch.');
+          return;
+        }
 
         const oldText = exportBtn.innerHTML;
         exportBtn.disabled = true;
@@ -1703,8 +1746,11 @@
         }
       });
 
-      // Cleanup: wenn User Seite verlässt, ObjectURLs freigeben
-      window.addEventListener('beforeunload', revokeAllObjectUrls);
+      // Cleanup: object URLs freigeben
+      window.addEventListener('beforeunload', () => {
+        revokePreviewHtmlUrls();
+        revokeAllObjectUrls();
+      });
     });
   </script>
 </body>
