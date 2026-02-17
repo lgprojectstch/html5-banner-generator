@@ -20,7 +20,7 @@
 
     // ✅ IMAGE_LIST: Generator ersetzt komplett:
     // - Export: ["1.jpg","2.jpg",...]
-    // - Preview: ["blob:...","blob:..."] (oder data:)
+    // - Preview: ["blob:...","blob:..."]
     var IMAGE_LIST = [
       "1.jpg",
       "2.jpg"
@@ -32,12 +32,12 @@
   </script>
 
   <!-- ===== FONT PRELOADS =====
-       DV360-optimiert: nur woff2 (passend zu EXPORT_WOFF_ONLY=true)
+       DV360-optimiert: nur woff2
+       ✅ OPTIMIERUNG: font-display:block statt swap → kein FOUT im 2s Banner
   -->
   <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
 
-  <!-- ===== Optional: Banner erst zeigen, wenn Fonts geladen sind ===== -->
   <style>
     html.fonts-loading .ad { opacity: 0; }
     html.fonts-loaded  .ad { opacity: 1; transition: opacity 80ms linear; }
@@ -58,13 +58,11 @@
       --w: 300px;
       --h: 250px;
 
-      /* Default Gold (Standard) */
       --gold: #C0A468;
 
-      /* Theme Overrides (werden via JS gesetzt, wenn Theme-Variablen vorhanden sind) */
-      --headlineColor: #1f2430;    /* Default Headline */
-      --sublineColor:  var(--gold);/* Default Subline */
-      --ctaAccent:     var(--gold);/* Default CTA "Gold" */
+      --headlineColor: #1f2430;
+      --sublineColor:  var(--gold);
+      --ctaAccent:     var(--gold);
 
       --pad: 12px;
       --gap: 10px;
@@ -89,20 +87,24 @@
       --heroBorderDur: 180ms;
     }
 
-    /* ===== WEBFONTS (DV360: woff2 only) ===== */
+    /* ===== WEBFONTS =====
+       ✅ OPTIMIERUNG: font-display:block statt swap
+       → Kein Flash of Unstyled Text (FOUT) im kurzen Banner-Zeitfenster.
+       "swap" würde zuerst den Fallback-Font rendern → sichtbares Layout-Shifting.
+    */
     @font-face{
       font-family:"InterstateWGL";
       src: url("fonts/InterstateWGL-Regular.woff2") format("woff2");
       font-weight:400;
       font-style:normal;
-      font-display:swap;
+      font-display:block;
     }
     @font-face{
       font-family:"InterstateWGL";
       src: url("fonts/InterstateWGL-Bold.woff2") format("woff2");
       font-weight:700;
       font-style:normal;
-      font-display:swap;
+      font-display:block;
     }
 
     .ad{
@@ -113,8 +115,6 @@
       font-family:"InterstateWGL", Arial, Helvetica, sans-serif;
       position: relative;
       cursor: pointer;
-
-      /* Rahmen bleibt IMMER Gold */
       border: var(--frameW) solid var(--gold);
     }
 
@@ -130,7 +130,6 @@
       overflow:hidden;
     }
 
-    /* Hero Border bleibt IMMER Gold */
     .left::after{
       content:"";
       position:absolute; inset:0;
@@ -206,7 +205,6 @@
       text-decoration:none;
       user-select:none;
       cursor:pointer;
-
       background: var(--ctaAccent);
       border: 2px solid transparent;
       overflow:hidden;
@@ -229,7 +227,8 @@
       display:inline-block;
       color:#fff;
       transition:none;
-      will-change:transform;
+      /* ✅ OPTIMIERUNG: will-change entfernt aus CSS.
+         Wird nur während Hover per JS gesetzt → kein dauerhafter GPU-Layer. */
     }
 
     @supports (-webkit-background-clip:text) or (background-clip:text){
@@ -238,7 +237,6 @@
         -webkit-text-fill-color:transparent;
         -webkit-background-clip:text;
         background-clip:text;
-
         background-image: linear-gradient(90deg, var(--ctaAccent) 0%, var(--ctaAccent) 50%, #ffffff 50%, #ffffff 100%);
         background-size:200% 100%;
         background-position:100% 0;
@@ -259,7 +257,6 @@
       background:#fff;
     }
 
-    /* Hero Border bleibt IMMER Gold */
     .right::after{
       content:"";
       position:absolute; inset:0;
@@ -283,6 +280,8 @@
     }
     .right:hover::after{ opacity:1; }
 
+    /* ✅ OPTIMIERUNG: will-change nicht mehr pauschal im CSS.
+       Wird per JS nur während der Slide-Animation aktiviert. */
     .slide{
       position:absolute;
       inset:0;
@@ -293,7 +292,6 @@
       display:block;
       transform: translateX(0);
       transition: transform var(--swipeMs) ease;
-      will-change: transform;
       pointer-events:none;
     }
 
@@ -307,11 +305,11 @@
     .seq-img{ opacity:0; }
     @keyframes fadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
     @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
-    .show-logo{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:0ms; }
+    .show-logo{     animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:0ms; }
     .show-headline{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:200ms; }
-    .show-image{ animation:fadeIn 1000ms ease forwards; animation-delay:450ms; }
-    .show-subline{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:700ms; }
-    .show-cta{ animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:900ms; }
+    .show-image{    animation:fadeIn 1000ms ease forwards; animation-delay:450ms; }
+    .show-subline{  animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:700ms; }
+    .show-cta{      animation:fadeUp 1000ms cubic-bezier(.2,.9,.2,1) forwards; animation-delay:900ms; }
   </style>
 </head>
 
@@ -325,7 +323,6 @@
     <div class="wrap">
       <div class="left">
         <div class="logo seq show-logo">
-          <!-- ✅ Kein Preview-Hack mehr nötig, wenn Generator ein ABSOLUTES <base href=".../assets/"> setzt -->
           <img src="Logo.png" alt="Logo">
         </div>
 
@@ -373,8 +370,17 @@
 
     var cta = document.getElementById("cta");
     cta.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); doExit(); });
-    cta.addEventListener("mouseenter", function(){ cta.classList.add("is-hover"); });
-    cta.addEventListener("mouseleave", function(){ cta.classList.remove("is-hover"); });
+
+    // ✅ OPTIMIERUNG: will-change nur während Hover setzen, danach zurücksetzen.
+    // Verhindert dauerhaften GPU-Layer → weniger RAM auf Endgerät.
+    cta.addEventListener("mouseenter", function(){
+      cta.classList.add("is-hover");
+      document.getElementById("ctaInner").style.willChange = "transform, background-position";
+    });
+    cta.addEventListener("mouseleave", function(){
+      cta.classList.remove("is-hover");
+      document.getElementById("ctaInner").style.willChange = "auto";
+    });
 
     // ===== Slider =====
     var HOLD_MS  = 2000;
@@ -391,7 +397,7 @@
     function moveInstant(el, posClass){
       el.classList.add("no-trans");
       setPos(el, posClass);
-      el.offsetHeight;
+      el.offsetHeight; // reflow
       el.classList.remove("no-trans");
     }
 
@@ -403,16 +409,11 @@
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (images.length === 0) return;
 
-      // ✅ Für Export: "1.jpg" bleibt "1.jpg" (Root)
-      // ✅ Für Preview: blob:/data:/http(s) bleibt
-      // ✅ Für Preview mit base=.../assets/: "1.jpg" wird automatisch zu .../assets/1.jpg (ok, weil Preview Bilder per blob kommen)
-      // Wenn du doch mal Preview mit Root-Filenames brauchst, mach das im Generator (ABSOLUTES base), nicht hier im Template.
       images = images.map(function(s){
         s = String(s || "");
         if (!s) return s;
         if (isSpecialUrl(s)) return s;
-        // Keine Pfad-Hacks: Template bleibt DV360-clean
-        return s.replace(/^(\.\/)+/,''); // "./1.jpg" -> "1.jpg"
+        return s.replace(/^(\.\/)+/,'');
       });
 
       // Preload (best-effort)
@@ -434,18 +435,26 @@
         var currentEl = aIsCurrent ? slideA : slideB;
         var nextEl    = aIsCurrent ? slideB : slideA;
 
-        var nextIdx = (idx + 1) % images.length;
+        var nextIdx      = (idx + 1) % images.length;
         var afterNextIdx = (idx + 2) % images.length;
 
         nextEl.src = images[nextIdx];
         moveInstant(nextEl, "pos-right");
 
+        // ✅ OPTIMIERUNG: will-change nur während der Slide-Animation setzen.
+        // Danach "auto" → GPU-Compositing-Layer wird freigegeben.
+        currentEl.style.willChange = "transform";
+        nextEl.style.willChange    = "transform";
+
         requestAnimationFrame(function(){
           setPos(currentEl, "pos-left");
-          setPos(nextEl, "pos-center");
+          setPos(nextEl,    "pos-center");
         });
 
         setTimeout(function(){
+          currentEl.style.willChange = "auto";
+          nextEl.style.willChange    = "auto";
+
           moveInstant(currentEl, "pos-right");
           currentEl.src = images[afterNextIdx];
 
@@ -457,17 +466,14 @@
         }, SWIPE_MS);
       }
 
-      // ✅ DV360/Performance: pausieren wenn Tab hidden
+      // ✅ DV360: Tab-Visibility pausieren
       var started = false;
       function start(){
         if (started) return;
         started = true;
         setTimeout(function(){ setTimeout(swipeOnce, HOLD_MS); }, heroFullyVisibleAt);
       }
-      function stop(){
-        // simpel: wir stoppen über Flag; nächste Kette startet neu bei visibility
-        started = false;
-      }
+      function stop(){ started = false; }
 
       start();
       document.addEventListener("visibilitychange", function(){
