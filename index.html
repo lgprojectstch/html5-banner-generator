@@ -1096,21 +1096,16 @@
         .replaceAll('\n', '\\n');
     }
 
-    function parseFormat(format){
-      const [w, h] = format.split('x').map(n => parseInt(n, 10));
-      return { w, h };
-    }
-
-    // ✅ Preview-only: base helps templates refer to assets/ in generator environment
-    // 🚫 Export MUST NOT add <base> (DV360 safety)
     function injectPreviewBase(html){
+    // Wenn schon ein base existiert, nichts tun
     if (/<base\s/i.test(html)) return html;
-
-    // ✅ absolute Basis-URL (wichtig für srcdoc!)
-    const baseHref = new URL(`./${ASSETS_DIR}/`, window.location.href).href;
-
-    return html.replace(/<\/head>/i, `  <base href="${baseHref}">\n</head>`);
-    }
+  
+    // Absoluter Pfad zur assets/ Directory, basierend auf der aktuellen Seite
+    // Beispiel: https://lgprojectstch.github.io/xyz/  ->  https://lgprojectstch.github.io/xyz/assets/
+    const assetsBase = new URL(`${ASSETS_DIR}/`, window.location.href).href;
+  
+    return html.replace(/<\/head>/i, `  <base href="${assetsBase}">\n</head>`);
+  }
 
     function sanitizeFilePart(name){
       const s = String(name || '').trim();
