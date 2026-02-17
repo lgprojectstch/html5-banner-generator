@@ -20,7 +20,7 @@
 
     // ✅ IMAGE_LIST: Generator ersetzt komplett:
     // - Export: ["1.jpg","2.jpg",...]
-    // - Preview: ["blob:...","blob:..."] (oder data:)
+    // - Preview: ["blob:...","blob:..."]
     var IMAGE_LIST = [
       "1.jpg",
       "2.jpg"
@@ -35,7 +35,6 @@
   <link rel="preload" href="fonts/InterstateWGL-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/InterstateWGL-Bold.woff2" as="font" type="font/woff2" crossorigin>
 
-  <!-- ===== Optional: Banner erst zeigen, wenn Fonts geladen sind ===== -->
   <style>
     html.fonts-loading #ad { opacity: 0; }
     html.fonts-loaded  #ad { opacity: 1; transition: opacity 80ms linear; }
@@ -56,10 +55,8 @@
       --w: 300px;
       --h: 600px;
 
-      /* Default Gold (Standard) */
       --gold: #C0A468;
 
-      /* Theme Overrides */
       --headlineColor: #1b1b1b;
       --sublineColor:  var(--gold);
       --ctaAccent:     var(--gold);
@@ -94,7 +91,6 @@
 
       --frameW: 1px;
 
-      /* Highlight */
       --heroBorderW: 5px;
       --heroBorderAlpha: 0.95;
       --heroBorderFalloff: 0.30;
@@ -103,20 +99,23 @@
       --restHlExtraBottom: -13px;
     }
 
-    /* ===== WEBFONTS (DV360: woff2 only) ===== */
+    /* ===== WEBFONTS =====
+       ✅ OPTIMIERUNG: font-display:block statt swap
+       → Kein FOUT (Flash of Unstyled Text) im kurzen Banner-Zeitfenster.
+    */
     @font-face{
       font-family:"InterstateWGL";
       src: url("fonts/InterstateWGL-Regular.woff2") format("woff2");
       font-weight:400;
       font-style:normal;
-      font-display:swap;
+      font-display:block;
     }
     @font-face{
       font-family:"InterstateWGL";
       src: url("fonts/InterstateWGL-Bold.woff2") format("woff2");
       font-weight:700;
       font-style:normal;
-      font-display:swap;
+      font-display:block;
     }
 
     .ad{
@@ -132,7 +131,7 @@
       border: var(--frameW) solid var(--gold);
     }
 
-    /* ===== REST-HIGHLIGHT (nicht Bild) ===== */
+    /* ===== REST-HIGHLIGHT ===== */
     .rest-hl{
       position:absolute;
       left:0;
@@ -235,6 +234,8 @@
       transition:none;
     }
 
+    /* ✅ OPTIMIERUNG: will-change aus CSS entfernt.
+       Wird per JS nur während Hover gesetzt → kein dauerhafter GPU-Layer. */
     .cta-inner{
       position:relative;
       z-index:2;
@@ -243,7 +244,6 @@
       display:inline-block;
       color:#fff;
       transition:none;
-      will-change: transform;
     }
 
     @supports (-webkit-background-clip:text) or (background-clip:text){
@@ -272,7 +272,9 @@
     }
     .cta-bounce{ animation: cta-bounce 2s infinite; }
 
-    /* ===== HERO ===== */
+    /* ===== HERO =====
+       ✅ OPTIMIERUNG: will-change aus CSS entfernt.
+       Wird per JS nur während der Intro-Animation gesetzt. */
     .hero{
       flex: 1 1 auto;
       width:100%;
@@ -282,7 +284,6 @@
       z-index:1;
       opacity:0;
       transform: translateY(14px);
-      will-change: opacity, transform;
     }
 
     .hero::after{
@@ -311,6 +312,8 @@
           rgba(192,164,104,0) 100%) right / var(--heroBorderW) 100% no-repeat;
     }
 
+    /* ✅ OPTIMIERUNG: will-change aus CSS entfernt.
+       Wird per JS nur während der Slide-Animation gesetzt. */
     .slide{
       position:absolute;
       inset:0;
@@ -319,7 +322,6 @@
       object-fit: cover;
       object-position: center bottom;
       transform: translateX(0) scale(1.001);
-      will-change: transform;
     }
     #heroNext{ transform: translateX(100%) scale(1.001); }
 
@@ -351,7 +353,6 @@
 
     <div class="top">
       <div class="logo seq show-logo">
-        <!-- ✅ robust (Preview mit <base href="./assets/">): wird per JS auf ../Logo.png umgeschrieben -->
         <img id="logoImg" src="Logo.png" alt="Logo">
       </div>
       <p class="headline seq show-headline" id="headlineEl"></p>
@@ -363,7 +364,7 @@
 
     <div class="hero show-hero" id="hero" aria-hidden="true">
       <img id="heroCurrent" class="slide" src="" alt="">
-      <img id="heroNext" class="slide" src="" alt="">
+      <img id="heroNext"    class="slide" src="" alt="">
     </div>
   </div>
 
@@ -381,37 +382,32 @@
       if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
     })();
 
-    // Text setzen
+    // Texte setzen
     document.getElementById("headlineEl").textContent = HEADLINE;
     document.getElementById("sublineEl").textContent  = SUBLINE;
     document.getElementById("ctaInner").textContent   = CTA_TEXT;
 
     // -----------------------
-    // ✅ Preview-only robustness for root files (Logo + numbered images)
-    // If preview injects <base href="./assets/">, root files must be loaded from "../"
-    // Export has no <base>, and files are at ZIP root.
+    // ✅ FIX: Logo via Generator-Data-URL (src bereits ersetzt) oder
+    // Fallback: resolveRootFile für ältere Preview-Umgebungen ohne Data-URL-Patch.
+    // Im Export (kein <base>-Tag) ändert sich gar nichts.
     // -----------------------
     function resolveRootFile(name){
       name = String(name || "");
       if (!name) return name;
-
-      // data/blob/http(s) stay
       if (/^(data:|blob:|https?:\/\/)/i.test(name)) return name;
-
-      // already relative/absolute
       if (name.indexOf("../") === 0 || name.indexOf("./") === 0 || name.indexOf("/") === 0) return name;
-
-      var baseEl = document.querySelector("base");
+      var baseEl   = document.querySelector("base");
       var baseHref = baseEl ? (baseEl.getAttribute("href") || "").trim() : "";
       if (baseHref && /(^|\/)assets\/?$/i.test(baseHref)) return "../" + name;
-
       return name;
     }
 
-    // Fix Logo in preview (does nothing harmful in export)
     (function fixLogo(){
       var img = document.getElementById("logoImg");
       if (!img) return;
+      // Nur anpassen wenn src noch ein plain filename ist (kein Data-URL, kein Blob)
+      if (/^(data:|blob:)/i.test(img.src)) return;
       img.src = resolveRootFile("Logo.png");
     })();
 
@@ -419,39 +415,52 @@
     function doExit(){ window.open(clickTag, "_blank"); }
     document.getElementById("ad").addEventListener("click", doExit);
 
-    // CTA hover
-    var cta = document.getElementById("cta");
-    cta.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); doExit(); });
-    cta.addEventListener("mouseenter", function(){ cta.classList.add("is-hover"); });
-    cta.addEventListener("mouseleave", function(){ cta.classList.remove("is-hover"); });
+    // ✅ OPTIMIERUNG: will-change nur während Hover setzen → kein dauerhafter GPU-Layer
+    var cta      = document.getElementById("cta");
+    var ctaInner = document.getElementById("ctaInner");
+    cta.addEventListener("click",      function(e){ e.preventDefault(); e.stopPropagation(); doExit(); });
+    cta.addEventListener("mouseenter", function(){
+      cta.classList.add("is-hover");
+      ctaInner.style.willChange = "transform, background-position";
+    });
+    cta.addEventListener("mouseleave", function(){
+      cta.classList.remove("is-hover");
+      ctaInner.style.willChange = "auto";
+    });
 
-    setTimeout(function(){ document.getElementById("ctaInner").classList.add("cta-bounce"); }, 4200);
+    setTimeout(function(){ ctaInner.classList.add("cta-bounce"); }, 4200);
 
     // Hover-Status (Bild vs. Rest)
-    var ad = document.getElementById("ad");
+    var ad   = document.getElementById("ad");
     var hero = document.getElementById("hero");
     hero.addEventListener("mouseenter", function(){ ad.classList.add("hover-hero"); });
     hero.addEventListener("mouseleave", function(){ ad.classList.remove("hover-hero"); });
 
-    // Rest-Highlight Höhe bis zur Bildkante berechnen (+ Variable)
+    // ✅ OPTIMIERUNG: will-change für Hero nur während Intro-Animation
+    hero.style.willChange = "opacity, transform";
+    hero.addEventListener("animationend", function(){
+      hero.style.willChange = "auto";
+    }, { once: true });
+
+    // Rest-Highlight Höhe berechnen
     function readPxVar(el, name, fallback){
       var v = getComputedStyle(el).getPropertyValue(name).trim();
       var n = parseFloat(v);
       return isNaN(n) ? fallback : n;
     }
     function updateRestHighlightHeight(){
-      var adRect = ad.getBoundingClientRect();
+      var adRect   = ad.getBoundingClientRect();
       var heroRect = hero.getBoundingClientRect();
-      var baseH = (heroRect.top - adRect.top);
-      var extra = readPxVar(document.documentElement, "--restHlExtraBottom", 0);
-      var h = Math.max(0, Math.round(baseH + extra));
+      var baseH    = heroRect.top - adRect.top;
+      var extra    = readPxVar(document.documentElement, "--restHlExtraBottom", 0);
+      var h        = Math.max(0, Math.round(baseH + extra));
       ad.style.setProperty("--restHlH", h + "px");
     }
     window.addEventListener("resize", updateRestHighlightHeight);
     setTimeout(updateRestHighlightHeight, 50);
     setTimeout(updateRestHighlightHeight, 1200);
 
-    // ===== Slider / Swipe =====
+    // ===== Slider =====
     function cssVarMs(name, fallback){
       var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       var n = parseFloat(v);
@@ -465,34 +474,32 @@
 
     function snapNoAnim(el, x){
       el.style.transition = "none";
-      el.style.transform = "translateX(" + x + "%) scale(1.001)";
-      el.offsetHeight;
+      el.style.transform  = "translateX(" + x + "%) scale(1.001)";
+      el.offsetHeight; // reflow
     }
     function animateTo(el, x){
       el.style.transition = "transform " + swipeMs + "ms ease";
-      el.style.transform = "translateX(" + x + "%) scale(1.001)";
+      el.style.transform  = "translateX(" + x + "%) scale(1.001)";
     }
 
     (function(){
       var imgs = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (imgs.length === 0) return;
 
-      // Resolve only root filenames for preview; blob/data/http untouched
       imgs = imgs.map(function(s){
         s = String(s || "");
         if (/^(data:|blob:|https?:\/\/)/i.test(s)) return s;
-        // "1.jpg" -> resolveRootFile("1.jpg"); "./1.jpg" bleibt (wird nicht durch base zerstört)
-        s = s.replace(/^(\.\/)+/,'');
+        s = s.replace(/^(\.\/)+/, "");
         return resolveRootFile(s);
       });
 
       // Preload (best-effort)
-      imgs.forEach(function(s){ try{ var im = new Image(); im.src = s; }catch(e){} });
+      imgs.forEach(function(s){ try{ var im = new Image(); im.src = s; } catch(e){} });
 
       cur.src = imgs[0] || "";
       nxt.src = imgs[imgs.length > 1 ? 1 : 0] || "";
 
-      var idx = 0;
+      var idx        = 0;
       var intervalId = null;
 
       function swipeNext(){
@@ -504,19 +511,26 @@
         snapNoAnim(nxt, 100);
         snapNoAnim(cur, 0);
 
+        // ✅ OPTIMIERUNG: will-change nur während der Slide-Animation
+        cur.style.willChange = "transform";
+        nxt.style.willChange = "transform";
+
         requestAnimationFrame(function(){
           animateTo(cur, -100);
-          animateTo(nxt, 0);
+          animateTo(nxt,   0);
         });
 
         setTimeout(function(){
+          // Animation fertig → GPU-Layer freigeben
+          cur.style.willChange = "auto";
+          nxt.style.willChange = "auto";
+
           idx = nextIndex;
           var tmp = cur; cur = nxt; nxt = tmp;
           snapNoAnim(nxt, 100);
         }, swipeMs);
       }
 
-      // ✅ DV360/Performance: Slider pausieren, wenn Tab hidden
       function start(){
         if (intervalId || imgs.length < 2) return;
         intervalId = setInterval(swipeNext, dwellMs + swipeMs);
@@ -527,7 +541,6 @@
         intervalId = null;
       }
 
-      // Start nach Intro
       setTimeout(function(){ start(); }, 4500 + dwellMs);
 
       document.addEventListener("visibilitychange", function(){
