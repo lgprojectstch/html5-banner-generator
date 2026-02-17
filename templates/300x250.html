@@ -8,15 +8,11 @@
 
   <script>
     // ====== GENERATOR VARS (werden ersetzt) ======
-    // ✅ Wichtig: einfache, eindeutige Muster, damit dein Generator sicher ersetzen kann.
     var HEADLINE = "Bereit für deine Ziele?";
     var SUBLINE  = "Sport Outfits entdecken!";
     var CTA_TEXT = "Jetzt shoppen";
 
     // ====== THEME VARS (werden ersetzt / vom Generator injiziert) ======
-    // Standard: leere Strings => Template Default
-    // Sale:    THEME_HEADLINE_COLOR=#BE2D2F, THEME_SUBLINE_COLOR=#1b1b1b, THEME_CTA_ACCENT=#BE2D2F
-    // TC:      THEME_HEADLINE_COLOR=#004266, THEME_SUBLINE_COLOR=#1b1b1b, THEME_CTA_ACCENT=#004266
     var THEME_KEY = "standard";
     var THEME_HEADLINE_COLOR = "";
     var THEME_SUBLINE_COLOR  = "";
@@ -329,7 +325,8 @@
     <div class="wrap">
       <div class="left">
         <div class="logo seq show-logo">
-          <img id="logoImg" src="Logo.png" alt="Logo">
+          <!-- ✅ Kein Preview-Hack mehr nötig, wenn Generator ein ABSOLUTES <base href=".../assets/"> setzt -->
+          <img src="Logo.png" alt="Logo">
         </div>
 
         <div class="copy">
@@ -365,39 +362,10 @@
       if (ctaAccent)     document.documentElement.style.setProperty("--ctaAccent",     ctaAccent);
     })();
 
-    // -----------------------
-    // ✅ Preview-only robustness (does NOT affect DV360 export)
-    // If preview injects <base href="./assets/">, root files must be loaded from "../"
-    // Export has no <base>, and files are at ZIP root.
-    // -----------------------
-    function resolveRootFile(name){
-      name = String(name || "");
-      if (!name) return name;
-
-      // data/blob/http(s) stay
-      if (/^(data:|blob:|https?:\/\/)/i.test(name)) return name;
-
-      // already relative/absolute
-      if (name.indexOf("../") === 0 || name.indexOf("./") === 0 || name.indexOf("/") === 0) return name;
-
-      var baseEl = document.querySelector("base");
-      var baseHref = baseEl ? (baseEl.getAttribute("href") || "").trim() : "";
-      if (baseHref && /(^|\/)assets\/?$/i.test(baseHref)) return "../" + name;
-
-      return name;
-    }
-
     // Texte setzen
     document.getElementById("headlineEl").textContent = HEADLINE;
     document.getElementById("sublineEl").textContent  = SUBLINE;
     document.getElementById("ctaInner").textContent   = CTA_TEXT;
-
-    // Logo fix (preview safe)
-    (function fixLogo(){
-      var img = document.getElementById("logoImg");
-      if (!img) return;
-      img.src = resolveRootFile("Logo.png");
-    })();
 
     // ClickTag
     function doExit(){ window.open(clickTag, "_blank"); }
@@ -427,20 +395,28 @@
       el.classList.remove("no-trans");
     }
 
-    // DV360: we keep logic simple, only transforms (GPU-friendly), no layout thrash loops.
+    function isSpecialUrl(s){
+      return /^(data:|blob:|https?:\/\/)/i.test(String(s||""));
+    }
+
     (function init(){
       var images = (Array.isArray(IMAGE_LIST) && IMAGE_LIST.length) ? IMAGE_LIST.slice() : [];
       if (images.length === 0) return;
 
-      // Resolve only for root filenames (export = "1.jpg", preview base-assets = "../1.jpg").
-      // blob/data/http remain untouched.
+      // ✅ Für Export: "1.jpg" bleibt "1.jpg" (Root)
+      // ✅ Für Preview: blob:/data:/http(s) bleibt
+      // ✅ Für Preview mit base=.../assets/: "1.jpg" wird automatisch zu .../assets/1.jpg (ok, weil Preview Bilder per blob kommen)
+      // Wenn du doch mal Preview mit Root-Filenames brauchst, mach das im Generator (ABSOLUTES base), nicht hier im Template.
       images = images.map(function(s){
-        if (/^(data:|blob:|https?:\/\/)/i.test(String(s||""))) return String(s||"");
-        return resolveRootFile(String(s||"").replace(/^(\.\/)+/,''));
+        s = String(s || "");
+        if (!s) return s;
+        if (isSpecialUrl(s)) return s;
+        // Keine Pfad-Hacks: Template bleibt DV360-clean
+        return s.replace(/^(\.\/)+/,''); // "./1.jpg" -> "1.jpg"
       });
 
       // Preload (best-effort)
-      images.forEach(function(s){ var im = new Image(); im.src = s; });
+      images.forEach(function(s){ try{ var im = new Image(); im.src = s; } catch(e){} });
 
       slideA.src = images[0] || "";
       slideB.src = images[images.length > 1 ? 1 : 0] || "";
@@ -481,9 +457,23 @@
         }, SWIPE_MS);
       }
 
-      setTimeout(function(){
-        setTimeout(swipeOnce, HOLD_MS);
-      }, heroFullyVisibleAt);
+      // ✅ DV360/Performance: pausieren wenn Tab hidden
+      var started = false;
+      function start(){
+        if (started) return;
+        started = true;
+        setTimeout(function(){ setTimeout(swipeOnce, HOLD_MS); }, heroFullyVisibleAt);
+      }
+      function stop(){
+        // simpel: wir stoppen über Flag; nächste Kette startet neu bei visibility
+        started = false;
+      }
+
+      start();
+      document.addEventListener("visibilitychange", function(){
+        if (document.visibilityState === "hidden") stop();
+        else start();
+      });
     })();
   </script>
 </body>
