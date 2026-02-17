@@ -9,7 +9,7 @@
   <style>
     :root{
       --primary:#667eea;
-      --success:#4facfe;
+      --success:#4facfe; /* ✅ FIX: fehlte -> Preview/UI kann sonst "kaputt" wirken */
       --danger:#ff6b6b;
       --dark:#2c3e50;
       --white:#ffffff;
@@ -1020,7 +1020,7 @@
     const THEMES = {
       standard: { key:'standard', label:'Standard', headlineColor:null, sublineColor:null, ctaAccentColor:null },
       sale:     { key:'sale',     label:'Sale',     headlineColor:'#BE2D2F', sublineColor:'#1b1b1b', ctaAccentColor:'#BE2D2F' },
-      tchibocard:{key:'tchibocard',label:'Tchibocard',headlineColor:'#004266', sublineColor:'#1b1b1b', ctaAccentColor:'#004266' }
+      tchibocard:{ key:'tchibocard', label:'Tchibocard', headlineColor:'#004266', sublineColor:'#1b1b1b', ctaAccentColor:'#004266' }
     };
 
     // -----------------------
@@ -1072,7 +1072,7 @@
     }
 
     // -----------------------
-    // Preview HTML URLs (Blob) - IMPORTANT (fix for blob loading in iframes)
+    // Preview HTML URLs (Blob)
     // -----------------------
     let previewHtmlUrls = [];
     function revokePreviewHtmlUrls(){
@@ -1089,6 +1089,12 @@
       if (t) t.classList.add('active');
     }
 
+    function parseFormat(format){
+      // ✅ FIX: fehlte -> verursachte "ReferenceError: parseFormat is not defined" und killte die Vorschau
+      const [w, h] = String(format).split('x').map(n => parseInt(n, 10));
+      return { w, h };
+    }
+
     function escapeJs(str){
       return String(str)
         .replaceAll('\\', '\\\\')
@@ -1097,15 +1103,15 @@
     }
 
     function injectPreviewBase(html){
-    // Wenn schon ein base existiert, nichts tun
-    if (/<base\s/i.test(html)) return html;
-  
-    // Absoluter Pfad zur assets/ Directory, basierend auf der aktuellen Seite
-    // Beispiel: https://lgprojectstch.github.io/xyz/  ->  https://lgprojectstch.github.io/xyz/assets/
-    const assetsBase = new URL(`${ASSETS_DIR}/`, window.location.href).href;
-  
-    return html.replace(/<\/head>/i, `  <base href="${assetsBase}">\n</head>`);
-  }
+      // Wenn schon ein base existiert, nichts tun
+      if (/<base\s/i.test(html)) return html;
+
+      // Absoluter Pfad zur assets/ Directory, basierend auf der aktuellen Seite
+      // Beispiel: https://.../xyz/  ->  https://.../xyz/assets/
+      const assetsBase = new URL(`${ASSETS_DIR}/`, window.location.href).href;
+
+      return html.replace(/<\/head>/i, `  <base href="${assetsBase}">\n</head>`);
+    }
 
     function sanitizeFilePart(name){
       const s = String(name || '').trim();
@@ -1491,14 +1497,11 @@
 
     // -----------------------
     // Live preview (responsive scaling)
-    // IMPORTANT FIX:
-    // - Use iframe.src = blob(html) instead of srcdoc
-    //   => prevents "Not allowed to load local resource: blob:..."
+    // IMPORTANT:
+    // - iframe.src = blob(html) instead of srcdoc
     // -----------------------
     async function generatePreviews(){
-      // cleanup old preview html URLs (avoid leaks)
       revokePreviewHtmlUrls();
-
       previewGrid.innerHTML = '';
 
       const nm = sanitizeFilePart(appData.zipName);
@@ -1529,10 +1532,7 @@
           continue;
         }
 
-        // Preview-only base for assets in generator environment
         html = injectPreviewBase(html);
-
-        // Replace vars (IMAGE_LIST becomes objectURLs here)
         html = replaceTemplateVars(html, { mode: 'preview' });
 
         const item = document.createElement('div');
@@ -1552,11 +1552,9 @@
         iframe.width = w;
         iframe.height = h;
 
-        // sandbox ok
         iframe.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');
         iframe.style.transformOrigin = '0 0';
 
-        // ✅ FIX: load preview HTML via blob URL (not srcdoc)
         const htmlBlob = new Blob([html], { type: 'text/html' });
         const htmlUrl = URL.createObjectURL(htmlBlob);
         previewHtmlUrls.push(htmlUrl);
@@ -1578,14 +1576,10 @@
 
     // -----------------------
     // Export: ZIP (DV360-safe)
-    // - No <base>
-    // - IMAGE_LIST => ["1.jpg","2.jpg",...]
-    // - Files at zip root: index.html, 1.jpg..., Logo.png, /fonts/*.woff2
     // -----------------------
     async function exportBanners(){
       const baseName = sanitizeFilePart(appData.zipName);
 
-      // Optional: small sanity check for DV360 (not hard-fail)
       if (uploadedImages.length === 0){
         alert('Bitte lade mindestens 1 Bild hoch.');
         return;
@@ -1603,19 +1597,15 @@
           continue;
         }
 
-        // DV360: ensure we do NOT inject <base> in export
         templateContent = replaceTemplateVars(templateContent, { mode: 'export' });
         zip.file('index.html', templateContent);
 
-        // Images: blobs => zip root (1.jpg, 2.jpg, ...)
         uploadedImages.forEach(img => {
           zip.file(img.name, img.blob);
         });
 
-        // Logo
         await addBinaryToZip(zip, 'Logo.png', LOGO_ASSET);
 
-        // Fonts
         for (const url of FONT_FILES){
           const filename = url.split('/').pop();
           await addBinaryToZip(zip, `fonts/${filename}`, url);
@@ -1698,7 +1688,6 @@
       // Toggle preview visibility
       document.getElementById('togglePreviewBtn').addEventListener('click', () => {
         stage.classList.remove('has-preview');
-        // optional: free preview html urls when hiding
         revokePreviewHtmlUrls();
       });
 
